@@ -32,7 +32,7 @@
    %message - send message to clan chat
 
 ## Donate
-    WebMoney: R113109438924
+    Биток или карта привата :3
 
 ## Contacts
 
