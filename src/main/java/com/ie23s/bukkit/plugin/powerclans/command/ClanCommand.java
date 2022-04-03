@@ -2,8 +2,8 @@ package com.ie23s.bukkit.plugin.powerclans.command;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
-import com.ie23s.bukkit.plugin.powerclans.modules.WorldGuardUtils;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
+import com.ie23s.bukkit.plugin.powerclans.utils.WorldGuardUtils;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.command.Command;

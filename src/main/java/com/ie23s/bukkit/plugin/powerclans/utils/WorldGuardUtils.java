@@ -1,4 +1,4 @@
-package com.ie23s.bukkit.plugin.powerclans.modules;
+package com.ie23s.bukkit.plugin.powerclans.utils;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;

@@ -2,8 +2,8 @@ package com.ie23s.bukkit.plugin.powerclans.event;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
-import com.ie23s.bukkit.plugin.powerclans.modules.WorldGuardUtils;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
+import com.ie23s.bukkit.plugin.powerclans.utils.WorldGuardUtils;
 import com.sk89q.worldguard.protection.flags.Flags;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
