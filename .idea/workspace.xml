@@ -4,15 +4,7 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a281401-c51f-4871-a9bd-45374990a235" name="Default Changelist" comment="0.2-ALPHA">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/capture/Capture.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/command/ClanCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/command/ClanCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/event/EventListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/event/EventListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/WorldGuardUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/utils/WorldGuardUtils.java" afterDir="false" />
-    </list>
+    <list default="true" id="9a281401-c51f-4871-a9bd-45374990a235" name="Default Changelist" comment="0.2-ALPHA" />
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -414,7 +406,14 @@
       <option name="project" value="LOCAL" />
       <updated>1649020271979</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="0.2-ALPHA">
+      <created>1649028058322</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1649028058322</updated>
+    </task>
+    <option name="localTasksCounter" value="10" />
     <servers />
   </component>
   <component name="ToolWindowManager">
