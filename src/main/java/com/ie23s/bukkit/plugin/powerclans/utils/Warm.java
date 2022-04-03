@@ -1,9 +1,7 @@
 package com.ie23s.bukkit.plugin.powerclans.utils;
 
-import com.ie23s.bukkit.plugin.powerclans.Main;
+import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
-import com.ie23s.bukkit.plugin.powerclans.configuration.Configuration;
-import com.ie23s.bukkit.plugin.powerclans.configuration.Language;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
@@ -11,70 +9,73 @@ import org.bukkit.entity.Player;
 import java.util.HashMap;
 
 public class Warm {
+    private final Core core;
+    private final HashMap<String, Integer> players = new HashMap<>();
+    private final HashMap<String, Location> playerloc = new HashMap<>();
 
-    @SuppressWarnings("rawtypes")
-    private static HashMap players = new HashMap();
-    @SuppressWarnings("rawtypes")
-    private static HashMap playerloc = new HashMap();
-
+    public Warm(Core core) {
+        this.core = core;
+    }
 
     @SuppressWarnings("unchecked")
-    public static void addPlayer(Player player, Clan clan) {
+    public void addPlayer(Player player, Clan clan) {
         if (player.hasPermission("PowerClans.warm.ignore")) {
             clan(player, clan);
         } else if (isWarming(player)) {
-            player.sendMessage(Language.getMessage("other.warm_alredy"));
+            player.sendMessage(core.getLang().getMessage("other.warm_alredy"));
         } else {
-            player.sendMessage(Language.getMessage("other.warm_use", Configuration.getConfiguration().getInt("settings.warm")));
-            int taskIndex = Bukkit.getScheduler().scheduleSyncDelayedTask(Main.plugin, new Warm.WarmTask(player, clan), (long) (Configuration.getConfiguration().getInt("settings.warm") * 20));
+            player.sendMessage(core.getLang().getMessage("other.warm_use", core.getConfig().getInt("settings.warm")));
+            int taskIndex = Bukkit.getScheduler().scheduleSyncDelayedTask(core, new Warm.WarmTask(core, player, clan), core.getConfig().getInt("settings.warm") * 20);
             players.put(player.getName(), taskIndex);
             playerloc.put(player.getName(), player.getLocation());
         }
     }
 
-    private static boolean hasMoved(Player player) {
+    private boolean hasMoved(Player player) {
         Location curloc = player.getLocation();
-        Location cmdloc = (Location) playerloc.get(player.getName());
+        Location cmdloc = playerloc.get(player.getName());
         return cmdloc.distanceSquared(curloc) > 0.0D;
     }
 
-    private static boolean isWarming(Player player) {
+    private boolean isWarming(Player player) {
         return players.containsKey(player.getName());
     }
 
-    public static void cancelWarming(Player player) {
+    public void cancelWarming(Player player) {
         if (isWarming(player)) {
-            Bukkit.getScheduler().cancelTask((Integer) players.get(player.getName()));
+            Bukkit.getScheduler().cancelTask(players.get(player.getName()));
             players.remove(player.getName());
             playerloc.remove(player.getName());
-            player.sendMessage(Language.getMessage("other.warm_canceled"));
+            player.sendMessage(core.getLang().getMessage("other.warm_canceled"));
         }
 
     }
 
-    public static void clan(Player pl, Clan clan) {
+    public void clan(Player pl, Clan clan) {
         pl.teleport(clan.getHome());
-        pl.sendMessage(Language.getMessage("clan.teleport"));
+        pl.sendMessage(core.getLang().getMessage("clan.teleport"));
     }
 
     private static class WarmTask implements Runnable {
+        private final Core core;
 
-        private Player player;
-        private Clan clan;
+        private final Player player;
+        private final Clan clan;
 
 
-        WarmTask(Player player, Clan clan) {
+        WarmTask(Core core, Player player, Clan clan) {
+            this.core = core;
             this.player = player;
             this.clan = clan;
         }
 
         public void run() {
-            if (Warm.hasMoved(this.player)) {
-                Warm.cancelWarming(this.player);
+            if (core.getUtils().getWarm().hasMoved(this.player)) {
+                core.getUtils().getWarm().cancelWarming(this.player);
             } else {
-                Warm.players.remove(this.player.getName());
-                Warm.playerloc.remove(this.player.getName());
-                Warm.clan(this.player, this.clan);
+                core.getUtils().getWarm().players.remove(this.player.getName());
+                core.getUtils().getWarm().playerloc.remove(this.player.getName());
+                core.getUtils().getWarm().clan(this.player, this.clan);
             }
         }
     }

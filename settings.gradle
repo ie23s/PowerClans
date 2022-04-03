@@ -1,2 +1,16 @@
 rootProject.name = 'PowerClans'
+try {
+    gradleEnterprise {
 
+        buildScan {
+
+            termsOfServiceUrl = 'https://gradle.com/terms-of-service'
+
+            termsOfServiceAgree = 'yes'
+
+        }
+
+    }
+} catch (Exception e) {
+    // This isn't the exception you're looking for
+}

@@ -1,21 +1,21 @@
 package com.ie23s.bukkit.plugin.powerclans.database;
 
-import com.ie23s.bukkit.plugin.powerclans.Main;
+import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.clan.Member;
-import com.ie23s.bukkit.plugin.powerclans.configuration.Configuration;
-import com.ie23s.bukkit.plugin.powerclans.configuration.Language;
-import com.ie23s.bukkit.plugin.powerclans.utils.Logger;
 import org.bukkit.Bukkit;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 
-class MySQL extends Init {
+class MySQL extends InitDB {
+    private final Core core;
     private Connection connection = null;
 
-    MySQL() {
+    MySQL(Core core) {
+        super.setConnection(this);
+        this.core = core;
         connect();
     }
 
@@ -27,18 +27,18 @@ class MySQL extends Init {
     }
 
     void execute(final String query) {
-        Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(core, () -> {
             if (!hasConnected()) {
                 connect();
             }
 
             try {
-                Logger.debug(strip(query));
+                core.getUtils().getLogger().debug(strip(query));
                 connection.createStatement().execute(strip(query));
             } catch (Exception var2) {
-                Logger.error(Language.getMessage("other.mysql_error2"));
-                Logger.error(query);
-                Logger.error(var2.getMessage());
+                core.getUtils().getLogger().error(core.getLang().getMessage("other.mysql_error2"));
+                core.getUtils().getLogger().error(query);
+                core.getUtils().getLogger().error(var2.getMessage());
             }
 
         });
@@ -47,7 +47,7 @@ class MySQL extends Init {
     public void connect() {
         try {
             Class.forName("com.mysql.jdbc.Driver").newInstance();
-            connection = DriverManager.getConnection("jdbc:mysql://" + Configuration.getConfiguration().getString("mysql.host") + ":" + Configuration.getConfiguration().getString("mysql.port") + "/" + Configuration.getConfiguration().getString("mysql.database") + "?useUnicode=true&characterEncoding=UTF-8&" + "user=" + Configuration.getConfiguration().getString("mysql.username") + "&password=" + Configuration.getConfiguration().getString("mysql.password"));
+            connection = DriverManager.getConnection("jdbc:mysql://" + core.getConfig().getString("mysql.host") + ":" + core.getConfig().getString("mysql.port") + "/" + core.getConfig().getString("mysql.database") + "?useUnicode=true&characterEncoding=UTF-8&" + "user=" + core.getConfig().getString("mysql.username") + "&password=" + core.getConfig().getString("mysql.password"));
         } catch (Exception ignore) {
         }
         executeSync("CREATE TABLE IF NOT EXISTS `clan_list` (`id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `tag` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `leader` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `home` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `maxplayers` int(11) NOT NULL, `pvp` tinyint(1) NOT NULL, `balance` double NOT NULL, PRIMARY KEY (`id`), UNIQUE KEY `name` (`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;)");
@@ -69,12 +69,12 @@ class MySQL extends Init {
         }
 
         try {
-            Logger.debug(strip(query));
+            core.getUtils().getLogger().debug(strip(query));
             connection.createStatement().execute(strip(query));
         } catch (Exception var2) {
-            Logger.error(Language.getMessage("other.mysql_error2"));
-            Logger.error(query);
-            Logger.error(var2.getMessage());
+            core.getUtils().getLogger().error(core.getLang().getMessage("other.mysql_error2"));
+            core.getUtils().getLogger().error(query);
+            core.getUtils().getLogger().error(var2.getMessage());
         }
 
     }
@@ -84,7 +84,7 @@ class MySQL extends Init {
             connect();
         }
 
-        Logger.debug(strip(query));
+        core.getUtils().getLogger().debug(strip(query));
         ResultSet rs = null;
 
         try {
@@ -114,25 +114,25 @@ class MySQL extends Init {
 
             Clan clan;
             while (resultSet.next()) {
-                clan = new Clan(resultSet.getString("name"), resultSet.getString("tag"), resultSet.getString("leader"), resultSet.getString("home"), resultSet.getInt("maxplayers"), resultSet.getBoolean("pvp"), resultSet.getDouble("balance"));
-                Clan.getClans().put(resultSet.getString("name"), clan);
+                clan = new Clan(core, resultSet.getString("name"), resultSet.getString("tag"), resultSet.getString("leader"), resultSet.getString("home"), resultSet.getInt("maxplayers"), resultSet.getBoolean("pvp"), resultSet.getDouble("balance"));
+                core.getClanList().getClans().put(resultSet.getString("name"), clan);
             }
 
             resultSet = executeQuery("SELECT * FROM clan_members");
 
             while (resultSet.next()) {
-                clan = Clan.getClan(resultSet.getString("clan"));
+                clan = core.getClanList().getClan(resultSet.getString("clan"));
                 if (clan == null) {
                     execute("DELETE FROM clan_members WHERE name='" + resultSet.getString("name") + "' AND clan='" + resultSet.getString("clan") + "'");
                 } else {
                     Member member = new Member(resultSet.getString("name"), resultSet.getBoolean("isModer"), resultSet.getString("clan"));
-                    Member.addMember(member);
+                    core.getMemberList().addMember(member);
                 }
             }
 
-            Logger.info(Language.getMessage("clan.loaded"));
+            core.getUtils().getLogger().info(core.getLang().getMessage("clan.loaded"));
         } catch (Exception var2) {
-            Logger.error(Language.getMessage("clan.load_error"));
+            core.getUtils().getLogger().error(core.getLang().getMessage("clan.load_error"));
         }
 
     }
