@@ -1,15 +1,10 @@
 package com.ie23s.bukkit.plugin.powerclans.event;
 
-import com.ie23s.bukkit.plugin.powerclans.Main;
+import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
-import com.ie23s.bukkit.plugin.powerclans.clan.Member;
-import com.ie23s.bukkit.plugin.powerclans.configuration.Configuration;
-import com.ie23s.bukkit.plugin.powerclans.configuration.Language;
+import com.ie23s.bukkit.plugin.powerclans.modules.WorldGuardUtils;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
-import com.ie23s.bukkit.plugin.powerclans.utils.Warm;
-import com.sk89q.worldguard.protection.ApplicableRegionSet;
-import com.sk89q.worldguard.protection.flags.DefaultFlag;
-import com.sk89q.worldguard.protection.flags.StateFlag.State;
+import com.sk89q.worldguard.protection.flags.Flags;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
 import org.bukkit.OfflinePlayer;
@@ -27,8 +22,12 @@ import org.bukkit.event.player.PlayerMoveEvent;
 import java.util.ArrayList;
 import java.util.Objects;
 
-@SuppressWarnings({"ConstantConditions", "unused"})
 public class EventListener implements Listener {
+    private final Core core;
+
+    public EventListener(Core core) {
+        this.core = core;
+    }
 
     @EventHandler
     public void PlayerKickEvent(PlayerKickEvent event) {
@@ -42,12 +41,11 @@ public class EventListener implements Listener {
     )
     public void PlayerMoveEvent(PlayerMoveEvent event) {
         if (event.getFrom().distance(event.getTo()) > 0.0D) {
-            Warm.cancelWarming(event.getPlayer());
+            core.getUtils().getWarm().cancelWarming(event.getPlayer());
         }
 
     }
 
-    @SuppressWarnings("deprecation")
     @EventHandler
     public void EntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
         if (event.getEntity() instanceof Player) {
@@ -62,19 +60,18 @@ public class EventListener implements Listener {
             if (d instanceof Player) {
                 Player damager = (Player) d;
                 Player attacker = (Player) event.getEntity();
-                Clan userClan = Clan.getClanByName(damager.getName());
+                Clan userClan = core.getClanList().getClanByName(damager.getName());
 
-                ApplicableRegionSet set = Main.getWG().getRegionManager(attacker.getWorld()).getApplicableRegions(attacker.getLocation());
 
-                if (set.getFlag(DefaultFlag.PVP) == State.ALLOW && Configuration.getConfiguration().getBoolean("settings.pvp")) {
+                if (WorldGuardUtils.getFlag(attacker.getLocation(), Flags.PVP) && core.getConfig().getBoolean("settings.pvp")) {
                     return;
                 }
 
-                if (Member.isMember(damager.getName()) && Member.isMember(attacker.getName()) && userClan.hasClanMember(attacker.getName()) && !attacker.getName().equals(damager.getName())) {
+                if (core.getMemberList().isMember(damager.getName()) && core.getMemberList().isMember(attacker.getName()) && userClan.hasClanMember(attacker.getName()) && !attacker.getName().equals(damager.getName())) {
                     if (!userClan.isPvP()) {
                         return;
                     }
-                    damager.sendMessage(Language.getMessage("other.damage_in_clan"));
+                    damager.sendMessage(core.getLang().getMessage("other.damage_in_clan"));
                     event.setCancelled(true);
                 }
             }
@@ -87,23 +84,23 @@ public class EventListener implements Listener {
 
     public void PlayerChatEvent(AsyncPlayerChatEvent event) {
 
-        if (Member.isMember(event.getPlayer().getName()) && event.getFormat().contains("!clantag!")) {
-            event.setFormat(event.getFormat().replace("!clantag!", Clan.getClanByName(event.getPlayer().getName()).getTag()));
+        if (core.getMemberList().isMember(event.getPlayer().getName()) && event.getFormat().contains("!clantag!")) {
+            event.setFormat(event.getFormat().replace("!clantag!", core.getClanList().getClanByName(event.getPlayer().getName()).getTag()));
         } else {
             event.setFormat(event.getFormat().replace("!clantag!", ""));
         }
-        if (Configuration.getConfiguration().getBoolean("settings.clan_chat")) {
+        if (core.getConfig().getBoolean("settings.clan_chat")) {
             if (event.getMessage().startsWith("%") && event.getMessage().length() > 1) {
-                Clan userClan = Clan.getClanByName(event.getPlayer().getName());
+                Clan userClan = core.getClanList().getClanByName(event.getPlayer().getName());
 
                 if (userClan == null) {
-                    event.getPlayer().sendMessage(Language.getMessage("error._9"));
+                    event.getPlayer().sendMessage(core.getLang().getMessage("error._9"));
                     event.setCancelled(true);
                     return;
                 }
 
                 event.getRecipients().clear();
-                ArrayList<String> var4 = Member.getListOfMembers(Clan.getClanByName(event.getPlayer().getName()).getName());
+                ArrayList<String> var4 = core.getMemberList().getListOfMembers(core.getClanList().getClanByName(event.getPlayer().getName()).getName());
                 for (String name : var4) {
                     @SuppressWarnings("deprecation") OfflinePlayer pl = Bukkit.getOfflinePlayer(name);
 
@@ -122,7 +119,7 @@ public class EventListener implements Listener {
                     c1 = ChatColor.DARK_RED;
                 }
 
-                event.setFormat(Language.getMessage("chat.clanchat", Language.getMessage("chat.clan"), c1 + event.getPlayer().getName(), "%2$s"));
+                event.setFormat(core.getLang().getMessage("chat.clanchat", core.getLang().getMessage("chat.clan"), c1 + event.getPlayer().getName(), "%2$s"));
                 event.setMessage(event.getMessage().substring(1).replace("§", "&"));
             }
         }
@@ -133,8 +130,8 @@ public class EventListener implements Listener {
     )
     public void AsyncPlayerChatTagEvent(AsyncPlayerChatEvent event) {
 
-        if (Member.isMember(event.getPlayer().getName()) && event.getFormat().contains("!clantag!")) {
-            event.setFormat(event.getFormat().replace("!clantag!", Objects.requireNonNull(Clan.getClanByName(event.getPlayer().getName())).getName()));
+        if (core.getMemberList().isMember(event.getPlayer().getName()) && event.getFormat().contains("!clantag!")) {
+            event.setFormat(event.getFormat().replace("!clantag!", Objects.requireNonNull(core.getClanList().getClanByName(event.getPlayer().getName())).getName()));
         } else {
             event.setFormat(event.getFormat().replace("!clantag!", ""));
         }

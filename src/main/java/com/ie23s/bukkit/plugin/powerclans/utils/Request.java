@@ -10,10 +10,10 @@ public class Request {
     public static ArrayList<Request> requests = new ArrayList<>();
 
     private Clan clan;
-    private Player player;
-    private String sender;
-    private long time;
-    private byte type;
+    private final Player player;
+    private final String sender;
+    private final long time;
+    private final byte type;
     private String[] args;
 
 

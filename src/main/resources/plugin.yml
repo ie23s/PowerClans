@@ -1,13 +1,13 @@
 name: PowerClans
-main: com.ie23s.bukkit.plugin.powerclans.Main
+main: com.ie23s.bukkit.plugin.powerclans.Core
 author: ie23s
-version: 0.1-ALPHA
-depend: [WorldGuard, WorldEdit]
+version: 0.2-ALPHA
+depend: [ WorldGuard, WorldEdit ]
 commands:
   clan:
-    aliases: [c]
+    aliases: [ c ]
   powerclans:
-    aliases: [pc]
+    aliases: [ pc ]
 permissions:
   PowerClans.*:
     default: op

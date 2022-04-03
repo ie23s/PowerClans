@@ -1,23 +1,22 @@
 package com.ie23s.bukkit.plugin.powerclans.database;
 
-import com.ie23s.bukkit.plugin.powerclans.Main;
+import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.clan.Member;
-import com.ie23s.bukkit.plugin.powerclans.configuration.Language;
-import com.ie23s.bukkit.plugin.powerclans.utils.Logger;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
-import org.bukkit.Location;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 
-public class SQLite extends Init {
+public class SQLite extends InitDB {
+    private final Core core;
     private Connection connection = null;
-    private String db;
+    private final String db;
 
-    SQLite(String db) {
+    SQLite(Core core, String db) {
+        super.setConnection(this);
+        this.core = core;
         this.db = db;
         connect();
     }
@@ -30,18 +29,18 @@ public class SQLite extends Init {
     }
 
     void execute(final String query) {
-        Bukkit.getScheduler().runTaskAsynchronously(Main.plugin, () -> {
+        Bukkit.getScheduler().runTaskAsynchronously(core, () -> {
             if (!hasConnected()) {
                 connect();
             }
 
             try {
-                Logger.debug(strip(query));
+                core.getUtils().getLogger().debug(strip(query));
                 connection.createStatement().execute(strip(query));
             } catch (Exception var2) {
-                Logger.error(Language.getMessage("mysql_error2"));
-                Logger.error(query);
-                Logger.error(var2.getMessage());
+                core.getUtils().getLogger().error(core.getLang().getMessage("mysql_error2"));
+                core.getUtils().getLogger().error(query);
+                core.getUtils().getLogger().error(var2.getMessage());
             }
 
         });
@@ -50,7 +49,7 @@ public class SQLite extends Init {
     void connect() {
         try {
             Class.forName("org.sqlite.JDBC").newInstance();
-            connection = DriverManager.getConnection("jdbc:sqlite://" + Main.plugin.getDataFolder().getAbsolutePath() + "/" + db + ".db");
+            connection = DriverManager.getConnection("jdbc:sqlite://" + core.getDataFolder().getAbsolutePath() + "/" + db + ".db");
         } catch (Exception ignore) {
         }
 
@@ -74,12 +73,12 @@ public class SQLite extends Init {
         }
 
         try {
-            Logger.debug(strip(query));
+            core.getUtils().getLogger().debug(strip(query));
             connection.createStatement().execute(strip(query));
         } catch (Exception var2) {
-            Logger.error(Language.getMessage("other.mysql_error2"));
-            Logger.error(query);
-            Logger.error(var2.getMessage());
+            core.getUtils().getLogger().error(core.getLang().getMessage("other.mysql_error2"));
+            core.getUtils().getLogger().error(query);
+            core.getUtils().getLogger().error(var2.getMessage());
         }
 
     }
@@ -89,7 +88,7 @@ public class SQLite extends Init {
             connect();
         }
 
-        Logger.debug(strip(query));
+        core.getUtils().getLogger().debug(strip(query));
         ResultSet rs = null;
 
         try {
@@ -119,25 +118,25 @@ public class SQLite extends Init {
 
             Clan clan;
             while (resultSet.next()) {
-                clan = new Clan(resultSet.getString("name"), resultSet.getString("tag"), resultSet.getString("leader"), resultSet.getString("home"), resultSet.getInt("maxplayers"), resultSet.getBoolean("pvp"), resultSet.getDouble("balance"));
-                Clan.getClans().put(resultSet.getString("name"), clan);
+                clan = new Clan(core, resultSet.getString("name"), resultSet.getString("tag"), resultSet.getString("leader"), resultSet.getString("home"), resultSet.getInt("maxplayers"), resultSet.getBoolean("pvp"), resultSet.getDouble("balance"));
+                core.getClanList().getClans().put(resultSet.getString("name"), clan);
             }
 
             resultSet = executeQuery("SELECT * FROM clan_members");
 
             while (resultSet.next()) {
-                clan = Clan.getClan(resultSet.getString("clan"));
+                clan = core.getClanList().getClan(resultSet.getString("clan"));
                 if (clan == null) {
                     execute("DELETE FROM clan_members WHERE name='" + resultSet.getString("name") + "' AND clan='" + resultSet.getString("clan") + "'");
                 } else {
                     Member member = new Member(resultSet.getString("name"), resultSet.getBoolean("isModer"), resultSet.getString("clan"));
-                    Member.addMember(member);
+                    core.getMemberList().addMember(member);
                 }
             }
 
-            Logger.info(Language.getMessage("clan.loaded"));
+            core.getUtils().getLogger().info(core.getLang().getMessage("clan.loaded"));
         } catch (Exception var2) {
-            Logger.error(Language.getMessage("clan.load_error"));
+            core.getUtils().getLogger().error(core.getLang().getMessage("clan.load_error"));
         }
 
     }
@@ -181,47 +180,6 @@ public class SQLite extends Init {
 
     public void clanUpgrade(Clan clan) {
         this.execute("UPDATE clan_list SET maxplayers='" + clan.getMaxPlayers() + "' WHERE name='" + clan.getName() + "'");
-
-    }
-    public static void importUC2() {
-        try {
-            SQLite sqLite = new SQLite("UralClan2");
-            sqLite.connect();
-            ResultSet resultSet = sqLite.executeQuery("SELECT * FROM clan_list");
-
-            Clan clan;
-            while (resultSet.next()) {
-                clan = Clan.create(resultSet.getString("name"), resultSet.getString("leader"));
-                try {
-                    clan.setHome(new Location(Bukkit.getWorld(resultSet.getString("world")), resultSet.getDouble("x"), resultSet.getDouble("y"), resultSet.getDouble("z"), resultSet.getFloat("yaw"), resultSet.getFloat("pitch")));
-                } catch (Exception ignore) {
-                }
-
-                try {
-                    clan.setBalance(resultSet.getInt("balance"));
-                } catch (Exception ignore) {
-                }
-
-                try {
-                    clan.setMaxplayers(resultSet.getInt("maxplayers"));
-                } catch (Exception ignore) {
-                }
-
-                try {
-                    clan.setPvP(resultSet.getString("pvp").equals("1"));
-                } catch (Exception ignore) {
-                }
-            }
-
-            resultSet = sqLite.executeQuery("SELECT list.name AS clan_name, member.name AS member_name, member.isModer AS moder FROM clan_list AS list JOIN clan_members AS member ON member.clan=list.name");
-
-            while (resultSet.next()) {
-                Member.addMember(new Member(resultSet.getString("member_name"), resultSet.getString("moder").equals("1"), ChatColor.stripColor(resultSet.getString("clan_name"))));
-            }
-            sqLite.disconnect();
-
-        } catch (Exception ignored) {
-        }
 
     }
 }

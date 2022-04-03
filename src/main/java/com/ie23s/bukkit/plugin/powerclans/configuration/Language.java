@@ -1,25 +1,25 @@
 package com.ie23s.bukkit.plugin.powerclans.configuration;
 
-import com.ie23s.bukkit.plugin.powerclans.Main;
+import com.ie23s.bukkit.plugin.powerclans.Core;
 import org.bukkit.configuration.ConfigurationSection;
-import org.bukkit.configuration.file.YamlConfiguration;
+import org.bukkit.configuration.file.FileConfiguration;
 
-import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Map.Entry;
 
 
 public class Language {
+    private final Core core;
+    private final Map<String, String> language = new HashMap<>();
 
-    private static Map<String, String> language = new HashMap<>();
+    public Language(Core core) {
+        this.core = core;
+    }
 
-    public static void loadLang() {
-
-        File configFile = new File(Main.plugin.getDataFolder(), "language_" + Configuration.getConfiguration().getString("language") + ".yml");
-        YAMLHandler.exportConfigFile(configFile, "language_en.yml");
-        YAMLHandler.checkConfigFile(configFile, "language_en.yml");
-        YamlConfiguration langYml = YamlConfiguration.loadConfiguration(configFile);
+    public void loadLang() {
+        YAMLHandler yamlHandler = new YAMLHandler(core);
+        FileConfiguration langYml = yamlHandler.createCustomConfig("language_en.yml");
 
 
         for (Entry<String, Object> stringObjectEntry : langYml.getValues(false).entrySet()) {
@@ -34,11 +34,11 @@ public class Language {
 
     }
 
-    public static String getMessage(String target) {
+    public String getMessage(String target) {
         return language.get(target);
     }
 
-    public static String getMessage(String target, Object... arg1) {
+    public String getMessage(String target, Object... arg1) {
         return String.format(language.get(target), arg1);
     }
 }

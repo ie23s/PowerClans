@@ -1,29 +1,25 @@
 package com.ie23s.bukkit.plugin.powerclans.clan;
 
-import com.ie23s.bukkit.plugin.powerclans.configuration.Configuration;
-import com.ie23s.bukkit.plugin.powerclans.configuration.Language;
-import com.ie23s.bukkit.plugin.powerclans.database.Init;
+import com.ie23s.bukkit.plugin.powerclans.Core;
 import org.bukkit.Bukkit;
-import org.bukkit.ChatColor;
 import org.bukkit.Location;
 
-import java.util.HashMap;
 import java.util.Objects;
 
 public class Clan {
+    private final Core core;
 
-    private static HashMap<String, Clan> clans = new HashMap<>();
-    private String name;
-    private String tag;
+    private final String name;
+    private final String tag;
     private String leader;
-    private Home home;
+    private final Home home;
     private int maxplayers;
     private boolean pvp;
     private double balance;
 
+    public Clan(Core core, String name, String tag, String leader, String home, int maxplayers, boolean pvp, double balance) {
+        this.core = core;
 
-    @SuppressWarnings("rawtypes")
-    public Clan(String name, String tag, String leader, String home, int maxplayers, boolean pvp, double balance) {
         this.name = name;
         this.leader = leader;
         this.tag = tag;
@@ -31,36 +27,6 @@ public class Clan {
         this.maxplayers = maxplayers;
         this.pvp = pvp;
         this.balance = balance;
-    }
-
-    public static Clan getClan(String clan) {
-        return clans.get(clan.toLowerCase());
-    }
-
-    public static Clan getClanByName(String player) {
-        if (Member.isMember(player)) {
-            return getClan(Objects.requireNonNull(Member.getMember(player)).getClan());
-        }
-
-        return null;
-    }
-
-    public static Clan create(String clan, String leader) {
-        Member member = new Member(leader.toLowerCase(), false, clan);
-        Clan c = new Clan(ChatColor.stripColor(clan.replaceAll("&", "§")), clan, leader.toLowerCase(), "none", Configuration.getConfiguration().getInt("settings.default_max"), true, 0);
-        clans.put(clan.toLowerCase(), c);
-        Member.addMember(member);
-        Init.getConnection().createClan(c);
-        Init.getConnection().createClanMember(member);
-        return c;
-    }
-
-    public static int number() {
-        return clans.size();
-    }
-
-    public static HashMap<String, Clan> getClans() {
-        return clans;
     }
 
     public String getName() {
@@ -73,7 +39,7 @@ public class Clan {
 
     public void setLeader(String leader) {
         this.leader = leader.toLowerCase();
-        Init.getConnection().setLeader(Member.getMember(leader));
+        core.getDb().setLeader(core.getMemberList().getMember(leader));
     }
 
     public String getTag() {
@@ -90,7 +56,7 @@ public class Clan {
 
     public void setHome(Location location) {
         this.home.setHome(location);
-        Init.getConnection().setHome(this);
+        core.getDb().setHome(this);
     }
 
     public void removeHome() {
@@ -107,7 +73,7 @@ public class Clan {
 
     public void setBalance(double balance) {
         this.balance = balance;
-        Init.getConnection().setBalance(this);
+        core.getDb().setBalance(this);
     }
 
     public boolean isPvP() {
@@ -116,40 +82,39 @@ public class Clan {
 
     public void setPvP(boolean pvp) {
         this.pvp = pvp;
-        Init.getConnection().setPvP(this);
+        core.getDb().setPvP(this);
     }
 
     public void invite(String name) {
         Member member = new Member(name, false, this.name);
-        Member.addMember(member);
-        Init.getConnection().createClanMember(member);
+        core.getMemberList().addMember(member);
+        core.getDb().createClanMember(member);
     }
 
     public void kick(String name) {
-        Init.getConnection().kick(Member.getMember(name));
-        Member.removeMember(name);
+        core.getDb().kick(core.getMemberList().getMember(name));
+        core.getMemberList().removeMember(name);
 
     }
 
     public void setModer(String name, boolean isModer) {
 
-        Member member = Member.getMember(name);
+        Member member = core.getMemberList().getMember(name);
         member.setModer(isModer);
-        Init.getConnection().setModer(member);
+        core.getDb().setModer(member);
 
     }
 
-    @SuppressWarnings("rawtypes")
     public boolean hasModer(String name) {
-        Member member = Member.getMember(name);
+        Member member = core.getMemberList().getMember(name);
         return member.isModer() && member.getClan().equals(this.name);
     }
 
     public void disband() {
-        for (String mem : Member.getListOfMembers(this.name))
+        for (String mem : core.getMemberList().getListOfMembers(this.name))
             kick(mem);
-        clans.remove(this.name);
-        Init.getConnection().disband(this.name);
+        core.getClanList().getClans().remove(this.name);
+        core.getDb().disband(this.name);
     }
 
     public boolean hasLeader(String player) {
@@ -163,7 +128,7 @@ public class Clan {
 
     public boolean hasClanMember(String name) {
 
-        Member member = Member.getMember(name);
+        Member member = core.getMemberList().getMember(name);
 
         return member.getClan().equals(this.name);
 
@@ -171,19 +136,18 @@ public class Clan {
 
     public void upgrade(int i) {
         this.maxplayers += i;
-        Init.getConnection().clanUpgrade(this);
+        core.getDb().clanUpgrade(this);
     }
 
     public void setMaxplayers(int i) {
         this.maxplayers = i;
-        Init.getConnection().clanUpgrade(this);
+        core.getDb().clanUpgrade(this);
     }
 
-    @SuppressWarnings("deprecation")
     public void broadcast(String message) {
-        for (String member : Member.getListOfMembers(this.name)) {
+        for (String member : core.getMemberList().getListOfMembers(this.name)) {
             if (Bukkit.getOfflinePlayer(member).isOnline()) {
-                Bukkit.getPlayer(member).sendMessage(Language.getMessage("command.broadcast_format", Language.getMessage("chat.clan"), message));
+                Objects.requireNonNull(Bukkit.getPlayer(member)).sendMessage(core.getLang().getMessage("command.broadcast_format", core.getLang().getMessage("chat.clan"), message));
             }
         }
 
@@ -220,7 +184,7 @@ public class Clan {
         void setHome(Location loc) {
             this.hasHome = true;
             this.location = loc;
-            this.stringLocation = loc.getWorld().getName() + ";" + loc.getX() + ";" + loc.getY() + ";" + loc.getZ() + ";" + loc.getYaw() + ";" + loc.getPitch();
+            this.stringLocation = Objects.requireNonNull(loc.getWorld()).getName() + ";" + loc.getX() + ";" + loc.getY() + ";" + loc.getZ() + ";" + loc.getYaw() + ";" + loc.getPitch();
         }
 
         void removeHome() {
