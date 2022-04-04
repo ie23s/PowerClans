@@ -297,7 +297,7 @@ public class ClanCommand implements CommandExecutor {
                             userClan.broadcast(core.getLang().getMessage("clan.leader", sender.getName(), args4[1]));
                             return true;
                         case 5:
-                            userClan.broadcast(core.getLang().getMessage("level.upgrade.reachLevel", userClan.getLevel()));
+                            userClan.broadcast(core.getLang().getMessage("level.upgrade.reach_level", userClan.getLevel()));
                             core.getLevelModule().getAbilities().upgradeAbilities((Player) sender, false);
                             core.getLevelModule().getAbilities().makeUpgrade(userClan);
 

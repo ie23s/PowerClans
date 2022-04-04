@@ -29,7 +29,7 @@ public class Abilities {
         if (levelMod.getAddMembers() > 0) {
             int ability = levelMod.getAddMembers();
             ability += clan.getMaxPlayers();
-            messages.add(lang.getMessage("level.abilities.addMembers", ability));
+            messages.add(lang.getMessage("level.abilities.add_members", ability));
         }
         String[] send = new String[messages.size()];
         messages.toArray(send);
