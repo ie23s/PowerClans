@@ -2,12 +2,11 @@ package com.ie23s.bukkit.plugin.powerclans.modules.level.event;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
-import org.bukkit.entity.Entity;
 import org.bukkit.entity.Monster;
 import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
-import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.EntityDeathEvent;
 import org.bukkit.event.entity.PlayerDeathEvent;
 
 import java.util.Objects;
@@ -23,18 +22,30 @@ public class KillEvent implements Listener {
         this.ml = core.getMemberList();
     }
 
+    //    @EventHandler
+//    public void EntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
+//        Entity player = event.getDamager();
+//        Entity entity = event.getEntity();
+//        if (!(player instanceof Player) || !(entity instanceof Monster))
+//            return;
+//        if (((Monster) event.getEntity()).getHealth() - event.getFinalDamage() > 0)
+//            return;
+//        if (!ml.isMember(player.getName()))
+//            return;
+//
+//        core.getClanList().getClanByName(player.getName()).addMobKill();
+//    }
     @EventHandler
-    public void EntityDamageByEntityEvent(EntityDamageByEntityEvent event) {
-        Entity player = event.getDamager();
-        Entity entity = event.getEntity();
-        if (!(player instanceof Player) || !(entity instanceof Monster))
+    public void onKillMob(EntityDeathEvent e) {
+        Player killer = e.getEntity().getKiller();
+        if (killer == null)
             return;
-        if (((Monster) event.getEntity()).getHealth() - event.getFinalDamage() > 0)
+        if (!(e.getEntity() instanceof Monster))
             return;
-        if (!ml.isMember(player.getName()))
+        if (!ml.isMember(killer.getName()))
             return;
 
-        core.getClanList().getClanByName(player.getName()).addMobKill();
+        core.getClanList().getClanByName(killer.getName()).addMobKill();
     }
 
     @EventHandler

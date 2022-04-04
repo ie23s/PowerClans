@@ -136,14 +136,14 @@ level:
     clan_balance: '§6Clan balance: %s'
     clan_members: '§6Count of members: %s'
   abilities:
-    add_members: '§6%s members in your clan'
+    add_members: '§6You can invite %s members in your clan'
   upgrade:
     need: '§6Requirements for clan upgrading:'
     cannot: '§dYou cannot upgrade your clan now!'
     reach_level: '§dYour clan reached %s level!'
     ulget: "§6After upgrade you'll get:"
-    cost: "&d%s will be taken from your clan balance."
-    max: "&dYou've reached max clan level"
+    cost: "§d%s will be taken from your clan balance."
+    max: "§dYou've reached max clan level"
 other:
   damage_in_clan: '§4This player is in your clan!'
   invite_canceled: '§4Invite to the clan has been canceled.'
