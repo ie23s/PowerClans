@@ -21,6 +21,9 @@ public class Requirements {
 
         LevelMod levelMod = level.getLevels().get(clanLevel + 1);
 
+        if (clanLevel == level.getMaxLevel())
+            return false;
+
         if (levelMod.getClanBalance() > 0) {
             if (levelMod.getClanBalance() > clan.getBalance())
                 return false;
@@ -47,7 +50,10 @@ public class Requirements {
         Clan clan = level.getCore().getClanList().getClanByName(player.getName());
 
         int clanLevel = clan.getLevel();
-
+        if (clanLevel == level.getMaxLevel()) {
+            player.sendMessage("level.upgrade.max");
+            return;
+        }
         LevelMod levelMod = level.getLevels().get(clanLevel + 1);
 
         Language lang = level.getCore().getLang();

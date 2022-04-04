@@ -29,13 +29,10 @@ public class KillEvent implements Listener {
         Entity entity = event.getEntity();
         if (!(player instanceof Player) || !(entity instanceof Monster))
             return;
-        System.out.println("kek1");
         if (((Monster) event.getEntity()).getHealth() - event.getFinalDamage() > 0)
             return;
-        System.out.println("kek2");
         if (!ml.isMember(player.getName()))
             return;
-        System.out.println("kek3");
 
         core.getClanList().getClanByName(player.getName()).addMobKill();
     }

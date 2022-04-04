@@ -19,6 +19,9 @@ public class Abilities {
         Clan clan = level.getCore().getClanList().getClanByName(player.getName());
 
         int clanLevel = clan.getLevel();
+        if (clanLevel == level.getMaxLevel()) {
+            return;
+        }
         int levelPlus = next ? 1 : 0;
         LevelMod levelMod = level.getLevels().get(clanLevel + levelPlus);
 

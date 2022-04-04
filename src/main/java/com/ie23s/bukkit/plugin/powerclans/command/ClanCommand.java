@@ -234,6 +234,7 @@ public class ClanCommand implements CommandExecutor {
                     return true;
                 case "upgrade":
                     new Request(this.userClan, (Player) this.sender, this.userName, 5, args).send();
+                    sender.sendMessage(core.getLang().getMessage("lang.upgrade.cost", core.getLevelModule().getRequirements().upgradeCost(userClan)));
                     sender.sendMessage(core.getLang().getMessage("command.request"));
                     return true;
                 case "pvp":
@@ -298,7 +299,7 @@ public class ClanCommand implements CommandExecutor {
                             return true;
                         case 5:
                             userClan.broadcast(core.getLang().getMessage("level.upgrade.reach_level", userClan.getLevel()));
-                            core.getLevelModule().getAbilities().upgradeAbilities((Player) sender, false);
+                            core.getLevelModule().getAbilities().upgradeAbilities((Player) sender, true);
                             core.getLevelModule().getAbilities().makeUpgrade(userClan);
 
                     }
