@@ -27,7 +27,7 @@ public class KillEvent implements Listener {
         if (!(player instanceof Player) || !(entity instanceof Monster))
             return;
         System.out.println("kek1");
-        if (!entity.isDead())
+        if ((((Monster) entity).getHealth() > 0))
             return;
         System.out.println("kek2");
         if (!ml.isMember(player.getName()))
