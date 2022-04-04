@@ -8,6 +8,9 @@ import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
+import org.bukkit.event.entity.PlayerDeathEvent;
+
+import java.util.Objects;
 
 public class KillEvent implements Listener {
     private final Core core;
@@ -27,7 +30,7 @@ public class KillEvent implements Listener {
         if (!(player instanceof Player) || !(entity instanceof Monster))
             return;
         System.out.println("kek1");
-        if ((((Monster) entity).getHealth() > 0))
+        if (((Monster) event.getEntity()).getHealth() - event.getFinalDamage() > 0)
             return;
         System.out.println("kek2");
         if (!ml.isMember(player.getName()))
@@ -38,21 +41,17 @@ public class KillEvent implements Listener {
     }
 
     @EventHandler
-    public void PlayerDamageByEntityEvent(EntityDamageByEntityEvent event) {
-        Entity player = event.getDamager();
-        Entity entity = event.getEntity();
-        if (!(player instanceof Player) || !(entity instanceof Player))
+    public void onKill(PlayerDeathEvent e) {
+        String killed = e.getEntity().getName();
+        String killer = Objects.requireNonNull(e.getEntity().getKiller()).getName();
+        if (!ml.isMember(killed) || !ml.isMember(killer))
             return;
-        if (!entity.isDead())
-            return;
-        if (!ml.isMember(player.getName()) || !ml.isMember(entity.getName()))
-            return;
-        if (core.getClanList().getClanByName(player.getName()).getName().equalsIgnoreCase(
-                core.getClanList().getClanByName(entity.getName()).getName()
+        if (core.getClanList().getClanByName(killer).getName().equalsIgnoreCase(
+                core.getClanList().getClanByName(killed).getName()
         ))
             return;
-        core.getClanList().getClanByName(player.getName()).addPlayerKill();
-    }
+        core.getClanList().getClanByName(killer).addPlayerKill();
 
+    }
 }
 
