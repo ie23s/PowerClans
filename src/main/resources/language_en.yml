@@ -130,11 +130,11 @@ chat:
   clanchat: '§f[§6%s§f] %s§7: %s'
 level:
   requirements:
-    mobKills: "§6Killed mobs: %s%s/%s"
-    playerKills: "§6Killed players: %s%s/%s"
-    playedTime: "§6Played clan time: %s%s/%s"
-    clanBalance: "§6Clan balance: %s%s/%s"
-    clanMembers: "§6Count of members: %s%s/%s"
+    mobKills: "§6Killed mobs: %s/%s"
+    playerKills: "§6Killed players: %s/%s"
+    playedTime: "§6Played clan time: %s/%s"
+    clanBalance: "§6Clan balance: %s/%s"
+    clanMembers: "§6Count of members: %s/%s"
   abilities:
     addMembers: "§6%s members in your clan"
   upgrade:
