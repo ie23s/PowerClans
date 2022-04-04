@@ -5,7 +5,6 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9a281401-c51f-4871-a9bd-45374990a235" name="Default Changelist" comment="POW-1 Bug">
-      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/utils/Requirements.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/utils/Requirements.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -480,7 +479,14 @@
       <option name="project" value="LOCAL" />
       <updated>1649050409182</updated>
     </task>
-    <option name="localTasksCounter" value="19" />
+    <task id="LOCAL-00019" summary="POW-1 Bug">
+      <created>1649051505768</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1649051505768</updated>
+    </task>
+    <option name="localTasksCounter" value="20" />
     <servers />
   </component>
   <component name="ToolWindowManager">
