@@ -19,7 +19,7 @@ public class Requirements {
     public boolean canUpgrade(Clan clan) {
         int clanLevel = clan.getLevel();
 
-        LevelMod levelMod = level.getLevels().get(clanLevel);
+        LevelMod levelMod = level.getLevels().get(clanLevel + 1);
 
         if (levelMod.getClanBalance() > 0) {
             if (levelMod.getClanBalance() > clan.getBalance())
@@ -61,7 +61,6 @@ public class Requirements {
             if (neededBalance > clanBalance)
                 chatColor = ChatColor.RED;
             String numbers = chatColor.toString() + neededBalance + "/" + clanBalance;
-            player.sendMessage(lang.getMessage("level.requirements.clan_balance"));
             messages.add(lang.getMessage("level.requirements.clan_balance", numbers));
         }
 
