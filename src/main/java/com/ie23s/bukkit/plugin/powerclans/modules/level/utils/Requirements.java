@@ -61,6 +61,7 @@ public class Requirements {
             if (neededBalance > clanBalance)
                 chatColor = ChatColor.RED;
             String numbers = chatColor.toString() + neededBalance + "/" + clanBalance;
+            player.sendMessage(lang.getMessage("level.requirements.clanBalance"));
             messages.add(lang.getMessage("level.requirements.clanBalance", numbers));
         }
 
