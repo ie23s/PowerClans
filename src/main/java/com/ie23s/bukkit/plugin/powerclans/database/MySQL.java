@@ -50,7 +50,7 @@ class MySQL extends InitDB {
             connection = DriverManager.getConnection("jdbc:mysql://" + core.getConfig().getString("mysql.host") + ":" + core.getConfig().getString("mysql.port") + "/" + core.getConfig().getString("mysql.database") + "?useUnicode=true&characterEncoding=UTF-8&" + "user=" + core.getConfig().getString("mysql.username") + "&password=" + core.getConfig().getString("mysql.password"));
         } catch (Exception ignore) {
         }
-        executeSync("CREATE TABLE IF NOT EXISTS `clan_list` (`id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `tag` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `leader` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `home` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `maxplayers` int(11) NOT NULL, `pvp` tinyint(1) NOT NULL, `balance` double NOT NULL, PRIMARY KEY (`id`), UNIQUE KEY `name` (`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;)");
+        executeSync("CREATE TABLE IF NOT EXISTS `clan_list` (`id` int(11) NOT NULL AUTO_INCREMENT, `name` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `tag` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `leader` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `home` varchar(255) COLLATE utf8_unicode_ci NOT NULL, `maxplayers` int(11) NOT NULL, `pvp` tinyint(1) NOT NULL, `balance` double NOT NULL, `mobkills` int(11) NOT NULL, `playerkills` int(11) NOT NULL, `onlinetime` int(11) NOT NULL, `level` int(11) NOT NULL, PRIMARY KEY (`id`), UNIQUE KEY `name` (`name`)) ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci;)");
         executeSync("CREATE TABLE IF NOT EXISTS `clan_members` (`id` int(11) NOT NULL AUTO_INCREMENT,`clan` varchar(255) NOT NULL,`name` varchar(255) NOT NULL,`isModer` tinyint(1) NOT NULL,PRIMARY KEY (`id`)) DEFAULT CHARSET=utf8 AUTO_INCREMENT=0");
 
     }
@@ -114,7 +114,17 @@ class MySQL extends InitDB {
 
             Clan clan;
             while (resultSet.next()) {
-                clan = new Clan(core, resultSet.getString("name"), resultSet.getString("tag"), resultSet.getString("leader"), resultSet.getString("home"), resultSet.getInt("maxplayers"), resultSet.getBoolean("pvp"), resultSet.getDouble("balance"));
+                clan = new Clan(core, resultSet.getString("name"),
+                        resultSet.getString("tag"),
+                        resultSet.getString("leader"),
+                        resultSet.getString("home"),
+                        resultSet.getInt("maxplayers"),
+                        resultSet.getBoolean("pvp"),
+                        resultSet.getDouble("balance"),
+                        resultSet.getInt("mobkills"),
+                        resultSet.getInt("playerkills"),
+                        resultSet.getInt("onlinetime"),
+                        resultSet.getInt("level"));
                 core.getClanList().getClans().put(resultSet.getString("name"), clan);
             }
 
@@ -138,7 +148,7 @@ class MySQL extends InitDB {
     }
 
     public void createClan(Clan clan) {
-        execute("INSERT INTO `clan_list`(`id`, `name`, `tag`, `leader`, `home`, `maxplayers`, `pvp`, `balance`) VALUES (null, '" + clan.getName() + "', '" + clan.getTag() + "', '" + clan.getLeader() + "', '" + clan.getHomeString() + "', " + clan.getMaxPlayers() + ", " + clan.isPvp() + ", " + clan.getBalance() + ")");
+        execute("INSERT INTO `clan_list`(`id`, `name`, `tag`, `leader`, `home`, `maxplayers`, `pvp`, `balance`, `mobkills`, `playerkills`, `onlinetime`, `level`) VALUES (null, '" + clan.getName() + "', '" + clan.getTag() + "', '" + clan.getLeader() + "', '" + clan.getHomeString() + "', " + clan.getMaxPlayers() + ", " + clan.isPvp() + ", " + clan.getBalance() + ", 0, 0, 0, 1)");
     }
 
     public void createClanMember(Member member) {
@@ -177,5 +187,27 @@ class MySQL extends InitDB {
     public void clanUpgrade(Clan clan) {
         this.execute("UPDATE clan_list SET maxplayers='" + clan.getMaxPlayers() + "' WHERE name='" + clan.getName() + "'");
 
+    }
+
+    @Override
+    public void setMobKills(Clan clan) {
+        this.execute("UPDATE clan_list SET `mobkills`='" + clan.getMobKills() + "' WHERE name='" + clan.getName() + "'");
+    }
+
+    @Override
+    public void setPlayerKills(Clan clan) {
+        this.execute("UPDATE clan_list SET `playerkills`='" + clan.getPlayerKills() + "' WHERE name='" + clan.getName() + "'");
+    }
+
+    @Override
+    public void setOnlineTime(Clan clan) {
+        this.execute("UPDATE clan_list SET `onlinetime`='" + clan.getOnlineTime() + "' WHERE name='" + clan.getName() + "'");
+
+
+    }
+
+    @Override
+    public void setLevel(Clan clan) {
+        this.execute("UPDATE clan_list SET `level`='" + clan.getLevel() + "' WHERE name='" + clan.getName() + "'");
     }
 }

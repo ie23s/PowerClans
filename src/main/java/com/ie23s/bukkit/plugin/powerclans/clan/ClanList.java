@@ -31,7 +31,7 @@ public class ClanList {
 
     public Clan create(String clan, String leader) {
         Member member = new Member(leader.toLowerCase(), false, clan);
-        Clan c = new Clan(core, ChatColor.stripColor(clan.replaceAll("&", "§")), clan, leader.toLowerCase(), "none", core.getConfig().getInt("settings.default_max"), true, 0);
+        Clan c = new Clan(core, ChatColor.stripColor(clan.replaceAll("&", "§")), clan, leader.toLowerCase(), "none", core.getConfig().getInt("settings.default_max"), true, 0, 0, 0, 0, 1);
         clans.put(clan.toLowerCase(), c);
         core.getMemberList().addMember(member);
         db.createClan(c);

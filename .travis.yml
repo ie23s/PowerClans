@@ -1,6 +1,9 @@
 language: java
 install: skip
 
+env:
+  global:
+    - JAVA_TOOL_OPTIONS=-Dhttps.protocols=TLSv1.2
 os: linux
 dist: trusty
 jdk: oraclejdk11

@@ -17,7 +17,13 @@ public class Clan {
     private boolean pvp;
     private double balance;
 
-    public Clan(Core core, String name, String tag, String leader, String home, int maxplayers, boolean pvp, double balance) {
+    private int onlineTime;
+    private int mobkills;
+    private int playerkills;
+    private int level;
+
+    public Clan(Core core, String name, String tag, String leader, String home, int maxplayers, boolean pvp,
+                double balance, int mobkills, int playerkills, int onlineTime, int level) {
         this.core = core;
 
         this.name = name;
@@ -27,6 +33,10 @@ public class Clan {
         this.maxplayers = maxplayers;
         this.pvp = pvp;
         this.balance = balance;
+        this.mobkills = mobkills;
+        this.playerkills = playerkills;
+        this.onlineTime = onlineTime;
+        this.level = level;
     }
 
     public String getName() {
@@ -139,11 +149,6 @@ public class Clan {
         core.getDb().clanUpgrade(this);
     }
 
-    public void setMaxplayers(int i) {
-        this.maxplayers = i;
-        core.getDb().clanUpgrade(this);
-    }
-
     public void broadcast(String message) {
         for (String member : core.getMemberList().getListOfMembers(this.name)) {
             if (Bukkit.getOfflinePlayer(member).isOnline()) {
@@ -151,6 +156,42 @@ public class Clan {
             }
         }
 
+    }
+
+    public int getMobKills() {
+        return mobkills;
+    }
+
+    public void addMobKill() {
+        ++this.mobkills;
+        core.getDb().setMobKills(this);
+    }
+
+    public int getPlayerKills() {
+        return playerkills;
+    }
+
+    public void addPlayerKill() {
+        ++this.playerkills;
+        core.getDb().setPlayerKills(this);
+    }
+
+    public int getOnlineTime() {
+        return onlineTime;
+    }
+
+    public void addOnlineTime() {
+        ++this.onlineTime;
+        core.getDb().setOnlineTime(this);
+    }
+
+    public void addLevel() {
+        ++this.level;
+        core.getDb().setLevel(this);
+    }
+
+    public int getLevel() {
+        return level;
     }
 
     public String getHomeString() {
@@ -199,5 +240,7 @@ public class Clan {
         String getStringLocation() {
             return this.stringLocation;
         }
+
+
     }
 }

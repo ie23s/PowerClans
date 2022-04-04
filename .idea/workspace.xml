@@ -4,14 +4,10 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a281401-c51f-4871-a9bd-45374990a235" name="Default Changelist" comment="0.2-ALPHA">
-      <change afterPath="$PROJECT_DIR$/.gitignore" afterDir="false" />
-      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/capture/Capture.java" afterDir="false" />
+    <list default="true" id="9a281401-c51f-4871-a9bd-45374990a235" name="Default Changelist" comment="POW-1 Event bug">
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/.travis.yml" beforeDir="false" afterPath="$PROJECT_DIR$/.travis.yml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/command/ClanCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/command/ClanCommand.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/event/EventListener.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/event/EventListener.java" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/WorldGuardUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/utils/WorldGuardUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/utils/Requirements.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/utils/Requirements.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/language_en.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/language_en.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -140,6 +136,14 @@
       </GitPushTagMode>
     </option>
   </component>
+  <component name="GitSEFilterConfiguration">
+    <file-type-list>
+      <filtered-out-file-type name="LOCAL_BRANCH" />
+      <filtered-out-file-type name="REMOTE_BRANCH" />
+      <filtered-out-file-type name="TAG" />
+      <filtered-out-file-type name="COMMIT_BY_MESSAGE" />
+    </file-type-list>
+  </component>
   <component name="IdeDocumentHistory">
     <option name="CHANGED_PATHS">
       <list>
@@ -211,6 +215,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1550694216705" />
     <property name="com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File" value="GitIgnore" />
+    <property name="last_directory_selection" value="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15332031" />
@@ -323,19 +328,6 @@
       <DebugAllEnabled>false</DebugAllEnabled>
       <method v="2" />
     </configuration>
-    <configuration default="true" type="JetRunConfigurationType">
-      <module name="PowerClans" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
-    <configuration default="true" type="KotlinStandaloneScriptRunConfigurationType">
-      <module name="PowerClans" />
-      <option name="filePath" />
-      <method v="2">
-        <option name="Make" enabled="true" />
-      </method>
-    </configuration>
     <recent_temporary>
       <list>
         <item itemvalue="Gradle.PowerClans [build]" />
@@ -414,7 +406,196 @@
       <option name="project" value="LOCAL" />
       <updated>1649020271979</updated>
     </task>
-    <option name="localTasksCounter" value="9" />
+    <task id="LOCAL-00009" summary="0.2-ALPHA">
+      <created>1649028058322</created>
+      <option name="number" value="00009" />
+      <option name="presentableId" value="LOCAL-00009" />
+      <option name="project" value="LOCAL" />
+      <updated>1649028058322</updated>
+    </task>
+    <task id="LOCAL-00010" summary="0.2-ALPHA">
+      <created>1649028535405</created>
+      <option name="number" value="00010" />
+      <option name="presentableId" value="LOCAL-00010" />
+      <option name="project" value="LOCAL" />
+      <updated>1649028535405</updated>
+    </task>
+    <task id="LOCAL-00011" summary="0.2-ALPHA">
+      <created>1649028906576</created>
+      <option name="number" value="00011" />
+      <option name="presentableId" value="LOCAL-00011" />
+      <option name="project" value="LOCAL" />
+      <updated>1649028906576</updated>
+    </task>
+    <task id="LOCAL-00012" summary="0.2-ALPHA">
+      <created>1649033323558</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1649033323558</updated>
+    </task>
+    <task id="LOCAL-00013" summary="0.2-ALPHA">
+      <created>1649033405716</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1649033405716</updated>
+    </task>
+    <task id="LOCAL-00014" summary="0.2-ALPHA">
+      <created>1649047770531</created>
+      <option name="number" value="00014" />
+      <option name="presentableId" value="LOCAL-00014" />
+      <option name="project" value="LOCAL" />
+      <updated>1649047770531</updated>
+    </task>
+    <task id="LOCAL-00015" summary="0.2-ALPHA">
+      <created>1649048441719</created>
+      <option name="number" value="00015" />
+      <option name="presentableId" value="LOCAL-00015" />
+      <option name="project" value="LOCAL" />
+      <updated>1649048441719</updated>
+    </task>
+    <task id="LOCAL-00016" summary="0.2-ALPHA">
+      <created>1649049352648</created>
+      <option name="number" value="00016" />
+      <option name="presentableId" value="LOCAL-00016" />
+      <option name="project" value="LOCAL" />
+      <updated>1649049352648</updated>
+    </task>
+    <task id="LOCAL-00017" summary="0.2-ALPHA">
+      <created>1649049913074</created>
+      <option name="number" value="00017" />
+      <option name="presentableId" value="LOCAL-00017" />
+      <option name="project" value="LOCAL" />
+      <updated>1649049913074</updated>
+    </task>
+    <task id="LOCAL-00018" summary="POW-1 Bug">
+      <created>1649050409182</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1649050409182</updated>
+    </task>
+    <task id="LOCAL-00019" summary="POW-1 Bug">
+      <created>1649051505768</created>
+      <option name="number" value="00019" />
+      <option name="presentableId" value="LOCAL-00019" />
+      <option name="project" value="LOCAL" />
+      <updated>1649051505768</updated>
+    </task>
+    <task id="LOCAL-00020" summary="POW-1 Bug">
+      <created>1649051956664</created>
+      <option name="number" value="00020" />
+      <option name="presentableId" value="LOCAL-00020" />
+      <option name="project" value="LOCAL" />
+      <updated>1649051956664</updated>
+    </task>
+    <task id="LOCAL-00021" summary="POW-1 Bug">
+      <created>1649052312037</created>
+      <option name="number" value="00021" />
+      <option name="presentableId" value="LOCAL-00021" />
+      <option name="project" value="LOCAL" />
+      <updated>1649052312037</updated>
+    </task>
+    <task id="LOCAL-00022" summary="POW-1 Bug">
+      <created>1649052767339</created>
+      <option name="number" value="00022" />
+      <option name="presentableId" value="LOCAL-00022" />
+      <option name="project" value="LOCAL" />
+      <updated>1649052767339</updated>
+    </task>
+    <task id="LOCAL-00023" summary="POW-1 Bug">
+      <created>1649053320724</created>
+      <option name="number" value="00023" />
+      <option name="presentableId" value="LOCAL-00023" />
+      <option name="project" value="LOCAL" />
+      <updated>1649053320724</updated>
+    </task>
+    <task id="LOCAL-00024" summary="POW-1 Bug">
+      <created>1649053864009</created>
+      <option name="number" value="00024" />
+      <option name="presentableId" value="LOCAL-00024" />
+      <option name="project" value="LOCAL" />
+      <updated>1649053864009</updated>
+    </task>
+    <task id="LOCAL-00025" summary="POW-1 Bug">
+      <created>1649054794385</created>
+      <option name="number" value="00025" />
+      <option name="presentableId" value="LOCAL-00025" />
+      <option name="project" value="LOCAL" />
+      <updated>1649054794385</updated>
+    </task>
+    <task id="LOCAL-00026" summary="POW-1 Bug">
+      <created>1649055138773</created>
+      <option name="number" value="00026" />
+      <option name="presentableId" value="LOCAL-00026" />
+      <option name="project" value="LOCAL" />
+      <updated>1649055138773</updated>
+    </task>
+    <task id="LOCAL-00027" summary="POW-1 Language bug">
+      <created>1649055834458</created>
+      <option name="number" value="00027" />
+      <option name="presentableId" value="LOCAL-00027" />
+      <option name="project" value="LOCAL" />
+      <updated>1649055834458</updated>
+    </task>
+    <task id="LOCAL-00028" summary="POW-1 Language bug">
+      <created>1649056382197</created>
+      <option name="number" value="00028" />
+      <option name="presentableId" value="LOCAL-00028" />
+      <option name="project" value="LOCAL" />
+      <updated>1649056382197</updated>
+    </task>
+    <task id="LOCAL-00029" summary="POW-1 Language bug">
+      <created>1649056954885</created>
+      <option name="number" value="00029" />
+      <option name="presentableId" value="LOCAL-00029" />
+      <option name="project" value="LOCAL" />
+      <updated>1649056954885</updated>
+    </task>
+    <task id="LOCAL-00030" summary="POW-1 Language bug">
+      <created>1649057474591</created>
+      <option name="number" value="00030" />
+      <option name="presentableId" value="LOCAL-00030" />
+      <option name="project" value="LOCAL" />
+      <updated>1649057474591</updated>
+    </task>
+    <task id="LOCAL-00031" summary="POW-1 Event bug">
+      <created>1649066731841</created>
+      <option name="number" value="00031" />
+      <option name="presentableId" value="LOCAL-00031" />
+      <option name="project" value="LOCAL" />
+      <updated>1649066731841</updated>
+    </task>
+    <task id="LOCAL-00032" summary="POW-1 Event bug">
+      <created>1649067226753</created>
+      <option name="number" value="00032" />
+      <option name="presentableId" value="LOCAL-00032" />
+      <option name="project" value="LOCAL" />
+      <updated>1649067226753</updated>
+    </task>
+    <task id="LOCAL-00033" summary="POW-1 Event bug">
+      <created>1649068257189</created>
+      <option name="number" value="00033" />
+      <option name="presentableId" value="LOCAL-00033" />
+      <option name="project" value="LOCAL" />
+      <updated>1649068257189</updated>
+    </task>
+    <task id="LOCAL-00034" summary="POW-1 Event bug">
+      <created>1649069248927</created>
+      <option name="number" value="00034" />
+      <option name="presentableId" value="LOCAL-00034" />
+      <option name="project" value="LOCAL" />
+      <updated>1649069248927</updated>
+    </task>
+    <task id="LOCAL-00035" summary="POW-1 Event bug">
+      <created>1649070544164</created>
+      <option name="number" value="00035" />
+      <option name="presentableId" value="LOCAL-00035" />
+      <option name="project" value="LOCAL" />
+      <updated>1649070544164</updated>
+    </task>
+    <option name="localTasksCounter" value="36" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -469,7 +650,10 @@
     <MESSAGE value="lolkek" />
     <MESSAGE value="0.1-ALPHA" />
     <MESSAGE value="0.2-ALPHA" />
-    <option name="LAST_COMMIT_MESSAGE" value="0.2-ALPHA" />
+    <MESSAGE value="POW-1 Bug" />
+    <MESSAGE value="POW-1 Language bug" />
+    <MESSAGE value="POW-1 Event bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="POW-1 Event bug" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />

@@ -95,6 +95,8 @@ public class ClanCommand implements CommandExecutor {
                 case "info":
                     sender.sendMessage(core.getLang().getMessage("command.info_1", userClan.getName(), core.getMemberList().getListOfMembers(userClan.getName()).size(), userClan.getMaxPlayers()));
                     sender.sendMessage(core.getLang().getMessage("command.info_2", Bukkit.getOfflinePlayer(userClan.getLeader()).getName()));
+                    sender.sendMessage(core.getLang().getMessage("command.info_3", userClan.getLevel()));
+                    core.getLevelModule().getRequirements().upgradeRequirements((Player) sender);
                     return true;
                 case "addmoder":
                     userClan.setModer(args[1], true);
@@ -231,19 +233,9 @@ public class ClanCommand implements CommandExecutor {
                     sender.sendMessage(core.getLang().getMessage("clan.deposit_4", var4));
                     return true;
                 case "upgrade":
-                    if (config.getInt("settings.upgrade_cost") != 0) {
-                        try {
-                            if (userClan.getBalance() < config.getInt("settings.upgrade_cost")) {
-                                sender.sendMessage(core.getLang().getMessage("clan.take_3"));
-                                return true;
-                            }
-                        } catch (Exception ignore) {
-                        }
-
-                        userClan.setBalance(userClan.getBalance() - config.getInt("settings.upgrade_cost"));
-                    }
-                    userClan.upgrade(1);
-                    userClan.broadcast(core.getLang().getMessage("clan.upgrade", sender.getName()));
+                    new Request(this.userClan, (Player) this.sender, this.userName, 5, args).send();
+                    sender.sendMessage(core.getLang().getMessage("level.upgrade.cost", core.getLevelModule().getRequirements().upgradeCost(userClan)));
+                    sender.sendMessage(core.getLang().getMessage("command.request"));
                     return true;
                 case "pvp":
                     userClan.setPvP(!userClan.isPvP());
@@ -305,6 +297,11 @@ public class ClanCommand implements CommandExecutor {
                             userClan.setLeader(args4[1]);
                             userClan.broadcast(core.getLang().getMessage("clan.leader", sender.getName(), args4[1]));
                             return true;
+                        case 5:
+                            userClan.broadcast(core.getLang().getMessage("level.upgrade.reach_level", userClan.getLevel()));
+                            core.getLevelModule().getAbilities().upgradeAbilities((Player) sender, true);
+                            core.getLevelModule().getAbilities().makeUpgrade(userClan);
+
                     }
 
                     return true;
@@ -614,8 +611,13 @@ public class ClanCommand implements CommandExecutor {
                 } else if (!userClan.hasLeader(sender.getName())) {
                     sender.sendMessage(core.getLang().getMessage("errors._37"));
                     return false;
-                } else if (userClan.getMaxPlayers() >= config.getInt("settings.max_upgrade")) {
-                    sender.sendMessage(core.getLang().getMessage("errors._38"));
+                }
+
+                core.getLevelModule().getRequirements().upgradeRequirements((Player) sender);
+                sender.sendMessage(core.getLang().getMessage("level.upgrade.ulget"));
+                core.getLevelModule().getAbilities().upgradeAbilities((Player) sender, true);
+                if (!core.getLevelModule().getRequirements().canUpgrade(userClan)) {
+                    sender.sendMessage(core.getLang().getMessage("level.upgrade.cannot"));
                     return false;
                 }
                 return true;

@@ -8,6 +8,7 @@ import com.ie23s.bukkit.plugin.powerclans.configuration.Language;
 import com.ie23s.bukkit.plugin.powerclans.configuration.YAMLHandler;
 import com.ie23s.bukkit.plugin.powerclans.database.InitDB;
 import com.ie23s.bukkit.plugin.powerclans.event.EventListener;
+import com.ie23s.bukkit.plugin.powerclans.modules.level.Level;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.Utils;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
@@ -18,6 +19,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -31,6 +33,7 @@ public class Core extends JavaPlugin {
     private ClanList clanList;
     private MemberList memberList;
     private Utils utils;
+    private Level levelModule;
 
     public static WorldGuardPlugin getWG() {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("WorldGuard");
@@ -53,6 +56,8 @@ public class Core extends JavaPlugin {
         clanList = new ClanList(this);
         memberList = new MemberList();
         db.getClans();
+        levelModule = new Level(this);
+        levelModule.loadModule();
     }
 
     public void onDisable() {
@@ -65,7 +70,7 @@ public class Core extends JavaPlugin {
         load();
 
         Objects.requireNonNull(this.getCommand("clan")).setExecutor(new ClanCommand(this));
-        this.getCommand("powerclans").setExecutor(new PowerClansCommand(this));
+        Objects.requireNonNull(this.getCommand("powerclans")).setExecutor(new PowerClansCommand(this));
 
 
         Bukkit.getScheduler().runTaskTimer(this, () -> {
@@ -97,7 +102,7 @@ public class Core extends JavaPlugin {
     }
 
     @Override
-    public FileConfiguration getConfig() {
+    public @NotNull FileConfiguration getConfig() {
         return config;
     }
 
@@ -119,5 +124,9 @@ public class Core extends JavaPlugin {
 
     public MemberList getMemberList() {
         return this.memberList;
+    }
+
+    public Level getLevelModule() {
+        return levelModule;
     }
 }

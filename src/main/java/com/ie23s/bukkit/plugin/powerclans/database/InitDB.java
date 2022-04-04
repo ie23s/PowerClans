@@ -69,4 +69,13 @@ abstract public class InitDB {
     public abstract void setHome(Clan clan);
 
     public abstract void clanUpgrade(Clan clan);
+
+
+    public abstract void setMobKills(Clan clan);
+
+    public abstract void setPlayerKills(Clan clan);
+
+    public abstract void setOnlineTime(Clan clan);
+
+    public abstract void setLevel(Clan clan);
 }

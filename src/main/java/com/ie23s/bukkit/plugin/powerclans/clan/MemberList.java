@@ -16,7 +16,7 @@ public class MemberList {
         members.put(member.getName().toLowerCase(), member);
     }
 
-    Member getMember(String name) {
+    public Member getMember(String name) {
         return members.get(name.toLowerCase());
     }
 
