@@ -25,5 +25,6 @@ public class MobKillEvent implements Listener {
             return;
         core.getClanList().getClanByName(((Player) player).getDisplayName()); //TODO add killed mob
     }
+
 }
 
