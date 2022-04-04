@@ -4,7 +4,8 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a281401-c51f-4871-a9bd-45374990a235" name="Default Changelist" comment="0.2-ALPHA">
+    <list default="true" id="9a281401-c51f-4871-a9bd-45374990a235" name="Default Changelist" comment="POW-1 Bug">
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/utils/Requirements.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/utils/Requirements.java" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
@@ -472,7 +473,14 @@
       <option name="project" value="LOCAL" />
       <updated>1649049913074</updated>
     </task>
-    <option name="localTasksCounter" value="18" />
+    <task id="LOCAL-00018" summary="POW-1 Bug">
+      <created>1649050409182</created>
+      <option name="number" value="00018" />
+      <option name="presentableId" value="LOCAL-00018" />
+      <option name="project" value="LOCAL" />
+      <updated>1649050409182</updated>
+    </task>
+    <option name="localTasksCounter" value="19" />
     <servers />
   </component>
   <component name="ToolWindowManager">
@@ -527,7 +535,8 @@
     <MESSAGE value="lolkek" />
     <MESSAGE value="0.1-ALPHA" />
     <MESSAGE value="0.2-ALPHA" />
-    <option name="LAST_COMMIT_MESSAGE" value="0.2-ALPHA" />
+    <MESSAGE value="POW-1 Bug" />
+    <option name="LAST_COMMIT_MESSAGE" value="POW-1 Bug" />
     <option name="OPTIMIZE_IMPORTS_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REFORMAT_BEFORE_PROJECT_COMMIT" value="true" />
     <option name="REARRANGE_BEFORE_PROJECT_COMMIT" value="true" />
