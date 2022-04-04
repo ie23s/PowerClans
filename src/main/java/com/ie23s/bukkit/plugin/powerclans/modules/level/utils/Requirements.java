@@ -60,7 +60,7 @@ public class Requirements {
             ChatColor chatColor = ChatColor.GREEN;
             if (neededBalance > clanBalance)
                 chatColor = ChatColor.RED;
-            messages.add(lang.getMessage("level.requirements.clanBalance", chatColor.toString(), clanBalance, neededBalance));
+            messages.add(lang.getMessage("level.requirements.clanBalance", clanBalance, neededBalance));
         }
 
         if (levelMod.getMobKills() > 0) {
