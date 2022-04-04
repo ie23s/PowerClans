@@ -611,13 +611,9 @@ public class ClanCommand implements CommandExecutor {
                     sender.sendMessage(core.getLang().getMessage("errors._37"));
                     return false;
                 }
-                sender.sendMessage("lol");
-                sender.sendMessage(core.getLang().getMessage("level.upgrade.ulget"));
-                sender.sendMessage("lol");
+
                 core.getLevelModule().getRequirements().upgradeRequirements((Player) sender);
-                sender.sendMessage("lol");
                 sender.sendMessage(core.getLang().getMessage("level.upgrade.ulget"));
-                sender.sendMessage("lol");
                 core.getLevelModule().getAbilities().upgradeAbilities((Player) sender, true);
                 if (core.getLevelModule().getRequirements().canUpgrade(userClan)) {
                     sender.sendMessage(core.getLang().getMessage("level.upgrade.cannot"));

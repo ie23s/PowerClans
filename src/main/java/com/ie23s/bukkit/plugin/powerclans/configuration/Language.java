@@ -25,10 +25,18 @@ public class Language {
         for (Entry<String, Object> stringObjectEntry : langYml.getValues(false).entrySet()) {
             if (stringObjectEntry.getValue() instanceof ConfigurationSection) {
                 for (Entry<String, Object> stringObjectEntry1 : ((ConfigurationSection) stringObjectEntry.getValue()).getValues(false).entrySet()) {
-                    language.put(((Entry) stringObjectEntry).getKey() + "." + ((Entry) stringObjectEntry1).getKey(), String.valueOf(stringObjectEntry1.getValue()));
+
+                    if (stringObjectEntry1.getValue() instanceof ConfigurationSection) {
+                        for (Entry<String, Object> stringObjectEntry2 : ((ConfigurationSection) stringObjectEntry1.getValue()).getValues(false).entrySet()) {
+                            language.put(((Entry<?, ?>) stringObjectEntry).getKey() + "." + ((Entry<?, ?>) stringObjectEntry1).getKey() + "." + ((Entry<?, ?>) stringObjectEntry2).getKey(), String.valueOf(stringObjectEntry2.getValue()));
+                        }
+                    } else {
+                        language.put(((Entry<?, ?>) stringObjectEntry).getKey() + "." + ((Entry<?, ?>) stringObjectEntry1).getKey(), String.valueOf(stringObjectEntry1.getValue()));
+                    }
+
                 }
             } else {
-                language.put(String.valueOf(((Entry) stringObjectEntry).getKey()), String.valueOf(stringObjectEntry.getValue()));
+                language.put(String.valueOf(((Entry<?, ?>) stringObjectEntry).getKey()), String.valueOf(stringObjectEntry.getValue()));
             }
         }
 
