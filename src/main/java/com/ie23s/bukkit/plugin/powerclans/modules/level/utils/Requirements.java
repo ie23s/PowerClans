@@ -47,16 +47,16 @@ public class Requirements {
     }
 
     public void upgradeRequirements(Player player) {
+        Language lang = level.getCore().getLang();
         Clan clan = level.getCore().getClanList().getClanByName(player.getName());
 
         int clanLevel = clan.getLevel();
         if (clanLevel == level.getMaxLevel()) {
-            player.sendMessage("level.upgrade.max");
+            player.sendMessage(lang.getMessage("level.upgrade.max"));
             return;
         }
         LevelMod levelMod = level.getLevels().get(clanLevel + 1);
 
-        Language lang = level.getCore().getLang();
 
         ArrayList<String> messages = new ArrayList<>();
         messages.add(lang.getMessage("level.upgrade.need"));
