@@ -60,7 +60,8 @@ public class Requirements {
             ChatColor chatColor = ChatColor.GREEN;
             if (neededBalance > clanBalance)
                 chatColor = ChatColor.RED;
-            messages.add(lang.getMessage("level.requirements.clanBalance"));
+            String numbers = chatColor.toString() + neededBalance + "/" + clanBalance;
+            messages.add(lang.getMessage("level.requirements.clanBalance", numbers));
         }
 
         if (levelMod.getMobKills() > 0) {
@@ -69,7 +70,8 @@ public class Requirements {
             ChatColor chatColor = ChatColor.GREEN;
             if (neededKills > clanKills)
                 chatColor = ChatColor.RED;
-            messages.add(lang.getMessage("level.requirements.mobKills", chatColor.toString(), clanKills, neededKills));
+            String numbers = chatColor.toString() + clanKills + "/" + neededKills;
+            messages.add(lang.getMessage("level.requirements.mobKills", numbers));
         }
 
         if (levelMod.getPlayerKills() > 0) {
@@ -78,7 +80,8 @@ public class Requirements {
             ChatColor chatColor = ChatColor.GREEN;
             if (neededKills > clanKills)
                 chatColor = ChatColor.RED;
-            messages.add(lang.getMessage("level.requirements.playerKills", chatColor.toString(), clanKills, neededKills));
+            String numbers = chatColor.toString() + clanKills + "/" + neededKills;
+            messages.add(lang.getMessage("level.requirements.playerKills", numbers));
         }
 
         if (levelMod.getPlayedTime() > 0) {
@@ -87,7 +90,8 @@ public class Requirements {
             ChatColor chatColor = ChatColor.GREEN;
             if (neededTime > clanTime)
                 chatColor = ChatColor.RED;
-            messages.add(lang.getMessage("level.requirements.playedTime", chatColor.toString(), clanTime, neededTime));
+            String numbers = chatColor.toString() + clanTime + "/" + neededTime;
+            messages.add(lang.getMessage("level.requirements.playedTime", numbers));
         }
 
         if (levelMod.getClanMembers() > 0) {
@@ -96,7 +100,8 @@ public class Requirements {
             ChatColor chatColor = ChatColor.GREEN;
             if (neededMembers > clanMembers)
                 chatColor = ChatColor.RED;
-            messages.add(lang.getMessage("level.requirements.clanBalance", chatColor.toString(), clanMembers, neededMembers));
+            String numbers = chatColor.toString() + clanMembers + "/" + neededMembers;
+            messages.add(lang.getMessage("level.requirements.clanBalance", numbers));
         }
         String[] send = new String[messages.size()];
         messages.toArray(send);

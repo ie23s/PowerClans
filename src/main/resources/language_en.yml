@@ -130,18 +130,18 @@ chat:
   clanchat: '§f[§6%s§f] %s§7: %s'
 level:
   requirements:
-    mobKills: "§6Killed mobs: %s/%s"
-    playerKills: "§6Killed players: %s/%s"
-    playedTime: "§6Played clan time: %s/%s"
-    clanBalance: "§6Clan balance: %s/%s"
-    clanMembers: "§6Count of members: %s/%s"
+    mobKills: '§6Killed mobs: %s'
+    playerKills: '§6Killed players: %s'
+    playedTime: '§6Played clan time: %s'
+    clanBalance: '§6Clan balance: %s'
+    clanMembers: '§6Count of members: %s'
   abilities:
-    addMembers: "§6%s members in your clan"
+    addMembers: '§6%s members in your clan'
   upgrade:
-    need: "§6Requirements for clan upgrading:"
-    cannot: "§dYou cannot upgrade your clan now!"
-    reachLevel: "§dYour clan reached %s level!"
-    ulget: "§6After upgrade you'll get:"
+    need: '§6Requirements for clan upgrading:'
+    cannot: '§dYou cannot upgrade your clan now!'
+    reachLevel: '§dYour clan reached %s level!'
+    ulget: '§6After upgrade you'll get:'
 other:
   damage_in_clan: '§4This player is in your clan!'
   invite_canceled: '§4Invite to the clan has been canceled.'
