@@ -28,9 +28,9 @@ public class KillEvent implements Listener {
             return;
         if (!entity.isDead())
             return;
-        if (!ml.isMember(((Player) player).getDisplayName()))
+        if (!ml.isMember(player.getName()))
             return;
-        core.getClanList().getClanByName(((Player) player).getDisplayName()).addMobKill();
+        core.getClanList().getClanByName(player.getName()).addMobKill();
     }
 
     @EventHandler
@@ -41,13 +41,13 @@ public class KillEvent implements Listener {
             return;
         if (!entity.isDead())
             return;
-        if (!ml.isMember(((Player) player).getDisplayName()) || !ml.isMember(((Player) entity).getDisplayName()))
+        if (!ml.isMember(player.getName()) || !ml.isMember(entity.getName()))
             return;
-        if (core.getClanList().getClanByName(((Player) player).getDisplayName()).getName().equalsIgnoreCase(
-                core.getClanList().getClanByName(((Player) entity).getDisplayName()).getName()
+        if (core.getClanList().getClanByName(player.getName()).getName().equalsIgnoreCase(
+                core.getClanList().getClanByName(entity.getName()).getName()
         ))
             return;
-        core.getClanList().getClanByName(((Player) player).getDisplayName()).addPlayerKill();
+        core.getClanList().getClanByName(player.getName()).addPlayerKill();
     }
 
 }

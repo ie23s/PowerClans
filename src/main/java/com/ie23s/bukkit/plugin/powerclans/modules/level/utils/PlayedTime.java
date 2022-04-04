@@ -19,8 +19,8 @@ public class PlayedTime implements Runnable {
 
         for (Player p :
                 players) {
-            if (core.getMemberList().isMember(p.getDisplayName())) {
-                core.getClanList().getClanByName(p.getDisplayName()).addOnlineTime();
+            if (core.getMemberList().isMember(p.getName())) {
+                core.getClanList().getClanByName(p.getName()).addOnlineTime();
             }
         }
     }

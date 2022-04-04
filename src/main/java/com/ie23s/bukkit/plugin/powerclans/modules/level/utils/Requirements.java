@@ -44,7 +44,7 @@ public class Requirements {
     }
 
     public void upgradeRequirements(Player player) {
-        Clan clan = level.getCore().getClanList().getClanByName(player.getDisplayName());
+        Clan clan = level.getCore().getClanList().getClanByName(player.getName());
 
         int clanLevel = clan.getLevel();
 

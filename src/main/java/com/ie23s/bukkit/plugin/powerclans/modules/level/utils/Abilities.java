@@ -16,7 +16,7 @@ public class Abilities {
     }
 
     public void upgradeAbilities(Player player, boolean next) {
-        Clan clan = level.getCore().getClanList().getClanByName(player.getDisplayName());
+        Clan clan = level.getCore().getClanList().getClanByName(player.getName());
 
         int clanLevel = clan.getLevel();
         int levelPlus = next ? 1 : 0;

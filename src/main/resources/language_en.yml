@@ -116,7 +116,7 @@ command:
   reload: '§6All configurations was reloaded.'
   info_1: '§6Name: %s (%s/%s)'
   info_2: '§6Leader: %s'
-  info_3: '§Level: %s'
+  info_3: '§6Level: %s'
   online_1: '§6Online players:'
   top_1: '§6%s. %s§6, Leader: %s, Members: %s'
   msg_1: 'Broadcast'
