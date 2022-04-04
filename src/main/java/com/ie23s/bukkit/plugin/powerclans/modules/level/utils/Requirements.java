@@ -101,7 +101,7 @@ public class Requirements {
             if (neededMembers > clanMembers)
                 chatColor = ChatColor.RED;
             String numbers = chatColor.toString() + clanMembers + "/" + neededMembers;
-            messages.add(lang.getMessage("level.requirements.clan_balance", numbers));
+            messages.add(lang.getMessage("level.requirements.clan_members", numbers));
         }
         String[] send = new String[messages.size()];
         messages.toArray(send);

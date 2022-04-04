@@ -22,6 +22,7 @@ public class PlayedTime implements Runnable {
             p.sendMessage("hehehe");
             if (core.getMemberList().isMember(p.getName())) {
                 core.getClanList().getClanByName(p.getName()).addOnlineTime();
+                p.sendMessage("hehehe++");
             }
         }
     }
