@@ -153,7 +153,7 @@ public class SQLite extends InitDB {
     }
 
     public void createClan(Clan clan) {
-        execute("INSERT INTO `clan_list`(`id`, `name`, `tag`, `leader`, `home`, `maxplayers`, `pvp`, `balance`, `mobkills`, `playerkills`, `level`) VALUES (null, '" + clan.getName() + "', '" + clan.getTag() + "', '" + clan.getLeader() + "', '" + clan.getHomeString() + "', " + clan.getMaxPlayers() + ", " + clan.isPvp() + ", " + clan.getBalance() + ", 0, 0,1)");
+        execute("INSERT INTO `clan_list`(`id`, `name`, `tag`, `leader`, `home`, `maxplayers`, `pvp`, `balance`, `mobkills`, `playerkills`, `onlinetime`, `level`) VALUES (null, '" + clan.getName() + "', '" + clan.getTag() + "', '" + clan.getLeader() + "', '" + clan.getHomeString() + "', " + clan.getMaxPlayers() + ", " + clan.isPvp() + ", " + clan.getBalance() + ", 0, 0, 0, 1)");
     }
 
     public void createClanMember(Member member) {
