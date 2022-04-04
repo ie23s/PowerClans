@@ -116,6 +116,7 @@ command:
   reload: '§6All configurations was reloaded.'
   info_1: '§6Name: %s (%s/%s)'
   info_2: '§6Leader: %s'
+  info_3: '§Level: %s'
   online_1: '§6Online players:'
   top_1: '§6%s. %s§6, Leader: %s, Members: %s'
   msg_1: 'Broadcast'
@@ -127,6 +128,20 @@ command:
 chat:
   clan: 'Clan'
   clanchat: '§f[§6%s§f] %s§7: %s'
+level:
+  requirements:
+    mobKills: "§6Killed mobs: %s%s/%s"
+    playerKills: "§6Killed players: %s%s/%s"
+    playedTime: "§6Played clan time: %s%s/%s"
+    clanBalance: "§6Clan balance: %s%s/%s"
+    clanMembers: "§6Count of members: %s%s/%s"
+  abilities:
+    addMembers: "§6%s members in your clan"
+  upgrade:
+    need: "§6Requirements for clan upgrading:"
+    cannot: "§dYou cannot upgrade your clan now!"
+    reachLevel: "§dYour clan reached %s level!"
+    ulget: "§6After upgrade you'll get:"
 other:
   damage_in_clan: '§4This player is in your clan!'
   invite_canceled: '§4Invite to the clan has been canceled.'

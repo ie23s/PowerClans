@@ -5,8 +5,25 @@
   </component>
   <component name="ChangeListManager">
     <list default="true" id="9a281401-c51f-4871-a9bd-45374990a235" name="Default Changelist" comment="0.2-ALPHA">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/Level.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/config/LevelsConfig.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/event/KillEvent.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/models/LevelMod.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/utils/Abilities.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/utils/PlayedTime.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/level/utils/Requirements.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/resources/levels.yml" afterDir="false" />
       <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
-      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/event/level/MobKillEvent.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/event/level/MobKillEvent.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/Core.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/Core.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/clan/Clan.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/clan/Clan.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/clan/ClanList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/clan/ClanList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/clan/MemberList.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/clan/MemberList.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/command/ClanCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/command/ClanCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/database/InitDB.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/database/InitDB.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/database/MySQL.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/database/MySQL.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/database/SQLite.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/database/SQLite.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/event/level/MobKillEvent.java" beforeDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/resources/language_en.yml" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/resources/language_en.yml" afterDir="false" />
     </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
@@ -206,6 +223,7 @@
     <property name="SHARE_PROJECT_CONFIGURATION_FILES" value="true" />
     <property name="com.android.tools.idea.instantapp.provision.ProvisionBeforeRunTaskProvider.myTimeStamp" value="1550694216705" />
     <property name="com.intellij.ide.scratch.ScratchImplUtil$2/New Scratch File" value="GitIgnore" />
+    <property name="last_directory_selection" value="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules" />
     <property name="last_opened_file_path" value="$PROJECT_DIR$" />
     <property name="project.structure.last.edited" value="Modules" />
     <property name="project.structure.proportion" value="0.15332031" />
@@ -430,7 +448,21 @@
       <option name="project" value="LOCAL" />
       <updated>1649028906576</updated>
     </task>
-    <option name="localTasksCounter" value="12" />
+    <task id="LOCAL-00012" summary="0.2-ALPHA">
+      <created>1649033323558</created>
+      <option name="number" value="00012" />
+      <option name="presentableId" value="LOCAL-00012" />
+      <option name="project" value="LOCAL" />
+      <updated>1649033323558</updated>
+    </task>
+    <task id="LOCAL-00013" summary="0.2-ALPHA">
+      <created>1649033405716</created>
+      <option name="number" value="00013" />
+      <option name="presentableId" value="LOCAL-00013" />
+      <option name="project" value="LOCAL" />
+      <updated>1649033405716</updated>
+    </task>
+    <option name="localTasksCounter" value="14" />
     <servers />
   </component>
   <component name="ToolWindowManager">
