@@ -39,8 +39,9 @@ public class Abilities {
     public void makeUpgrade(Clan clan) {
         int clanLevel = clan.getLevel();
         LevelMod levelMod = level.getLevels().get(clanLevel + 1);
-        clan.setBalance(clan.getBalance() - level.getRequirements().upgradeCost(clan));
         //Adding members
         clan.upgrade(levelMod.getClanMembers());
+        clan.addLevel();
+        clan.setBalance(clan.getBalance() - level.getRequirements().upgradeCost(clan));
     }
 }

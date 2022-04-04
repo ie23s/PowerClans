@@ -206,7 +206,6 @@ public class SQLite extends InitDB {
 
     @Override
     public void setOnlineTime(Clan clan) {
-        System.out.println("UPDATE clan_list SET `onlinetime`='" + clan.getOnlineTime() + "' WHERE name='" + clan.getName() + "'");
         this.execute("UPDATE clan_list SET `onlinetime`='" + clan.getOnlineTime() + "' WHERE name='" + clan.getName() + "'");
 
 

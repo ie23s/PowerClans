@@ -17,7 +17,7 @@ public class Clan {
     private boolean pvp;
     private double balance;
 
-    private final int onlineTime;
+    private int onlineTime;
     private int mobkills;
     private int playerkills;
     private int level;
@@ -181,7 +181,7 @@ public class Clan {
     }
 
     public void addOnlineTime() {
-        ++this.playerkills;
+        ++this.onlineTime;
         core.getDb().setOnlineTime(this);
     }
 
