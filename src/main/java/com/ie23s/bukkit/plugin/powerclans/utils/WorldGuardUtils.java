@@ -1,6 +1,6 @@
 package com.ie23s.bukkit.plugin.powerclans.utils;
 
-import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.Plugins;
 import com.sk89q.worldedit.bukkit.BukkitAdapter;
 import com.sk89q.worldedit.world.World;
 import com.sk89q.worldguard.WorldGuard;
@@ -16,7 +16,7 @@ import java.util.Objects;
 
 public class WorldGuardUtils {
     public static boolean canBuild(Player player, Location location) {
-        WorldGuardPlugin plugin = Core.getWG();
+        WorldGuardPlugin plugin = Plugins.getWG();
         if (plugin == null)
             return true;
         RegionQuery query = WorldGuard.getInstance().getPlatform().getRegionContainer().createQuery();

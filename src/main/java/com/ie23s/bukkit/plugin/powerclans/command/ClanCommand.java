@@ -1,6 +1,7 @@
 package com.ie23s.bukkit.plugin.powerclans.command;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.Plugins;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.WorldGuardUtils;
@@ -41,7 +42,7 @@ public class ClanCommand implements CommandExecutor {
                     sender.sendMessage(core.getLang().getMessage("clan.create_request", args[1]));
                     if (config.getInt("settings.create_cost") != 0 && !sender.hasPermission("PowerClans.free.create")) {
                         try {
-                            if (!Core.getVault().has(sender.getName(), config.getInt("settings.create_cost"))) {
+                            if (!Plugins.getVault().has(sender.getName(), config.getInt("settings.create_cost"))) {
                                 sender.sendMessage(core.getLang().getMessage("create_request_cost", args[1]));
                                 return false;
                             }
@@ -191,7 +192,7 @@ public class ClanCommand implements CommandExecutor {
                         sender.sendMessage(core.getLang().getMessage("clan.take_3"));
                     } else {
                         try {
-                            Core.getVault().depositPlayer(sender.getName(), var3);
+                            Plugins.getVault().depositPlayer(sender.getName(), var3);
                         } catch (Exception ignore) {
                         }
 
@@ -217,7 +218,7 @@ public class ClanCommand implements CommandExecutor {
                     }
 
                     try {
-                        if (!Core.getVault().has(sender.getName(), var4)) {
+                        if (!Plugins.getVault().has(sender.getName(), var4)) {
                             sender.sendMessage(core.getLang().getMessage("clan.deposit_3"));
                             return true;
                         }
@@ -225,7 +226,7 @@ public class ClanCommand implements CommandExecutor {
                     }
 
                     try {
-                        Core.getVault().withdrawPlayer(sender.getName(), var4);
+                        Plugins.getVault().withdrawPlayer(sender.getName(), var4);
                         userClan.setBalance(userClan.getBalance() + var4);
                     } catch (Exception ignore) {
                     }
@@ -263,7 +264,7 @@ public class ClanCommand implements CommandExecutor {
                                 return true;
                             if (config.getInt("settings.create_cost") != 0 && !sender.hasPermission("PowerClans.free.create")) {
                                 try {
-                                    Core.getVault().withdrawPlayer(sender.getName(), config.getInt("settings.create_cost"));
+                                    Plugins.getVault().withdrawPlayer(sender.getName(), config.getInt("settings.create_cost"));
                                 } catch (Exception ignore) {
                                 }
                             }
@@ -379,7 +380,7 @@ public class ClanCommand implements CommandExecutor {
                 if (config.getInt("settings.create_cost") != 0 && !sender.hasPermission("PowerClans.free.create")) {
                     try {
                         //noinspection deprecation
-                        if (!Core.getVault().has(sender.getName(), config.getInt("settings.create_cost"))) {
+                        if (!Plugins.getVault().has(sender.getName(), config.getInt("settings.create_cost"))) {
                             sender.sendMessage(core.getLang().getMessage("errors._8"));
                             return false;
                         }
@@ -572,7 +573,7 @@ public class ClanCommand implements CommandExecutor {
                 return true;
             case "take":
                 try {
-                    Core.getVault();
+                    Plugins.getVault();
                 } catch (Exception var14) {
                     sender.sendMessage(core.getLang().getMessage("errors._44"));
                     return false;
@@ -591,7 +592,7 @@ public class ClanCommand implements CommandExecutor {
 
             case "deposit":
                 try {
-                    Core.getVault();
+                    Plugins.getVault();
                 } catch (Exception var14) {
                     sender.sendMessage(core.getLang().getMessage("errors._44"));
                     return false;

@@ -4,7 +4,15 @@
     <option name="autoReloadType" value="SELECTIVE" />
   </component>
   <component name="ChangeListManager">
-    <list default="true" id="9a281401-c51f-4871-a9bd-45374990a235" name="Default Changelist" comment="POW-1 Event bug" />
+    <list default="true" id="9a281401-c51f-4871-a9bd-45374990a235" name="Default Changelist" comment="POW-1 Event bug">
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/Plugins.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/capture/models/CaptureMod.java" afterDir="false" />
+      <change afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/modules/capture/utils/WEUtils.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/.idea/workspace.xml" beforeDir="false" afterPath="$PROJECT_DIR$/.idea/workspace.xml" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/Core.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/Core.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/command/ClanCommand.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/command/ClanCommand.java" afterDir="false" />
+      <change beforePath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/utils/WorldGuardUtils.java" beforeDir="false" afterPath="$PROJECT_DIR$/src/main/java/com/ie23s/bukkit/plugin/powerclans/utils/WorldGuardUtils.java" afterDir="false" />
+    </list>
     <option name="SHOW_DIALOG" value="false" />
     <option name="HIGHLIGHT_CONFLICTS" value="true" />
     <option name="HIGHLIGHT_NON_ACTIVE_CHANGELIST" value="false" />
@@ -124,13 +132,14 @@
         <option value="ie23s" />
       </list>
     </option>
-    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
     <option name="PUSH_TAGS">
       <GitPushTagMode>
         <option name="argument" value="--follow-tags" />
         <option name="title" value="Current Branch" />
       </GitPushTagMode>
     </option>
+    <option name="RECENT_GIT_ROOT_PATH" value="$PROJECT_DIR$" />
+    <option name="UPDATE_TYPE" value="REBASE" />
   </component>
   <component name="GitSEFilterConfiguration">
     <file-type-list>
@@ -598,7 +607,14 @@
       <option name="project" value="LOCAL" />
       <updated>1649071612710</updated>
     </task>
-    <option name="localTasksCounter" value="37" />
+    <task id="LOCAL-00037" summary="POW-1 Event bug">
+      <created>1649072044048</created>
+      <option name="number" value="00037" />
+      <option name="presentableId" value="LOCAL-00037" />
+      <option name="project" value="LOCAL" />
+      <updated>1649072044048</updated>
+    </task>
+    <option name="localTasksCounter" value="38" />
     <servers />
   </component>
   <component name="ToolWindowManager">

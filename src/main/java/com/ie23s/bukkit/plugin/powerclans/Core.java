@@ -11,13 +11,9 @@ import com.ie23s.bukkit.plugin.powerclans.event.EventListener;
 import com.ie23s.bukkit.plugin.powerclans.modules.level.Level;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.Utils;
-import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
-import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
-import org.bukkit.plugin.Plugin;
-import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
 import org.jetbrains.annotations.NotNull;
 
@@ -34,17 +30,6 @@ public class Core extends JavaPlugin {
     private MemberList memberList;
     private Utils utils;
     private Level levelModule;
-
-    public static WorldGuardPlugin getWG() {
-        Plugin plugin = Bukkit.getPluginManager().getPlugin("WorldGuard");
-        return plugin instanceof WorldGuardPlugin ? (WorldGuardPlugin) plugin : null;
-    }
-
-    public static Economy getVault() {
-        RegisteredServiceProvider<Economy> economyProvider = Bukkit.getServicesManager().getRegistration(Economy.class);
-        assert economyProvider != null;
-        return economyProvider.getProvider();
-    }
 
     public void load() {
         YAMLHandler yamlHandler = new YAMLHandler(this);
