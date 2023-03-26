@@ -1,0 +1,16 @@
+name: PowerClans
+version: '${version}'
+main: com.ie23s.bukkit.plugin.powerclans.Core
+api-version: 1.19
+prefix: PowerClans
+depend: [ WorldGuard, WorldEdit ]
+authors: [ ie23s <admin@ie23s.com> ]
+website: e23s.com
+commands:
+  clan:
+    aliases: [ c ]
+  powerclans:
+    aliases: [ pc ]
+permissions:
+  PowerClans.*:
+    default: op
