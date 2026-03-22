@@ -164,7 +164,7 @@ class MySQL extends InitDB {
     }
 
     public void setPvP(Clan clan) {
-        this.execute("UPDATE clan_list SET pvp='" + (clan.isPvP() ? "1" : "0") + "' WHERE name='" + clan.getName() + "'");
+        this.execute("UPDATE clan_list SET pvp='" + (clan.isPvp() ? "1" : "0") + "' WHERE name='" + clan.getName() + "'");
     }
 
     public void kick(Member member) {

@@ -5,18 +5,20 @@ import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.clan.Member;
 
 import java.sql.ResultSet;
+import java.util.Objects;
 
-abstract public class InitDB {
+public abstract class InitDB {
     private InitDB connection = null;
 
 
     public static InitDB initDB(Core core) {
         InitDB connection;
-        String DBType = core.getConfig().getString("database").toLowerCase();
-        switch (DBType) {
+        String dbtype = Objects.requireNonNull(core.getConfig().getString("database")).toLowerCase();
+        switch (dbtype) {
             case "mysql":
                 connection = new MySQL(core);
                 connection.connect();
+                break;
             case "sqlite":
             default:
                 connection = new SQLite(core, "PowerClans");
@@ -25,6 +27,7 @@ abstract public class InitDB {
         return connection;
     }
 
+    @SuppressWarnings("unused")
     public InitDB getConnection() {
         return connection;
     }

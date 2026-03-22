@@ -4,6 +4,7 @@ import com.ie23s.bukkit.plugin.powerclans.Core;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 
@@ -14,7 +15,10 @@ public class PowerClansCommand implements CommandExecutor {
         this.core = core;
     }
 
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender,
+                             @NotNull Command command,
+                             @NotNull String label,
+                             String[] args) {
 
         if (args.length == 0) {
             reference(sender, args);
@@ -27,36 +31,19 @@ public class PowerClansCommand implements CommandExecutor {
         }
 
 
-        switch (args[0].toLowerCase()) {
-            case "reload":
-                try {
-                    core.load();
-                } catch (Exception e) {
-                    sender.sendMessage(core.lang("error._45"));
-                    core.getUtils().getLogger().error(e);
-                    return true;
-                }
-                sender.sendMessage(core.lang("command.reload"));
+        if (args[0].equalsIgnoreCase("reload")) {
+            try {
+                core.load();
+            } catch (Exception e) {
+                sender.sendMessage(core.lang("error._45"));
+                core.getUtils().getLogger().error(e);
                 return true;
-            case "uc2":
-                if (sender.hasPermission("PowerClans.admin.uc2")) {
-                    return false;
-                }
-                //SQLite.importUC2();
-                try {
-                    core.load();
-                } catch (Exception e) {
-                    sender.sendMessage(core.lang("error._45"));
-                    core.getUtils().getLogger().error("e");
-                    return true;
-                }
-                sender.sendMessage(core.lang("command.uc2"));
-                sender.sendMessage(core.lang("command.reload"));
-            default:
-                reference(sender, args);
-                return true;
-
+            }
+            sender.sendMessage(core.lang("command.reload"));
+            return true;
         }
+        reference(sender, args);
+        return true;
     }
 
     private void reference(CommandSender sender, String[] args) {

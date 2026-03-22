@@ -32,8 +32,8 @@ public final class MiscCommands {
 
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
-            clan.setPvP(!clan.isPvP());
-            String key = clan.isPvP() ? "clan.pvp_1" : "clan.pvp_2";
+            clan.setPvp(!clan.isPvp());
+            String key = clan.isPvp() ? "clan.pvp_1" : "clan.pvp_2";
             clan.broadcast(core.lang(key, s.getName()));
         }
     }
@@ -53,7 +53,7 @@ public final class MiscCommands {
         @Override
         public boolean validate(CommandSender s, String[] args, Clan clan, String user) {
             if (!perm(s, args) || !inClan(s, clan) || !isLeader(s, clan, "errors._37")) return false;
-            showUpgradeInfo((Player) s, clan);
+            showUpgradeInfo((Player) s);
             if (!core.getLevelModule().getRequirements().canUpgrade(clan)) {
                 s.sendMessage(core.lang("level.upgrade.cannot")); return false;
             }
@@ -71,7 +71,7 @@ public final class MiscCommands {
         /**
          * Sends current upgrade requirements and ability previews to the player.
          */
-        private void showUpgradeInfo(Player player, Clan clan) {
+        private void showUpgradeInfo(Player player) {
             core.getLevelModule().getRequirements().upgradeRequirements(player);
             player.sendMessage(core.lang("level.upgrade.ulget"));
             core.getLevelModule().getAbilities().upgradeAbilities(player, true);

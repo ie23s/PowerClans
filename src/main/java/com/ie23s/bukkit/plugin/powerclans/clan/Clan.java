@@ -55,11 +55,6 @@ public class Clan {
     public String getTag() {
         return this.tag;
     }
-
-    public boolean isPvp() {
-        return pvp;
-    }
-
     public Location getHome() {
         return this.home.getHome();
     }
@@ -86,13 +81,14 @@ public class Clan {
         core.getDb().setBalance(this);
     }
 
-    public boolean isPvP() {
+    public boolean isPvp() {
         return this.pvp;
     }
 
-    public void setPvP(boolean pvp) {
+    public void setPvp(boolean pvp) {
         this.pvp = pvp;
-        core.getDb().setPvP(this);
+        core.getDb().setPvP(this
+        );
     }
 
     public void invite(String name) {
