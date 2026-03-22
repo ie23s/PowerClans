@@ -71,7 +71,7 @@ public class EventListener implements Listener {
                     if (!userClan.isPvP()) {
                         return;
                     }
-                    damager.sendMessage(core.getLang().getMessage("other.damage_in_clan"));
+                    damager.sendMessage(core.lang("other.damage_in_clan"));
                     event.setCancelled(true);
                 }
             }
@@ -94,7 +94,7 @@ public class EventListener implements Listener {
                 Clan userClan = core.getClanList().getClanByName(event.getPlayer().getName());
 
                 if (userClan == null) {
-                    event.getPlayer().sendMessage(core.getLang().getMessage("error._9"));
+                    event.getPlayer().sendMessage(core.lang("error._9"));
                     event.setCancelled(true);
                     return;
                 }
@@ -119,7 +119,7 @@ public class EventListener implements Listener {
                     c1 = ChatColor.DARK_RED;
                 }
 
-                event.setFormat(core.getLang().getMessage("chat.clanchat", core.getLang().getMessage("chat.clan"), c1 + event.getPlayer().getName(), "%2$s"));
+                event.setFormat(core.lang("chat.clanchat", core.lang("chat.clan"), c1 + event.getPlayer().getName(), "%2$s"));
                 event.setMessage(event.getMessage().substring(1).replace("§", "&"));
             }
         }

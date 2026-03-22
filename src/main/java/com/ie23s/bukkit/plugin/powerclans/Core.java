@@ -10,6 +10,7 @@ import com.ie23s.bukkit.plugin.powerclans.database.InitDB;
 import com.ie23s.bukkit.plugin.powerclans.event.EventListener;
 import com.ie23s.bukkit.plugin.powerclans.modules.level.Level;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
+import com.ie23s.bukkit.plugin.powerclans.utils.RequestType;
 import com.ie23s.bukkit.plugin.powerclans.utils.Utils;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import net.milkbowl.vault.economy.Economy;
@@ -19,6 +20,7 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -61,7 +63,7 @@ public class Core extends JavaPlugin {
 
     public void onDisable() {
         db.disconnect();
-        utils.getLogger().info(this.getLang().getMessage("other.plugin_disabled"));
+        utils.getLogger().info(lang("other.plugin_disabled"));
     }
 
     public void onEnable() {
@@ -86,20 +88,21 @@ public class Core extends JavaPlugin {
 
             for (var3 = toDelete.iterator(); var3.hasNext(); r.remove()) {
                 r = var3.next();
-                if (r.getType() == 0) {
-                    r.getPlayer().sendMessage(this.getLang().getMessage("other.invite_canceled"));
+                if (r.getType() == RequestType.INVITE) {
+                    r.getPlayer().sendMessage(lang("other.invite_canceled"));
                     @SuppressWarnings("deprecation") OfflinePlayer pl = Bukkit.getOfflinePlayer(r.getSender());
-                    if (pl.isOnline()) {
-                        pl.getPlayer().sendMessage(this.getLang().getMessage("other.invite_canceled2", r.getPlayer().getName()));
+                    if (pl.getPlayer() != null && pl.isOnline()) {
+                        pl.getPlayer().sendMessage(lang("other.invite_canceled2", r.getPlayer().getName()));
                     }
                 }
             }
 
         }, 0L, 20L);
         Bukkit.getPluginManager().registerEvents(new EventListener(this), this);
-        utils.getLogger().info(this.getLang().getMessage("other.plugin_enabled", System.currentTimeMillis() - time));
+        utils.getLogger().info(lang("other.plugin_enabled", System.currentTimeMillis() - time));
     }
 
+    @NotNull
     @Override
     public FileConfiguration getConfig() {
         return config;
@@ -107,6 +110,14 @@ public class Core extends JavaPlugin {
 
     public Language getLang() {
         return lang;
+    }
+
+    public String lang(String key) {
+        return lang.getMessage(key);
+    }
+
+    public String lang(String key, Object... args) {
+        return lang.getMessage(key, args);
     }
 
     public InitDB getDb() {

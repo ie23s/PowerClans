@@ -22,9 +22,9 @@ public class Warm {
         if (player.hasPermission("PowerClans.warm.ignore")) {
             clan(player, clan);
         } else if (isWarming(player)) {
-            player.sendMessage(core.getLang().getMessage("other.warm_alredy"));
+            player.sendMessage(core.lang("other.warm_alredy"));
         } else {
-            player.sendMessage(core.getLang().getMessage("other.warm_use", core.getConfig().getInt("settings.warm")));
+            player.sendMessage(core.lang("other.warm_use", core.getConfig().getInt("settings.warm")));
             int taskIndex = Bukkit.getScheduler().scheduleSyncDelayedTask(core, new Warm.WarmTask(core, player, clan), core.getConfig().getInt("settings.warm") * 20);
             players.put(player.getName(), taskIndex);
             playerloc.put(player.getName(), player.getLocation());
@@ -46,14 +46,14 @@ public class Warm {
             Bukkit.getScheduler().cancelTask(players.get(player.getName()));
             players.remove(player.getName());
             playerloc.remove(player.getName());
-            player.sendMessage(core.getLang().getMessage("other.warm_canceled"));
+            player.sendMessage(core.lang("other.warm_canceled"));
         }
 
     }
 
     public void clan(Player pl, Clan clan) {
         pl.teleport(clan.getHome());
-        pl.sendMessage(core.getLang().getMessage("clan.teleport"));
+        pl.sendMessage(core.lang("clan.teleport"));
     }
 
     private static class WarmTask implements Runnable {

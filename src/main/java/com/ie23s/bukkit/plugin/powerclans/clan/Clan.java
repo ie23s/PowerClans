@@ -123,7 +123,7 @@ public class Clan {
     public void disband() {
         for (String mem : core.getMemberList().getListOfMembers(this.name))
             kick(mem);
-        core.getClanList().getClans().remove(this.name);
+        core.getClanList().getClans().remove(this.name.toLowerCase());
         core.getDb().disband(this.name);
     }
 
@@ -152,7 +152,7 @@ public class Clan {
     public void broadcast(String message) {
         for (String member : core.getMemberList().getListOfMembers(this.name)) {
             if (Bukkit.getOfflinePlayer(member).isOnline()) {
-                Objects.requireNonNull(Bukkit.getPlayer(member)).sendMessage(core.getLang().getMessage("command.broadcast_format", core.getLang().getMessage("chat.clan"), message));
+                Objects.requireNonNull(Bukkit.getPlayer(member)).sendMessage(core.lang("command.broadcast_format", core.lang("chat.clan"), message));
             }
         }
 

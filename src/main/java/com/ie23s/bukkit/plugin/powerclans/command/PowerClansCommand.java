@@ -22,7 +22,7 @@ public class PowerClansCommand implements CommandExecutor {
         }
 
         if (!sender.hasPermission("PowerClans.admin" + args[0])) {
-            sender.sendMessage(core.getLang().getMessage("errors._1"));
+            sender.sendMessage(core.lang("errors._1"));
             return false;
         }
 
@@ -32,11 +32,11 @@ public class PowerClansCommand implements CommandExecutor {
                 try {
                     core.load();
                 } catch (Exception e) {
-                    sender.sendMessage(core.getLang().getMessage("error._45"));
+                    sender.sendMessage(core.lang("error._45"));
                     core.getUtils().getLogger().error(e);
                     return true;
                 }
-                sender.sendMessage(core.getLang().getMessage("command.reload"));
+                sender.sendMessage(core.lang("command.reload"));
                 return true;
             case "uc2":
                 if (sender.hasPermission("PowerClans.admin.uc2")) {
@@ -46,12 +46,12 @@ public class PowerClansCommand implements CommandExecutor {
                 try {
                     core.load();
                 } catch (Exception e) {
-                    sender.sendMessage(core.getLang().getMessage("error._45"));
+                    sender.sendMessage(core.lang("error._45"));
                     core.getUtils().getLogger().error("e");
                     return true;
                 }
-                sender.sendMessage(core.getLang().getMessage("command.uc2"));
-                sender.sendMessage(core.getLang().getMessage("command.reload"));
+                sender.sendMessage(core.lang("command.uc2"));
+                sender.sendMessage(core.lang("command.reload"));
             default:
                 reference(sender, args);
                 return true;
@@ -70,12 +70,12 @@ public class PowerClansCommand implements CommandExecutor {
             page = Integer.parseInt(args[0]);
         } catch (Exception ignore) {
         }
-        sender.sendMessage(core.getLang().getMessage("reference._1"));
+        sender.sendMessage(core.lang("reference._1"));
         for (int i = (page - 1) * 5; i < page * 5 && i < commands.size(); i++) {
-            sender.sendMessage(core.getLang().getMessage("reference.startpc") + core.getLang().getMessage("reference.pc_" + commands.get(i)));
+            sender.sendMessage(core.lang("reference.startpc") + core.lang("reference.pc_" + commands.get(i)));
         }
         if (page * 5 <= commands.size()) {
-            sender.sendMessage(core.getLang().getMessage("reference._2", (page + 1)));
+            sender.sendMessage(core.lang("reference._2", (page + 1)));
         }
     }
 

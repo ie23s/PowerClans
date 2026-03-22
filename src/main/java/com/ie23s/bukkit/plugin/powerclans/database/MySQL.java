@@ -36,7 +36,7 @@ class MySQL extends InitDB {
                 core.getUtils().getLogger().debug(strip(query));
                 connection.createStatement().execute(strip(query));
             } catch (Exception var2) {
-                core.getUtils().getLogger().error(core.getLang().getMessage("other.mysql_error2"));
+                core.getUtils().getLogger().error(core.lang("other.mysql_error2"));
                 core.getUtils().getLogger().error(query);
                 core.getUtils().getLogger().error(var2.getMessage());
             }
@@ -72,7 +72,7 @@ class MySQL extends InitDB {
             core.getUtils().getLogger().debug(strip(query));
             connection.createStatement().execute(strip(query));
         } catch (Exception var2) {
-            core.getUtils().getLogger().error(core.getLang().getMessage("other.mysql_error2"));
+            core.getUtils().getLogger().error(core.lang("other.mysql_error2"));
             core.getUtils().getLogger().error(query);
             core.getUtils().getLogger().error(var2.getMessage());
         }
@@ -140,9 +140,9 @@ class MySQL extends InitDB {
                 }
             }
 
-            core.getUtils().getLogger().info(core.getLang().getMessage("clan.loaded"));
+            core.getUtils().getLogger().info(core.lang("clan.loaded"));
         } catch (Exception var2) {
-            core.getUtils().getLogger().error(core.getLang().getMessage("clan.load_error"));
+            core.getUtils().getLogger().error(core.lang("clan.load_error"));
         }
 
     }
