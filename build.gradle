@@ -87,6 +87,12 @@ test {
     useJUnitPlatform()
 }
 
+groovyjacocoTestReport {
+    dependsOn test
+    reports {
+        xml.required = true  // це обов'язково
+    }
+}
 // ─── API jar ──────────────────────────────────────────────────────────────────
 
 tasks.register('apiJar', Jar) {
