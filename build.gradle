@@ -2,6 +2,7 @@ plugins {
     id 'java'
     id 'maven-publish'
     id 'org.sonarqube' version '5.0.0.4638'
+    id 'com.gradleup.shadow' version '8.3.6'
 }
 
 // ─── Versioning ───────────────────────────────────────────────────────────────
@@ -75,6 +76,9 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:5.14.2'
     testImplementation 'org.mockito:mockito-junit-jupiter:5.14.2'
     testRuntimeOnly 'org.junit.platform:junit-platform-launcher'
+    testImplementation 'org.xerial:sqlite-jdbc:3.47.1.0'
+
+    implementation 'com.zaxxer:HikariCP:5.1.0'
 }
 
 // ─── Tests ────────────────────────────────────────────────────────────────────
@@ -104,6 +108,12 @@ processResources {
     filesMatching('plugin.yml') {
         expand props
     }
+}
+
+// ─── Shadow ───────────────────────────────────────────────────────────────────
+
+shadowJar {
+    relocate 'com.zaxxer.hikari', 'com.ie23s.bukkit.plugin.powerclans.libs.hikari'
 }
 
 // ─── SonarQube ────────────────────────────────────────────────────────────────

@@ -1,12 +1,15 @@
 package com.ie23s.bukkit.plugin.powerclans.command.clan;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.api.IClanCommand;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.clan.ClanList;
 import com.ie23s.bukkit.plugin.powerclans.clan.Member;
 import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
-import com.ie23s.bukkit.plugin.powerclans.database.InitDB;
+import com.ie23s.bukkit.plugin.powerclans.database.service.ClanDataService;
+import com.ie23s.bukkit.plugin.powerclans.database.service.ClanService;
+import com.ie23s.bukkit.plugin.powerclans.database.service.MemberService;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import org.bukkit.Bukkit;
 import org.bukkit.OfflinePlayer;
@@ -27,16 +30,18 @@ import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 /**
- * End-to-end scenario tests: real MemberList + Clan objects, mocked DB.
+ * End-to-end scenario tests: real MemberList + Clan objects, mocked services.
  * Each test walks through a full command flow (execute → request → accept)
- * and verifies the resulting in-memory state and DB call.
+ * and verifies the resulting in-memory state and service call.
  */
 @ExtendWith(MockitoExtension.class)
 @org.mockito.junit.jupiter.MockitoSettings(strictness = Strictness.LENIENT)
 class ClanScenarioTest {
 
     @Mock Core core;
-    @Mock InitDB db;
+    @Mock ClanService clanService;
+    @Mock ClanDataService clanDataService;
+    @Mock MemberService memberService;
     @Mock FileConfiguration config;
 
     MemberList memberList;
@@ -49,12 +54,15 @@ class ClanScenarioTest {
 
         memberList = new MemberList();
         when(core.getMemberList()).thenReturn(memberList);
-        when(core.getDb()).thenReturn(db);
+        when(core.getClanService()).thenReturn(clanService);
+        when(core.getClanDataService()).thenReturn(clanDataService);
+        when(core.getMemberService()).thenReturn(memberService);
         lenient().when(core.lang(anyString())).thenAnswer(inv -> inv.getArgument(0));
-        lenient().when(core.lang(anyString(), (Object[]) any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(core.lang(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
 
         clanList = new ClanList(core);
-        clan = new Clan(core, "TestClan", "TC", "alice", "none", 10, true, 0, 0, 0, 0, 1);
+        clan = new Clan(core, java.util.UUID.randomUUID().toString(), "TestClan", "alice", 10, 1);
+        clan.set(ClanDataKey.TAG, "TC");
         clanList.getClans().put("testclan", clan);
         when(core.getClanList()).thenReturn(clanList);
         lenient().when(core.getConfig()).thenReturn(config);
@@ -78,7 +86,6 @@ class ClanScenarioTest {
 
     /**
      * Stubs Bukkit.getOfflinePlayer(any) so broadcast() skips all online checks.
-     * Each returned mock has getName() equal to the argument and isOnline() = false.
      */
     @SuppressWarnings("deprecation")
     private void stubAllOffline(MockedStatic<Bukkit> bukkit) {
@@ -89,9 +96,7 @@ class ClanScenarioTest {
         });
     }
 
-    // -------------------------------------------------------------------------
-    // Scenario: leader invites a player → player accepts → player joins the clan
-    // -------------------------------------------------------------------------
+    // ── invite → accept ───────────────────────────────────────────────────────
 
     @Test
     void inviteAccept_playerJoinsClan() {
@@ -102,21 +107,16 @@ class ClanScenarioTest {
             stubAllOffline(bukkit);
             bukkit.when(() -> Bukkit.getPlayer("newguy")).thenReturn(newguy);
 
-            // alice sends the invite
             new MemberCommands.Invite(core).execute(alice, new String[]{"invite", "newguy"}, clan, "alice");
-
-            // newguy accepts
             new RequestCommands.Accept(core, Map.of()).execute(newguy, new String[]{"accept"}, null, "newguy");
         }
 
         assertTrue(memberList.isMember("newguy"), "newguy should be in memberList");
         assertEquals("TestClan", memberList.getMember("newguy").getClan());
-        verify(db).createClanMember(argThat(m -> m.getName().equals("newguy") && m.getClan().equals("TestClan")));
+        verify(memberService).create(argThat(m -> m.getName().equals("newguy") && m.getClan().equals("TestClan")));
     }
 
-    // -------------------------------------------------------------------------
-    // Scenario: leader kicks a member → member is removed from the clan
-    // -------------------------------------------------------------------------
+    // ── kick ──────────────────────────────────────────────────────────────────
 
     @Test
     void kick_removesPlayerFromClan() {
@@ -131,12 +131,10 @@ class ClanScenarioTest {
         }
 
         assertFalse(memberList.isMember("bob"), "bob should be removed from memberList");
-        verify(db).kick(argThat(m -> m.getName().equals("bob")));
+        verify(memberService).delete(argThat(m -> m.getName().equals("bob")));
     }
 
-    // -------------------------------------------------------------------------
-    // Scenario: member runs /clan leave → accepts → removed from the clan
-    // -------------------------------------------------------------------------
+    // ── leave → accept ────────────────────────────────────────────────────────
 
     @Test
     void leaveAccept_playerLeavesClan() {
@@ -151,12 +149,10 @@ class ClanScenarioTest {
         }
 
         assertFalse(memberList.isMember("bob"), "bob should be removed after accepting leave");
-        verify(db).kick(argThat(m -> m.getName().equals("bob")));
+        verify(memberService).delete(argThat(m -> m.getName().equals("bob")));
     }
 
-    // -------------------------------------------------------------------------
-    // Scenario: leader promotes a member to moderator
-    // -------------------------------------------------------------------------
+    // ── addmoder ──────────────────────────────────────────────────────────────
 
     @Test
     void addmoder_promotesPlayerToModerator() {
@@ -164,7 +160,6 @@ class ClanScenarioTest {
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
             stubAllOffline(bukkit);
-            // addmoder execute calls getOfflinePlayer(bob).getName() for the broadcast message
             OfflinePlayer offlineBob = mock(OfflinePlayer.class);
             when(offlineBob.getName()).thenReturn("bob");
             bukkit.when(() -> Bukkit.getOfflinePlayer("bob")).thenReturn(offlineBob);
@@ -173,12 +168,10 @@ class ClanScenarioTest {
         }
 
         assertTrue(clan.hasModer("bob"), "bob should be a moderator after addmoder");
-        verify(db).setModer(argThat(m -> m.getName().equals("bob") && m.isModer()));
+        verify(memberService).updateModer(argThat(m -> m.getName().equals("bob") && m.isModer()));
     }
 
-    // -------------------------------------------------------------------------
-    // Scenario: leader transfers leadership → accepts → leadership changes
-    // -------------------------------------------------------------------------
+    // ── leader transfer → accept ──────────────────────────────────────────────
 
     @Test
     void leaderTransferAccept_changesLeader() {
@@ -187,7 +180,6 @@ class ClanScenarioTest {
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
             stubAllOffline(bukkit);
-            // Leader.validate() checks hasPlayedBefore() for the target
             OfflinePlayer offlineBob = mock(OfflinePlayer.class);
             when(offlineBob.hasPlayedBefore()).thenReturn(true);
             bukkit.when(() -> Bukkit.getOfflinePlayer("bob")).thenReturn(offlineBob);
@@ -198,12 +190,10 @@ class ClanScenarioTest {
 
         assertEquals("bob", clan.getLeader());
         assertFalse(clan.hasLeader("alice"), "alice should no longer be the leader");
-        verify(db).setLeader(argThat(m -> m.getName().equals("bob")));
+        verify(clanService).updateLeader(argThat(c -> c.getLeader().equals("bob")));
     }
 
-    // -------------------------------------------------------------------------
-    // Scenario: player creates a new clan → accepts → clan exists and player is leader
-    // -------------------------------------------------------------------------
+    // ── create → accept ───────────────────────────────────────────────────────
 
     @Test
     void createAccept_clanIsCreatedAndPlayerIsLeader() {
@@ -222,13 +212,12 @@ class ClanScenarioTest {
         assertEquals("charlie", newClan.getLeader());
         assertTrue(memberList.isMember("charlie"), "charlie should be in memberList");
         assertEquals("NewClan", memberList.getMember("charlie").getClan());
-        verify(db).createClan(argThat(c -> c.getName().equals("NewClan")));
-        verify(db).createClanMember(argThat(m -> m.getName().equals("charlie") && m.getClan().equals("NewClan")));
+        verify(clanService).create(argThat(c -> c.getName().equals("NewClan")));
+        verify(clanDataService).create(argThat(c -> c.getName().equals("NewClan")));
+        verify(memberService).create(argThat(m -> m.getName().equals("charlie") && m.getClan().equals("NewClan")));
     }
 
-    // -------------------------------------------------------------------------
-    // Scenario: leader disbands the clan → all members removed, clan deleted
-    // -------------------------------------------------------------------------
+    // ── disband → accept ──────────────────────────────────────────────────────
 
     @Test
     void disbandAccept_removesAllMembersAndClan() {
@@ -245,7 +234,8 @@ class ClanScenarioTest {
         assertFalse(memberList.isMember("alice"), "alice should be removed after disband");
         assertFalse(memberList.isMember("bob"),   "bob should be removed after disband");
         assertNull(clanList.getClan("TestClan"),   "TestClan should no longer exist");
-        verify(db, times(2)).kick(any(Member.class));
-        verify(db).disband("TestClan");
+        verify(memberService, times(2)).delete(any(Member.class));
+        verify(memberService).deleteByClan("TestClan");
+        verify(clanService).delete(argThat(c -> c.getName().equals("TestClan")));
     }
 }

@@ -1,114 +1,163 @@
 package com.ie23s.bukkit.plugin.powerclans.clan;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
+import com.ie23s.bukkit.plugin.powerclans.api.IClan;
+import com.ie23s.bukkit.plugin.powerclans.api.IClanData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 
+import java.util.EnumMap;
+import java.util.Map;
 import java.util.Objects;
 
-public class Clan {
+public class Clan implements IClan, IClanData {
+
     private final Core core;
 
+    // clan_list fields
+    private final String uuid;
     private final String name;
-    private final String tag;
     private String leader;
-    private final Home home;
-    private int maxplayers;
-    private boolean pvp;
-    private double balance;
-
-    private int onlineTime;
-    private int mobkills;
-    private int playerkills;
+    private int maxPlayers;
     private int level;
 
-    public Clan(Core core, String name, String tag, String leader, String home, int maxplayers, boolean pvp,
-                double balance, int mobkills, int playerkills, int onlineTime, int level) {
-        this.core = core;
+    // clan_data fields
+    private final Map<ClanDataKey, Object> data = new EnumMap<>(ClanDataKey.class);
 
+    public Clan(Core core, String uuid, String name, String leader, int maxPlayers, int level) {
+        this.core = core;
+        this.uuid = uuid;
         this.name = name;
         this.leader = leader;
-        this.tag = tag;
-        this.home = new Home(home);
-        this.maxplayers = maxplayers;
-        this.pvp = pvp;
-        this.balance = balance;
-        this.mobkills = mobkills;
-        this.playerkills = playerkills;
-        this.onlineTime = onlineTime;
+        this.maxPlayers = maxPlayers;
         this.level = level;
+        for (ClanDataKey key : ClanDataKey.values()) {
+            data.put(key, key.defaultValue());
+        }
     }
 
-    public String getName() {
-        return this.name;
+    // ── IClan ─────────────────────────────────────────────────────────────────
+
+    @Override public String getUuid()       { return uuid; }
+    @Override public String getName()       { return name; }
+    @Override public String getLeader()     { return leader; }
+    @Override public int    getMaxPlayers() { return maxPlayers; }
+    @Override public int    getLevel()      { return level; }
+
+    // ── IClanData ─────────────────────────────────────────────────────────────
+
+    @Override
+    public Object getRaw(ClanDataKey key) {
+        return data.getOrDefault(key, key.defaultValue());
     }
 
-    public String getLeader() {
-        return this.leader;
+    @Override
+    public void set(ClanDataKey key, Object value) {
+        data.put(key, value);
     }
+
+    // ── Convenience getters ───────────────────────────────────────────────────
+
+    public String getTag() { return getString(ClanDataKey.TAG); }
+
+    public boolean isPvp() { return getBoolean(ClanDataKey.PVP); }
+
+    public double getBalance() { return getDouble(ClanDataKey.BALANCE); }
+
+    public int getMobKills() { return getInt(ClanDataKey.MOB_KILLS); }
+
+    public int getPlayerKills() { return getInt(ClanDataKey.PLAYER_KILLS); }
+
+    public int getOnlineTime() { return getInt(ClanDataKey.ONLINE_TIME); }
+
+    public String getHomeString() { return getString(ClanDataKey.HOME); }
+
+    public Location getHome() {
+        String loc = getString(ClanDataKey.HOME);
+        if ("none".equals(loc)) return null;
+        String[] p = loc.split(";");
+        return new Location(Bukkit.getWorld(p[0]),
+                Double.parseDouble(p[1]), Double.parseDouble(p[2]), Double.parseDouble(p[3]),
+                Float.parseFloat(p[4]), Float.parseFloat(p[5]));
+    }
+
+    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
+    public boolean hasHome() {
+        return !"none".equals(getString(ClanDataKey.HOME));
+    }
+
+    // ── Mutators (update in-memory + persist) ─────────────────────────────────
 
     public void setLeader(String leader) {
         this.leader = leader.toLowerCase();
-        core.getDb().setLeader(core.getMemberList().getMember(leader));
-    }
-
-    public String getTag() {
-        return this.tag;
-    }
-    public Location getHome() {
-        return this.home.getHome();
+        core.getClanService().updateLeader(this);
     }
 
     public void setHome(Location location) {
-        this.home.setHome(location);
-        core.getDb().setHome(this);
+        String s = Objects.requireNonNull(location.getWorld()).getName()
+                + ";" + location.getX() + ";" + location.getY() + ";" + location.getZ()
+                + ";" + location.getYaw() + ";" + location.getPitch();
+        set(ClanDataKey.HOME, s);
+        core.getClanDataService().updateHome(this);
     }
 
     public void removeHome() {
-        this.home.removeHome();
-    }
-
-    public int getMaxPlayers() {
-        return this.maxplayers;
-    }
-
-    public double getBalance() {
-        return this.balance;
+        set(ClanDataKey.HOME, "none");
     }
 
     public void setBalance(double balance) {
-        this.balance = balance;
-        core.getDb().setBalance(this);
-    }
-
-    public boolean isPvp() {
-        return this.pvp;
+        set(ClanDataKey.BALANCE, balance);
+        core.getClanDataService().updateBalance(this);
     }
 
     public void setPvp(boolean pvp) {
-        this.pvp = pvp;
-        core.getDb().setPvP(this
-        );
+        set(ClanDataKey.PVP, pvp);
+        core.getClanDataService().updatePvp(this);
     }
+
+    public void addMobKill() {
+        set(ClanDataKey.MOB_KILLS, getMobKills() + 1);
+        core.getClanDataService().updateMobKills(this);
+    }
+
+    public void addPlayerKill() {
+        set(ClanDataKey.PLAYER_KILLS, getPlayerKills() + 1);
+        core.getClanDataService().updatePlayerKills(this);
+    }
+
+    public void addOnlineTime() {
+        set(ClanDataKey.ONLINE_TIME, getOnlineTime() + 1);
+        core.getClanDataService().updateOnlineTime(this);
+    }
+
+    public void upgrade(int i) {
+        this.maxPlayers += i;
+        core.getClanService().updateMaxPlayers(this);
+    }
+
+    public void addLevel() {
+        ++this.level;
+        core.getClanService().updateLevel(this);
+    }
+
+    // ── Member management ─────────────────────────────────────────────────────
 
     public void invite(String name) {
         Member member = new Member(name, false, this.name);
         core.getMemberList().addMember(member);
-        core.getDb().createClanMember(member);
+        core.getMemberService().create(member);
     }
 
     public void kick(String name) {
-        core.getDb().kick(core.getMemberList().getMember(name));
+        core.getMemberService().delete(core.getMemberList().getMember(name));
         core.getMemberList().removeMember(name);
-
     }
 
     public void setModer(String name, boolean isModer) {
-
         Member member = core.getMemberList().getMember(name);
         member.setModer(isModer);
-        core.getDb().setModer(member);
-
+        core.getMemberService().updateModer(member);
     }
 
     public boolean hasModer(String name) {
@@ -120,123 +169,27 @@ public class Clan {
         for (String mem : core.getMemberList().getListOfMembers(this.name))
             kick(mem);
         core.getClanList().getClans().remove(this.name.toLowerCase());
-        core.getDb().disband(this.name);
+        core.getMemberService().deleteByClan(this.name);
+        core.getClanService().delete(this);
     }
+
+    // ── Queries ───────────────────────────────────────────────────────────────
 
     public boolean hasLeader(String player) {
-        return this.getLeader().equalsIgnoreCase(player);
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean hasHome() {
-        return this.home.hasHome();
+        return this.leader.equalsIgnoreCase(player);
     }
 
     public boolean hasClanMember(String name) {
-
         Member member = core.getMemberList().getMember(name);
-
         return member.getClan().equals(this.name);
-
-    }
-
-    public void upgrade(int i) {
-        this.maxplayers += i;
-        core.getDb().clanUpgrade(this);
     }
 
     public void broadcast(String message) {
         for (String member : core.getMemberList().getListOfMembers(this.name)) {
             if (Bukkit.getOfflinePlayer(member).isOnline()) {
-                Objects.requireNonNull(Bukkit.getPlayer(member)).sendMessage(core.lang("command.broadcast_format", core.lang("chat.clan"), message));
+                Objects.requireNonNull(Bukkit.getPlayer(member))
+                       .sendMessage(core.lang("command.broadcast_format", core.lang("chat.clan"), message));
             }
         }
-
-    }
-
-    public int getMobKills() {
-        return mobkills;
-    }
-
-    public void addMobKill() {
-        ++this.mobkills;
-        core.getDb().setMobKills(this);
-    }
-
-    public int getPlayerKills() {
-        return playerkills;
-    }
-
-    public void addPlayerKill() {
-        ++this.playerkills;
-        core.getDb().setPlayerKills(this);
-    }
-
-    public int getOnlineTime() {
-        return onlineTime;
-    }
-
-    public void addOnlineTime() {
-        ++this.onlineTime;
-        core.getDb().setOnlineTime(this);
-    }
-
-    public void addLevel() {
-        ++this.level;
-        core.getDb().setLevel(this);
-    }
-
-    public int getLevel() {
-        return level;
-    }
-
-    public String getHomeString() {
-        return this.home.getStringLocation();
-    }
-
-    static class Home {
-        private boolean hasHome = true;
-        private Location location;
-        private String stringLocation;
-
-        Home(String location) {
-
-            if (location.equals("none")) {
-                hasHome = false;
-                stringLocation = location;
-                return;
-            }
-
-            String[] cords = location.split(";");
-            this.location = new Location(Bukkit.getWorld(cords[0]),
-                    Double.parseDouble(cords[1]), Double.parseDouble(cords[2]), Double.parseDouble(cords[3]),
-                    Float.parseFloat(cords[4]), Float.parseFloat(cords[5]));
-            this.stringLocation = location;
-        }
-
-        Location getHome() {
-            return this.location;
-        }
-
-        void setHome(Location loc) {
-            this.hasHome = true;
-            this.location = loc;
-            this.stringLocation = Objects.requireNonNull(loc.getWorld()).getName() + ";" + loc.getX() + ";" + loc.getY() + ";" + loc.getZ() + ";" + loc.getYaw() + ";" + loc.getPitch();
-        }
-
-        void removeHome() {
-            stringLocation = "none";
-            hasHome = false;
-        }
-
-        boolean hasHome() {
-            return hasHome;
-        }
-
-        String getStringLocation() {
-            return this.stringLocation;
-        }
-
-
     }
 }
