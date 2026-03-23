@@ -87,7 +87,7 @@ test {
     useJUnitPlatform()
 }
 
-groovyjacocoTestReport {
+jacocoTestReport {
     dependsOn test
     reports {
         xml.required = true  // це обов'язково
