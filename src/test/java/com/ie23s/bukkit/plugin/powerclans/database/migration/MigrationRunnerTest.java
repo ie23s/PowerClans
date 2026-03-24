@@ -31,11 +31,11 @@ class MigrationRunnerTest extends BaseDbTest {
     }
 
     @Test
-    void migrate_setsSchemaVersionTo3() throws SQLException {
+    void migrate_setsSchemaVersionTo2() throws SQLException {
         try (var ps = connection.prepareStatement("SELECT value FROM db_meta WHERE key='schema_version'");
              ResultSet rs = ps.executeQuery()) {
             assertTrue(rs.next());
-            assertEquals("3", rs.getString("value"));
+            assertEquals("2", rs.getString("value"));
         }
     }
 

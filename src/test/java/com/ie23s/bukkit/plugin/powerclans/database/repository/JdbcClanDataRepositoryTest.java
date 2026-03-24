@@ -1,5 +1,6 @@
 package com.ie23s.bukkit.plugin.powerclans.database.repository;
 
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.database.BaseDbTest;
 import com.ie23s.bukkit.plugin.powerclans.database.dto.ClanDataDto;
 import com.ie23s.bukkit.plugin.powerclans.database.dto.ClanDto;
@@ -9,6 +10,9 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.EnumMap;
+import java.util.List;
+import java.util.Map;
 
 import static org.junit.jupiter.api.Assertions.*;
 
@@ -18,15 +22,16 @@ class JdbcClanDataRepositoryTest extends BaseDbTest {
 
     private JdbcClanDataRepository repo;
 
-    private static final ClanDataDto DATA = new ClanDataDto(
-            UUID, "WAR", "none", false, 0.0, 0, 0, 0
-    );
-
     @BeforeEach
     void setUp() throws SQLException {
-        // clan_data has FK on clan_list in MySQL; insert parent row first
         new JdbcClanRepository(provider).insert(new ClanDto(0, UUID, "warriors", "steve", 10, 1));
         repo = new JdbcClanDataRepository(provider);
+    }
+
+    private Map<ClanDataKey, Object> defaultData() {
+        Map<ClanDataKey, Object> data = new EnumMap<>(ClanDataKey.class);
+        for (ClanDataKey key : ClanDataKey.values()) data.put(key, key.defaultValue());
+        return data;
     }
 
     @Test
@@ -35,74 +40,64 @@ class JdbcClanDataRepositoryTest extends BaseDbTest {
     }
 
     @Test
-    void insert_thenFindAll_returnsData() throws SQLException {
-        repo.insert(DATA);
-        var result = repo.findAll();
+    void insertAll_insertsOneRowPerKey() throws SQLException {
+        repo.insertAll(UUID, defaultData());
 
-        assertEquals(1, result.size());
-        ClanDataDto found = result.getFirst();
-        assertEquals(UUID, found.clanUuid());
-        assertEquals("WAR", found.tag());
-        assertEquals("none", found.home());
-        assertFalse(found.pvp());
-        assertEquals(0.0, found.balance());
+        assertEquals(ClanDataKey.values().length, repo.findAll().size());
     }
 
     @Test
-    void insert_defaultsCountersToZero() throws SQLException {
-        repo.insert(DATA);
-        ClanDataDto found = repo.findAll().getFirst();
+    void insertAll_storesCorrectIdents() throws SQLException {
+        repo.insertAll(UUID, defaultData());
 
-        assertEquals(0, found.mobKills());
-        assertEquals(0, found.playerKills());
-        assertEquals(0, found.onlineTime());
+        List<ClanDataDto> rows = repo.findAll();
+        for (ClanDataKey key : ClanDataKey.values()) {
+            assertTrue(rows.stream().anyMatch(r -> r.ident().equals(key.ident())),
+                    "Missing row for ident: " + key.ident());
+        }
     }
 
     @Test
-    void updateBalance_changesBalance() throws SQLException {
-        repo.insert(DATA);
-        repo.updateBalance(UUID, 1500.0);
+    void insertAll_storesDefaultValues() throws SQLException {
+        repo.insertAll(UUID, defaultData());
 
-        assertEquals(1500.0, repo.findAll().getFirst().balance());
+        List<ClanDataDto> rows = repo.findAll();
+        for (ClanDataDto row : rows) {
+            ClanDataKey key = ClanDataKey.fromIdent(row.ident());
+            assertEquals(String.valueOf(key.defaultValue()), row.value(),
+                    "Wrong default value for ident: " + row.ident());
+        }
     }
 
     @Test
-    void updatePvp_changesPvpFlag() throws SQLException {
-        repo.insert(DATA);
-        repo.updatePvp(UUID, true);
+    void upsert_updatesExistingRow() throws SQLException {
+        repo.insertAll(UUID, defaultData());
+        repo.upsert(UUID, ClanDataKey.BALANCE.ident(), "1500.0");
 
-        assertTrue(repo.findAll().getFirst().pvp());
+        ClanDataDto row = repo.findAll().stream()
+                .filter(r -> r.ident().equals(ClanDataKey.BALANCE.ident()))
+                .findFirst().orElseThrow();
+        assertEquals("1500.0", row.value());
     }
 
     @Test
-    void updateHome_changesHome() throws SQLException {
-        repo.insert(DATA);
-        repo.updateHome(UUID, "world;0;64;0;0;0");
+    void upsert_insertsRowWhenMissing() throws SQLException {
+        repo.upsert(UUID, ClanDataKey.HOME.ident(), "world;0;64;0;0;0");
 
-        assertEquals("world;0;64;0;0;0", repo.findAll().getFirst().home());
+        ClanDataDto row = repo.findAll().stream()
+                .filter(r -> r.ident().equals(ClanDataKey.HOME.ident()))
+                .findFirst().orElseThrow();
+        assertEquals("world;0;64;0;0;0", row.value());
     }
 
     @Test
-    void updateMobKills_changesMobKills() throws SQLException {
-        repo.insert(DATA);
-        repo.updateMobKills(UUID, 42);
+    void upsert_updatesPvpFlag() throws SQLException {
+        repo.insertAll(UUID, defaultData());
+        repo.upsert(UUID, ClanDataKey.PVP.ident(), "true");
 
-        assertEquals(42, repo.findAll().getFirst().mobKills());
-    }
-
-    @Test
-    void updatePlayerKills_changesPlayerKills() throws SQLException {
-        repo.insert(DATA);
-        repo.updatePlayerKills(UUID, 7);
-
-        assertEquals(7, repo.findAll().getFirst().playerKills());
-    }
-
-    @Test
-    void updateOnlineTime_changesOnlineTime() throws SQLException {
-        repo.insert(DATA);
-        repo.updateOnlineTime(UUID, 3600);
-
-        assertEquals(3600, repo.findAll().getFirst().onlineTime());
+        ClanDataDto row = repo.findAll().stream()
+                .filter(r -> r.ident().equals(ClanDataKey.PVP.ident()))
+                .findFirst().orElseThrow();
+        assertEquals("true", row.value());
     }
 }

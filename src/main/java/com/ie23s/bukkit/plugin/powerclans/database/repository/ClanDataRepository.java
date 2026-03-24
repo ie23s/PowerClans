@@ -1,45 +1,42 @@
 package com.ie23s.bukkit.plugin.powerclans.database.repository;
 
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.database.dto.ClanDataDto;
 
 import java.sql.SQLException;
 import java.util.List;
+import java.util.Map;
 
 /**
- * Data-access contract for the {@code clan_data} table.
- * Covers secondary/mutable clan attributes: tag, home, pvp, balance, and stat counters.
+ * Data-access contract for the {@code clan_data} EAV table.
+ *
+ * <p>Each clan has one row per {@link ClanDataKey}; rows are identified by the
+ * composite key {@code (clan_uuid, ident)}.
  */
 public interface ClanDataRepository {
 
     /**
-     * Returns secondary data for all clans.
+     * Returns all rows from {@code clan_data} across all clans.
      *
-     * @return list of clan data DTOs; empty if none exist
+     * @return list of EAV DTOs; empty if none exist
      */
     List<ClanDataDto> findAll() throws SQLException;
 
     /**
-     * Inserts a new row into {@code clan_data}.
+     * Inserts one row per entry in {@code data} for the given clan.
+     * Intended for initial creation of a new clan's data block.
      *
-     * @param data DTO with all secondary fields
+     * @param clanUuid UUID of the clan
+     * @param data     map of keys to their current in-memory values
      */
-    void insert(ClanDataDto data) throws SQLException;
+    void insertAll(String clanUuid, Map<ClanDataKey, Object> data) throws SQLException;
 
-    /** Updates the balance for the given clan. */
-    void updateBalance(String clanUuid, double balance) throws SQLException;
-
-    /** Updates the PvP flag for the given clan. */
-    void updatePvp(String clanUuid, boolean pvp) throws SQLException;
-
-    /** Updates the home location string for the given clan. */
-    void updateHome(String clanUuid, String home) throws SQLException;
-
-    /** Updates the mob-kill counter for the given clan. */
-    void updateMobKills(String clanUuid, int mobKills) throws SQLException;
-
-    /** Updates the player-kill counter for the given clan. */
-    void updatePlayerKills(String clanUuid, int playerKills) throws SQLException;
-
-    /** Updates the cumulative online-time counter for the given clan. */
-    void updateOnlineTime(String clanUuid, int onlineTime) throws SQLException;
+    /**
+     * Updates an existing row, or inserts it if it does not yet exist.
+     *
+     * @param clanUuid UUID of the clan
+     * @param ident    key identifier (see {@link ClanDataKey#ident()})
+     * @param value    string-serialised new value
+     */
+    void upsert(String clanUuid, String ident, String value) throws SQLException;
 }

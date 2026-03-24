@@ -5,7 +5,7 @@ import com.ie23s.bukkit.plugin.powerclans.api.IClanCommand;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.clan.ClanList;
 import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
-import com.ie23s.bukkit.plugin.powerclans.database.dto.ClanDataDto;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.database.dto.ClanDto;
 import com.ie23s.bukkit.plugin.powerclans.database.dto.MemberDto;
 import com.ie23s.bukkit.plugin.powerclans.database.repository.impl.JdbcClanDataRepository;
@@ -95,7 +95,10 @@ class ClanScenarioTest extends BaseDbTest {
 
         // Seed DB: TestClan with alice (leader) and bob
         clanRepo.insert(new ClanDto(0, CLAN_UUID, "TestClan", "alice", 10, 1));
-        clanDataRepo.insert(new ClanDataDto(CLAN_UUID, "TC", "none", false, 0.0, 0, 0, 0));
+        Map<ClanDataKey, Object> clanData = new java.util.EnumMap<>(ClanDataKey.class);
+        for (ClanDataKey key : ClanDataKey.values()) clanData.put(key, key.defaultValue());
+        clanData.put(ClanDataKey.TAG, "TC");
+        clanDataRepo.insertAll(CLAN_UUID, clanData);
         memberRepo.insert(new MemberDto(CLAN_UUID, "alice", false));
         memberRepo.insert(new MemberDto(CLAN_UUID, "bob",   false));
 

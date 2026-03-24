@@ -39,14 +39,14 @@ class ClanDataKeyTest {
     }
 
     @Test
-    void columnNames_matchExpected() {
-        assertEquals("tag",          ClanDataKey.TAG.column());
-        assertEquals("home",         ClanDataKey.HOME.column());
-        assertEquals("pvp",          ClanDataKey.PVP.column());
-        assertEquals("balance",      ClanDataKey.BALANCE.column());
-        assertEquals("mob_kills",    ClanDataKey.MOB_KILLS.column());
-        assertEquals("player_kills", ClanDataKey.PLAYER_KILLS.column());
-        assertEquals("online_time",  ClanDataKey.ONLINE_TIME.column());
+    void identNames_matchExpected() {
+        assertEquals("tag",          ClanDataKey.TAG.ident());
+        assertEquals("home",         ClanDataKey.HOME.ident());
+        assertEquals("pvp",          ClanDataKey.PVP.ident());
+        assertEquals("balance",      ClanDataKey.BALANCE.ident());
+        assertEquals("mob_kills",    ClanDataKey.MOB_KILLS.ident());
+        assertEquals("player_kills", ClanDataKey.PLAYER_KILLS.ident());
+        assertEquals("online_time",  ClanDataKey.ONLINE_TIME.ident());
     }
 
     // ── Typed access after set ────────────────────────────────────────────────

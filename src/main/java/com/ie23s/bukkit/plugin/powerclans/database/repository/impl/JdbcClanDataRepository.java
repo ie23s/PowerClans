@@ -1,5 +1,6 @@
 package com.ie23s.bukkit.plugin.powerclans.database.repository.impl;
 
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.database.ConnectionProvider;
 import com.ie23s.bukkit.plugin.powerclans.database.dto.ClanDataDto;
 import com.ie23s.bukkit.plugin.powerclans.database.repository.ClanDataRepository;
@@ -7,11 +8,15 @@ import com.ie23s.bukkit.plugin.powerclans.database.repository.ClanDataRepository
 import java.sql.*;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * JDBC implementation of {@link ClanDataRepository} using {@link PreparedStatement}.
  * Compatible with both MySQL and SQLite — no dialect-specific SQL is used.
  * Each method acquires a connection from the pool and returns it on completion.
+ *
+ * <p>{@link #upsert} uses an UPDATE-then-INSERT pattern so that neither MySQL's
+ * {@code ON DUPLICATE KEY UPDATE} nor SQLite's {@code INSERT OR REPLACE} is required.
  */
 public class JdbcClanDataRepository implements ClanDataRepository {
 
@@ -26,17 +31,12 @@ public class JdbcClanDataRepository implements ClanDataRepository {
         List<ClanDataDto> result = new ArrayList<>();
         try (Connection conn = connectionProvider.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM clan_data")) {
+             ResultSet rs = stmt.executeQuery("SELECT clan_uuid, ident, value FROM clan_data")) {
             while (rs.next()) {
                 result.add(new ClanDataDto(
                         rs.getString("clan_uuid"),
-                        rs.getString("tag"),
-                        rs.getString("home"),
-                        rs.getBoolean("pvp"),
-                        rs.getDouble("balance"),
-                        rs.getInt("mob_kills"),
-                        rs.getInt("player_kills"),
-                        rs.getInt("online_time")
+                        rs.getString("ident"),
+                        rs.getString("value")
                 ));
             }
         }
@@ -44,82 +44,37 @@ public class JdbcClanDataRepository implements ClanDataRepository {
     }
 
     @Override
-    public void insert(ClanDataDto data) throws SQLException {
+    public void insertAll(String clanUuid, Map<ClanDataKey, Object> data) throws SQLException {
         try (Connection conn = connectionProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "INSERT INTO clan_data (clan_uuid, tag, home, pvp, balance, mob_kills, player_kills, online_time) VALUES (?, ?, ?, ?, ?, 0, 0, 0)")) {
-            ps.setString(1, data.clanUuid());
-            ps.setString(2, data.tag());
-            ps.setString(3, data.home());
-            ps.setBoolean(4, data.pvp());
-            ps.setDouble(5, data.balance());
-            ps.executeUpdate();
+                     "INSERT INTO clan_data (clan_uuid, ident, value) VALUES (?, ?, ?)")) {
+            ps.setString(1, clanUuid);
+            for (Map.Entry<ClanDataKey, Object> entry : data.entrySet()) {
+                ps.setString(2, entry.getKey().ident());
+                ps.setString(3, String.valueOf(entry.getValue()));
+                ps.addBatch();
+            }
+            ps.executeBatch();
         }
     }
 
     @Override
-    public void updateBalance(String clanUuid, double balance) throws SQLException {
-        try (Connection conn = connectionProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE clan_data SET balance=? WHERE clan_uuid=?")) {
-            ps.setDouble(1, balance);
-            ps.setString(2, clanUuid);
-            ps.executeUpdate();
-        }
-    }
-
-    @Override
-    public void updatePvp(String clanUuid, boolean pvp) throws SQLException {
-        try (Connection conn = connectionProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE clan_data SET pvp=? WHERE clan_uuid=?")) {
-            ps.setBoolean(1, pvp);
-            ps.setString(2, clanUuid);
-            ps.executeUpdate();
-        }
-    }
-
-    @Override
-    public void updateHome(String clanUuid, String home) throws SQLException {
-        try (Connection conn = connectionProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE clan_data SET home=? WHERE clan_uuid=?")) {
-            ps.setString(1, home);
-            ps.setString(2, clanUuid);
-            ps.executeUpdate();
-        }
-    }
-
-    @Override
-    public void updateMobKills(String clanUuid, int mobKills) throws SQLException {
-        try (Connection conn = connectionProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE clan_data SET mob_kills=? WHERE clan_uuid=?")) {
-            ps.setInt(1, mobKills);
-            ps.setString(2, clanUuid);
-            ps.executeUpdate();
-        }
-    }
-
-    @Override
-    public void updatePlayerKills(String clanUuid, int playerKills) throws SQLException {
-        try (Connection conn = connectionProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE clan_data SET player_kills=? WHERE clan_uuid=?")) {
-            ps.setInt(1, playerKills);
-            ps.setString(2, clanUuid);
-            ps.executeUpdate();
-        }
-    }
-
-    @Override
-    public void updateOnlineTime(String clanUuid, int onlineTime) throws SQLException {
-        try (Connection conn = connectionProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE clan_data SET online_time=? WHERE clan_uuid=?")) {
-            ps.setInt(1, onlineTime);
-            ps.setString(2, clanUuid);
-            ps.executeUpdate();
+    public void upsert(String clanUuid, String ident, String value) throws SQLException {
+        try (Connection conn = connectionProvider.getConnection()) {
+            try (PreparedStatement update = conn.prepareStatement(
+                    "UPDATE clan_data SET value=? WHERE clan_uuid=? AND ident=?")) {
+                update.setString(1, value);
+                update.setString(2, clanUuid);
+                update.setString(3, ident);
+                if (update.executeUpdate() > 0) return;
+            }
+            try (PreparedStatement insert = conn.prepareStatement(
+                    "INSERT INTO clan_data (clan_uuid, ident, value) VALUES (?, ?, ?)")) {
+                insert.setString(1, clanUuid);
+                insert.setString(2, ident);
+                insert.setString(3, value);
+                insert.executeUpdate();
+            }
         }
     }
 }

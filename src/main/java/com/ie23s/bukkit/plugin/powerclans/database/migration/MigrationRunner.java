@@ -45,7 +45,6 @@ public class MigrationRunner {
         int version = getVersion();
         if (version < 1) applyVersion(1);
         if (version < 2) applyVersion(2);
-        if (version < 3) applyVersion(3);
     }
 
     // ── Migration execution ───────────────────────────────────────────────────

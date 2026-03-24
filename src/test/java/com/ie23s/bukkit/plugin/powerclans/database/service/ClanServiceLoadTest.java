@@ -110,23 +110,29 @@ class ClanServiceLoadTest {
         clanList.getClans().put("warriors", clan);
 
         when(clanDataRepo.findAll()).thenReturn(List.of(
-                new ClanDataDto(UUID, "WAR", "world;0.0;64.0;0.0;0.0;0.0", false, 500.0, 10, 3, 120)
+                new ClanDataDto(UUID, "tag",          "WAR"),
+                new ClanDataDto(UUID, "home",         "world;0.0;64.0;0.0;0.0;0.0"),
+                new ClanDataDto(UUID, "pvp",          "false"),
+                new ClanDataDto(UUID, "balance",      "500.0"),
+                new ClanDataDto(UUID, "mob_kills",    "10"),
+                new ClanDataDto(UUID, "player_kills", "3"),
+                new ClanDataDto(UUID, "online_time",  "120")
         ));
 
         clanDataService.loadAll();
 
-        assertEquals("WAR",   clan.getString(ClanDataKey.TAG));
+        assertEquals("WAR",  clan.getString(ClanDataKey.TAG));
         assertFalse(clan.getBoolean(ClanDataKey.PVP));
-        assertEquals(500.0,   clan.getDouble(ClanDataKey.BALANCE));
-        assertEquals(10,      clan.getInt(ClanDataKey.MOB_KILLS));
-        assertEquals(3,       clan.getInt(ClanDataKey.PLAYER_KILLS));
-        assertEquals(120,     clan.getInt(ClanDataKey.ONLINE_TIME));
+        assertEquals(500.0,  clan.getDouble(ClanDataKey.BALANCE));
+        assertEquals(10,     clan.getInt(ClanDataKey.MOB_KILLS));
+        assertEquals(3,      clan.getInt(ClanDataKey.PLAYER_KILLS));
+        assertEquals(120,    clan.getInt(ClanDataKey.ONLINE_TIME));
     }
 
     @Test
     void clanDataService_loadAll_skipsUnknownUuid() throws SQLException {
         when(clanDataRepo.findAll()).thenReturn(List.of(
-                new ClanDataDto("unknown-uuid", "X", "none", true, 0.0, 0, 0, 0)
+                new ClanDataDto("unknown-uuid", "tag", "X")
         ));
 
         assertDoesNotThrow(() -> clanDataService.loadAll());
