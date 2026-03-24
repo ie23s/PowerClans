@@ -143,8 +143,6 @@ publishing {
             from components.java
             //noinspection GroovyAssignabilityCheck
             artifact apiJar
-            //noinspection GroovyAssignabilityCheck
-            artifact jar
         }
     }
 
