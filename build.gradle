@@ -119,7 +119,12 @@ processResources {
 
 // ─── Shadow ───────────────────────────────────────────────────────────────────
 
+jar {
+    enabled = false
+}
+
 shadowJar {
+    archiveClassifier = ''
     relocate 'com.zaxxer.hikari', 'com.ie23s.bukkit.plugin.powerclans.libs.hikari'
 }
 
