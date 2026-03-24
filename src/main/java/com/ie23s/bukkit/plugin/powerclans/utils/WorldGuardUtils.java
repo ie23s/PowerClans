@@ -29,6 +29,7 @@ public class WorldGuardUtils {
     }
 
     public static boolean getFlag(Location l, StateFlag... flags) {
+        if (Core.getWG() == null) return false;
         final com.sk89q.worldguard.protection.regions.RegionContainer c = com.sk89q.worldguard.WorldGuard.getInstance().getPlatform().getRegionContainer();
         final com.sk89q.worldguard.protection.regions.RegionQuery q = c.createQuery();
         final ApplicableRegionSet s = q.getApplicableRegions(com.sk89q.worldedit.bukkit.BukkitAdapter.adapt(l));
