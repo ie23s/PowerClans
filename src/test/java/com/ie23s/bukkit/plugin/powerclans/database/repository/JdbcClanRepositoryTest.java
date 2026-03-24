@@ -16,7 +16,7 @@ class JdbcClanRepositoryTest extends BaseDbTest {
     private JdbcClanRepository repo;
 
     private static final ClanDto CLAN = new ClanDto(
-            "550e8400-e29b-41d4-a716-446655440000", "warriors", "steve", 10, 1
+            0, "550e8400-e29b-41d4-a716-446655440000", "warriors", "steve", 10, 1
     );
 
     @BeforeEach
@@ -36,6 +36,7 @@ class JdbcClanRepositoryTest extends BaseDbTest {
 
         assertEquals(1, result.size());
         ClanDto found = result.getFirst();
+        assertTrue(found.id() > 0);
         assertEquals("550e8400-e29b-41d4-a716-446655440000", found.uuid());
         assertEquals("warriors", found.name());
         assertEquals("steve", found.leader());
@@ -78,7 +79,7 @@ class JdbcClanRepositoryTest extends BaseDbTest {
     @Test
     void delete_doesNotAffectOtherClans() throws SQLException {
         repo.insert(CLAN);
-        repo.insert(new ClanDto("550e8400-e29b-41d4-a716-446655440001", "rangers", "alex", 5, 1));
+        repo.insert(new ClanDto(0, "550e8400-e29b-41d4-a716-446655440001", "rangers", "alex", 5, 1));
         repo.delete(CLAN.uuid());
 
         List<ClanDto> remaining = repo.findAll();

@@ -41,7 +41,7 @@ class MigrationRunnerTest extends BaseDbTest {
 
     @Test
     void migrate_isIdempotent() {
-        assertDoesNotThrow(() -> new MigrationRunner(connection, "sqlite").migrate());
+        assertDoesNotThrow(() -> new MigrationRunner(provider, "sqlite").migrate());
     }
 
     private boolean tableExists(String tableName) throws SQLException {

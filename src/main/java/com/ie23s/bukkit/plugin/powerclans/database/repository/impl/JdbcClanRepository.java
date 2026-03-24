@@ -26,9 +26,10 @@ public class JdbcClanRepository implements ClanRepository {
         List<ClanDto> clans = new ArrayList<>();
         try (Connection conn = connectionProvider.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT uuid, name, leader, max_players, level FROM clan_list")) {
+             ResultSet rs = stmt.executeQuery("SELECT id, uuid, name, leader, max_players, level FROM clan_list")) {
             while (rs.next()) {
                 clans.add(new ClanDto(
+                        rs.getInt("id"),
                         rs.getString("uuid"),
                         rs.getString("name"),
                         rs.getString("leader"),

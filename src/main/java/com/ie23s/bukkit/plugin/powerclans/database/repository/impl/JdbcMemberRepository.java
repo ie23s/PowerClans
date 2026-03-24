@@ -26,10 +26,10 @@ public class JdbcMemberRepository implements MemberRepository {
         List<MemberDto> members = new ArrayList<>();
         try (Connection conn = connectionProvider.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT * FROM clan_members")) {
+             ResultSet rs = stmt.executeQuery("SELECT clan_uuid, name, isModer FROM clan_members")) {
             while (rs.next()) {
                 members.add(new MemberDto(
-                        rs.getString("clan"),
+                        rs.getString("clan_uuid"),
                         rs.getString("name"),
                         rs.getBoolean("isModer")
                 ));
@@ -41,39 +41,43 @@ public class JdbcMemberRepository implements MemberRepository {
     @Override
     public void insert(MemberDto member) throws SQLException {
         try (Connection conn = connectionProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement("INSERT INTO clan_members (clan, name, isModer) VALUES (?, ?, 0)")) {
-            ps.setString(1, member.clan());
+             PreparedStatement ps = conn.prepareStatement(
+                     "INSERT INTO clan_members (clan_uuid, name, isModer) VALUES (?, ?, 0)")) {
+            ps.setString(1, member.clanUuid());
             ps.setString(2, member.name());
             ps.executeUpdate();
         }
     }
 
     @Override
-    public void updateModer(String clanName, String memberName, boolean isModer) throws SQLException {
+    public void updateModer(String clanUuid, String memberName, boolean isModer) throws SQLException {
         try (Connection conn = connectionProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement("UPDATE clan_members SET isModer=? WHERE clan=? AND name=?")) {
+             PreparedStatement ps = conn.prepareStatement(
+                     "UPDATE clan_members SET isModer=? WHERE clan_uuid=? AND name=?")) {
             ps.setBoolean(1, isModer);
-            ps.setString(2, clanName);
+            ps.setString(2, clanUuid);
             ps.setString(3, memberName);
             ps.executeUpdate();
         }
     }
 
     @Override
-    public void delete(String clanName, String memberName) throws SQLException {
+    public void delete(String clanUuid, String memberName) throws SQLException {
         try (Connection conn = connectionProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement("DELETE FROM clan_members WHERE clan=? AND name=?")) {
-            ps.setString(1, clanName);
+             PreparedStatement ps = conn.prepareStatement(
+                     "DELETE FROM clan_members WHERE clan_uuid=? AND name=?")) {
+            ps.setString(1, clanUuid);
             ps.setString(2, memberName);
             ps.executeUpdate();
         }
     }
 
     @Override
-    public void deleteByClan(String clanName) throws SQLException {
+    public void deleteByClan(String clanUuid) throws SQLException {
         try (Connection conn = connectionProvider.getConnection();
-             PreparedStatement ps = conn.prepareStatement("DELETE FROM clan_members WHERE clan=?")) {
-            ps.setString(1, clanName);
+             PreparedStatement ps = conn.prepareStatement(
+                     "DELETE FROM clan_members WHERE clan_uuid=?")) {
+            ps.setString(1, clanUuid);
             ps.executeUpdate();
         }
     }
