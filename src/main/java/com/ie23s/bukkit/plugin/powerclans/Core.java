@@ -6,10 +6,18 @@ import com.ie23s.bukkit.plugin.powerclans.command.ClanCommand;
 import com.ie23s.bukkit.plugin.powerclans.command.PowerClansCommand;
 import com.ie23s.bukkit.plugin.powerclans.configuration.Language;
 import com.ie23s.bukkit.plugin.powerclans.configuration.YAMLHandler;
-import com.ie23s.bukkit.plugin.powerclans.database.InitDB;
+import com.ie23s.bukkit.plugin.powerclans.database.DatabaseManager;
+import com.ie23s.bukkit.plugin.powerclans.database.ConnectionProvider;
+import com.ie23s.bukkit.plugin.powerclans.database.repository.impl.JdbcClanDataRepository;
+import com.ie23s.bukkit.plugin.powerclans.database.repository.impl.JdbcClanRepository;
+import com.ie23s.bukkit.plugin.powerclans.database.repository.impl.JdbcMemberRepository;
+import com.ie23s.bukkit.plugin.powerclans.database.service.ClanDataService;
+import com.ie23s.bukkit.plugin.powerclans.database.service.ClanService;
+import com.ie23s.bukkit.plugin.powerclans.database.service.MemberService;
 import com.ie23s.bukkit.plugin.powerclans.event.EventListener;
 import com.ie23s.bukkit.plugin.powerclans.modules.level.Level;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
+import com.ie23s.bukkit.plugin.powerclans.utils.RequestType;
 import com.ie23s.bukkit.plugin.powerclans.utils.Utils;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import net.milkbowl.vault.economy.Economy;
@@ -19,7 +27,9 @@ import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
 import org.bukkit.plugin.java.JavaPlugin;
+import org.jetbrains.annotations.NotNull;
 
+import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.Objects;
@@ -28,7 +38,10 @@ import java.util.Objects;
 public class Core extends JavaPlugin {
     private FileConfiguration config;
     private Language lang;
-    private InitDB db;
+    private DatabaseManager dbManager;
+    private ClanService clanService;
+    private ClanDataService clanDataService;
+    private MemberService memberService;
     private ClanList clanList;
     private MemberList memberList;
     private Utils utils;
@@ -36,7 +49,7 @@ public class Core extends JavaPlugin {
 
     public static WorldGuardPlugin getWG() {
         Plugin plugin = Bukkit.getPluginManager().getPlugin("WorldGuard");
-        return plugin instanceof WorldGuardPlugin ? (WorldGuardPlugin) plugin : null;
+        return plugin instanceof WorldGuardPlugin wg ? wg : null;
     }
 
     public static Economy getVault() {
@@ -51,26 +64,43 @@ public class Core extends JavaPlugin {
         lang = new Language(this);
         lang.loadLang();
         utils = new Utils(this);
-        db = InitDB.initDB(this);
-        clanList = new ClanList(this);
+
+        dbManager = DatabaseManager.create(this);
+        ConnectionProvider cp = dbManager.getConnectionProvider();
+        clanService     = new ClanService(this,     new JdbcClanRepository(cp));
+        clanDataService = new ClanDataService(this, new JdbcClanDataRepository(cp));
+        memberService   = new MemberService(this,   new JdbcMemberRepository(cp));
+
+        clanList   = new ClanList(this);
         memberList = new MemberList();
-        db.getClans();
+
+        try {
+            clanService.loadAll();
+            clanDataService.loadAll();
+            memberService.loadAll();
+            utils.getLogger().info(lang("clan.loaded"));
+        } catch (SQLException e) {
+            utils.getLogger().error(lang("clan.load_error"));
+            utils.getLogger().error(e.getMessage());
+        }
+
         levelModule = new Level(this);
         levelModule.loadModule();
     }
 
+    @Override
     public void onDisable() {
-        db.disconnect();
-        utils.getLogger().info(this.getLang().getMessage("other.plugin_disabled"));
+        dbManager.disconnect();
+        utils.getLogger().info(lang("other.plugin_disabled"));
     }
 
+    @Override
     public void onEnable() {
         long time = System.currentTimeMillis();
         load();
 
         Objects.requireNonNull(this.getCommand("clan")).setExecutor(new ClanCommand(this));
         Objects.requireNonNull(this.getCommand("powerclans")).setExecutor(new PowerClansCommand(this));
-
 
         Bukkit.getScheduler().runTaskTimer(this, () -> {
             ArrayList<Request> toDelete = new ArrayList<>();
@@ -86,20 +116,21 @@ public class Core extends JavaPlugin {
 
             for (var3 = toDelete.iterator(); var3.hasNext(); r.remove()) {
                 r = var3.next();
-                if (r.getType() == 0) {
-                    r.getPlayer().sendMessage(this.getLang().getMessage("other.invite_canceled"));
+                if (r.getType() == RequestType.INVITE) {
+                    r.getPlayer().sendMessage(lang("other.invite_canceled"));
                     @SuppressWarnings("deprecation") OfflinePlayer pl = Bukkit.getOfflinePlayer(r.getSender());
-                    if (pl.isOnline()) {
-                        pl.getPlayer().sendMessage(this.getLang().getMessage("other.invite_canceled2", r.getPlayer().getName()));
+                    if (pl.getPlayer() != null && pl.isOnline()) {
+                        pl.getPlayer().sendMessage(lang("other.invite_canceled2", r.getPlayer().getName()));
                     }
                 }
             }
 
         }, 0L, 20L);
         Bukkit.getPluginManager().registerEvents(new EventListener(this), this);
-        utils.getLogger().info(this.getLang().getMessage("other.plugin_enabled", System.currentTimeMillis() - time));
+        utils.getLogger().info(lang("other.plugin_enabled", System.currentTimeMillis() - time));
     }
 
+    @NotNull
     @Override
     public FileConfiguration getConfig() {
         return config;
@@ -109,8 +140,24 @@ public class Core extends JavaPlugin {
         return lang;
     }
 
-    public InitDB getDb() {
-        return db;
+    public String lang(String key) {
+        return lang.getMessage(key);
+    }
+
+    public String lang(String key, Object... args) {
+        return lang.getMessage(key, args);
+    }
+
+    public ClanService getClanService() {
+        return clanService;
+    }
+
+    public ClanDataService getClanDataService() {
+        return clanDataService;
+    }
+
+    public MemberService getMemberService() {
+        return memberService;
     }
 
     public ClanList getClanList() {

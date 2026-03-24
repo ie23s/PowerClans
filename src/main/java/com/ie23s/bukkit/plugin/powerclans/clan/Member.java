@@ -1,10 +1,12 @@
 package com.ie23s.bukkit.plugin.powerclans.clan;
 
-public class Member {
+import com.ie23s.bukkit.plugin.powerclans.api.IMember;
+
+public class Member implements IMember {
+
     private final String name;
     private boolean isModer;
     private final String clan;
-
 
     public Member(String name, boolean isModer, String clan) {
         this.name = name.toLowerCase();
@@ -12,19 +14,9 @@ public class Member {
         this.clan = clan;
     }
 
-    public String getName() {
-        return this.name;
-    }
+    @Override public String  getName()   { return name; }
+    @Override public boolean isModer()   { return isModer; }
+    @Override public String  getClan()   { return clan; }
 
-    public boolean isModer() {
-        return this.isModer;
-    }
-
-    void setModer(boolean isModer) {
-        this.isModer = isModer;
-    }
-
-    public String getClan() {
-        return this.clan;
-    }
+    void setModer(boolean isModer) { this.isModer = isModer; }
 }

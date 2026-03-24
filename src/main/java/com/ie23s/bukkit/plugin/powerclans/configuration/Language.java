@@ -23,11 +23,11 @@ public class Language {
 
 
         for (Entry<String, Object> stringObjectEntry : langYml.getValues(false).entrySet()) {
-            if (stringObjectEntry.getValue() instanceof ConfigurationSection) {
-                for (Entry<String, Object> stringObjectEntry1 : ((ConfigurationSection) stringObjectEntry.getValue()).getValues(false).entrySet()) {
+            if (stringObjectEntry.getValue() instanceof ConfigurationSection section) {
+                for (Entry<String, Object> stringObjectEntry1 : section.getValues(false).entrySet()) {
 
-                    if (stringObjectEntry1.getValue() instanceof ConfigurationSection) {
-                        for (Entry<String, Object> stringObjectEntry2 : ((ConfigurationSection) stringObjectEntry1.getValue()).getValues(false).entrySet()) {
+                    if (stringObjectEntry1.getValue() instanceof ConfigurationSection section1) {
+                        for (Entry<String, Object> stringObjectEntry2 : section1.getValues(false).entrySet()) {
                             language.put(((Entry<?, ?>) stringObjectEntry).getKey() + "." + ((Entry<?, ?>) stringObjectEntry1).getKey() + "." + ((Entry<?, ?>) stringObjectEntry2).getKey(), String.valueOf(stringObjectEntry2.getValue()));
                         }
                     } else {
