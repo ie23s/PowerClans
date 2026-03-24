@@ -40,7 +40,7 @@ public abstract class BaseDbTest {
                 throw new DatabaseException("Failed to open test connection", e);
             }
         };
-        new MigrationRunner(connection, "sqlite").migrate();
+        new MigrationRunner(provider, "sqlite").migrate();
     }
 
     @AfterEach

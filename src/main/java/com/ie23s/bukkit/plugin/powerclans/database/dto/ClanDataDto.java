@@ -6,6 +6,15 @@ import com.ie23s.bukkit.plugin.powerclans.api.IClanData;
 
 /**
  * Data transfer object for the {@code clan_data} table.
+ *
+ * @param clanUuid    CHAR(36) UUID of the owning clan (PK and FK → {@code clan_list.uuid})
+ * @param tag         colour-coded clan tag displayed in chat
+ * @param home        serialised home location ({@code "world;x;y;z;yaw;pitch"}) or {@code "none"}
+ * @param pvp         whether clan PvP mode is enabled
+ * @param balance     clan bank balance
+ * @param mobKills    cumulative mob-kill count
+ * @param playerKills cumulative player-kill count
+ * @param onlineTime  cumulative online time in minutes
  */
 public record ClanDataDto(
         String clanUuid,

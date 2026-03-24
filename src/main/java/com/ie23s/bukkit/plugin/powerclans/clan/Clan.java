@@ -11,11 +11,24 @@ import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
 
+/**
+ * In-memory representation of a clan.
+ *
+ * <p>Combines identity fields (from {@code clan_list}) with mutable secondary data
+ * (from {@code clan_data}) into a single object. Identity fields are immutable after
+ * construction; secondary data is stored in an {@link EnumMap} keyed by {@link ClanDataKey}
+ * and updated via {@link #set(ClanDataKey, Object)}.
+ *
+ * <p>Mutator methods (e.g. {@link #setLeader}, {@link #setBalance}) update the in-memory
+ * state immediately and dispatch a persistence call through the relevant service
+ * asynchronously via the Bukkit scheduler.
+ */
 public class Clan implements IClan, IClanData {
 
     private final Core core;
 
     // clan_list fields
+    private final int id;
     private final String uuid;
     private final String name;
     private String leader;
@@ -25,8 +38,21 @@ public class Clan implements IClan, IClanData {
     // clan_data fields
     private final Map<ClanDataKey, Object> data = new EnumMap<>(ClanDataKey.class);
 
-    public Clan(Core core, String uuid, String name, String leader, int maxPlayers, int level) {
+    /**
+     * Constructs a clan with all identity fields.
+     * Secondary data fields are initialised to their {@link ClanDataKey#defaultValue() defaults}.
+     *
+     * @param core       plugin core used to reach other registries and services
+     * @param id         auto-increment database primary key ({@code 0} for clans not yet persisted)
+     * @param uuid       stable UUID used as the FK in related tables
+     * @param name       display name (case-preserved, unique)
+     * @param leader     player name of the current leader (lower-case)
+     * @param maxPlayers maximum member capacity
+     * @param level      clan level
+     */
+    public Clan(Core core, int id, String uuid, String name, String leader, int maxPlayers, int level) {
         this.core = core;
+        this.id = id;
         this.uuid = uuid;
         this.name = name;
         this.leader = leader;
@@ -39,6 +65,7 @@ public class Clan implements IClan, IClanData {
 
     // ── IClan ─────────────────────────────────────────────────────────────────
 
+    @Override public int    getId()         { return id; }
     @Override public String getUuid()       { return uuid; }
     @Override public String getName()       { return name; }
     @Override public String getLeader()     { return leader; }
@@ -89,11 +116,21 @@ public class Clan implements IClan, IClanData {
 
     // ── Mutators (update in-memory + persist) ─────────────────────────────────
 
+    /**
+     * Changes the clan leader and persists the change asynchronously.
+     *
+     * @param leader new leader's player name (will be lower-cased)
+     */
     public void setLeader(String leader) {
         this.leader = leader.toLowerCase();
         core.getClanService().updateLeader(this);
     }
 
+    /**
+     * Serialises the location and persists it as the clan home asynchronously.
+     *
+     * @param location Bukkit {@link Location} to store
+     */
     public void setHome(Location location) {
         String s = Objects.requireNonNull(location.getWorld()).getName()
                 + ";" + location.getX() + ";" + location.getY() + ";" + location.getZ()
@@ -102,6 +139,7 @@ public class Clan implements IClan, IClanData {
         core.getClanDataService().updateHome(this);
     }
 
+    /** Clears the clan home (sets to {@code "none"}) without persisting — call {@link #setHome} to persist. */
     public void removeHome() {
         set(ClanDataKey.HOME, "none");
     }
@@ -131,6 +169,11 @@ public class Clan implements IClan, IClanData {
         core.getClanDataService().updateOnlineTime(this);
     }
 
+    /**
+     * Increases {@code max_players} by {@code i} and persists asynchronously.
+     *
+     * @param i number of slots to add
+     */
     public void upgrade(int i) {
         this.maxPlayers += i;
         core.getClanService().updateMaxPlayers(this);
@@ -143,28 +186,53 @@ public class Clan implements IClan, IClanData {
 
     // ── Member management ─────────────────────────────────────────────────────
 
+    /**
+     * Adds the player to this clan in memory and persists the row asynchronously.
+     *
+     * @param name player name to add
+     */
     public void invite(String name) {
         Member member = new Member(name, false, this.name);
         core.getMemberList().addMember(member);
         core.getMemberService().create(member);
     }
 
+    /**
+     * Removes the player from this clan in memory and deletes the row asynchronously.
+     *
+     * @param name player name to remove
+     */
     public void kick(String name) {
         core.getMemberService().delete(core.getMemberList().getMember(name));
         core.getMemberList().removeMember(name);
     }
 
+    /**
+     * Updates the moderator flag of a clan member in memory and persists asynchronously.
+     *
+     * @param name    player name of the member
+     * @param isModer {@code true} to promote, {@code false} to demote
+     */
     public void setModer(String name, boolean isModer) {
         Member member = core.getMemberList().getMember(name);
         member.setModer(isModer);
         core.getMemberService().updateModer(member);
     }
 
+    /**
+     * Returns {@code true} if the given player is a moderator of this clan.
+     *
+     * @param name player name to check
+     */
     public boolean hasModer(String name) {
         Member member = core.getMemberList().getMember(name);
         return member.isModer() && member.getClan().equals(this.name);
     }
 
+    /**
+     * Kicks all members, removes the clan from {@link com.ie23s.bukkit.plugin.powerclans.clan.ClanList},
+     * and deletes the clan and all its members from the database asynchronously.
+     */
     public void disband() {
         for (String mem : core.getMemberList().getListOfMembers(this.name))
             kick(mem);
@@ -175,15 +243,30 @@ public class Clan implements IClan, IClanData {
 
     // ── Queries ───────────────────────────────────────────────────────────────
 
+    /**
+     * Returns {@code true} if {@code player} is the leader of this clan (case-insensitive).
+     *
+     * @param player player name to check
+     */
     public boolean hasLeader(String player) {
         return this.leader.equalsIgnoreCase(player);
     }
 
+    /**
+     * Returns {@code true} if {@code name} is a member of this clan.
+     *
+     * @param name player name to check
+     */
     public boolean hasClanMember(String name) {
         Member member = core.getMemberList().getMember(name);
         return member.getClan().equals(this.name);
     }
 
+    /**
+     * Sends a formatted message to all online clan members.
+     *
+     * @param message message text to broadcast
+     */
     public void broadcast(String message) {
         for (String member : core.getMemberList().getListOfMembers(this.name)) {
             if (Bukkit.getOfflinePlayer(member).isOnline()) {

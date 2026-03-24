@@ -4,6 +4,9 @@ package com.ie23s.bukkit.plugin.powerclans.api;
  * Core identity fields of a clan — corresponds to the {@code clan_list} table columns.
  */
 public interface IClan {
+    /** Auto-increment database primary key. */
+    int getId();
+
     /** Unique identifier of the clan (UUID string). */
     String getUuid();
 

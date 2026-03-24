@@ -25,7 +25,7 @@ class JdbcClanDataRepositoryTest extends BaseDbTest {
     @BeforeEach
     void setUp() throws SQLException {
         // clan_data has FK on clan_list in MySQL; insert parent row first
-        new JdbcClanRepository(provider).insert(new ClanDto(UUID, "warriors", "steve", 10, 1));
+        new JdbcClanRepository(provider).insert(new ClanDto(0, UUID, "warriors", "steve", 10, 1));
         repo = new JdbcClanDataRepository(provider);
     }
 

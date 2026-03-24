@@ -5,6 +5,7 @@ import com.ie23s.bukkit.plugin.powerclans.api.IClanCommand;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.RequestType;
+import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
@@ -16,7 +17,8 @@ import java.util.Objects;
  */
 public final class RequestCommands {
 
-    private RequestCommands() {}
+    private RequestCommands() {
+    }
 
     // -------------------------------------------------------------------------
 
@@ -53,18 +55,35 @@ public final class RequestCommands {
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             Request req = Request.get((Player) s);
-            if (req == null) { s.sendMessage(core.lang("errors._41")); return; }
+            if (req == null) {
+                s.sendMessage(core.lang("errors._41"));
+                return;
+            }
             switch (req.getType()) {
-                case INVITE:          acceptInvite(s, req, user);               break;
-                case CREATE:          acceptCreate(s, req, clan, user);         break;
-                case DISBAND:         acceptDisband(s, req, clan, user);        break;
-                case LEAVE:           acceptLeave(s, req, clan, user);          break;
-                case LEADER_TRANSFER: acceptLeaderTransfer(s, req, clan, user); break;
-                case UPGRADE:         acceptUpgrade(s, clan);                   break;
+                case INVITE:
+                    acceptInvite(s, req, user);
+                    break;
+                case CREATE:
+                    acceptCreate(s, req, clan, user);
+                    break;
+                case DISBAND:
+                    acceptDisband(s, req, clan, user);
+                    break;
+                case LEAVE:
+                    acceptLeave(s, req, clan, user);
+                    break;
+                case LEADER_TRANSFER:
+                    acceptLeaderTransfer(s, req, clan, user);
+                    break;
+                case UPGRADE:
+                    acceptUpgrade(s, clan);
+                    break;
             }
         }
 
-        /** Accepts a clan invitation (type 0): joins the sender to the inviting clan. */
+        /**
+         * Accepts a clan invitation (type 0): joins the sender to the inviting clan.
+         */
         private void acceptInvite(CommandSender s, Request req, String user) {
             req.remove();
             req.getClan().broadcast(core.lang("clan.join", user));
@@ -72,7 +91,10 @@ public final class RequestCommands {
             s.sendMessage(core.lang("clan.invitation_accept"));
         }
 
-        /** Accepts a clan creation request (type 1): charges cost and creates the clan. */
+        /**
+         * Accepts a clan creation request (type 1): charges cost and creates the clan.
+         */
+        //TODO Revalidate balance
         private void acceptCreate(CommandSender s, Request req, Clan clan, String user) {
             String[] a = req.getArgs();
             if (!registry.get("create").validate(s, a, clan, user)) return;
@@ -82,28 +104,39 @@ public final class RequestCommands {
                     Objects.requireNonNull(core.getClanList().getClanByName(s.getName())).getName()));
         }
 
-        /** Deducts the clan creation cost from the sender's balance, if applicable. */
+        /**
+         * Deducts the clan creation cost from the sender's balance, if applicable.
+         */
         private void chargeCreateCost(CommandSender s) {
             int cost = core.getConfig().getInt("settings.create_cost");
             if (cost == 0 || s.hasPermission("PowerClans.free.create")) return;
-            try { Core.getVault().withdrawPlayer(s.getName(), cost); } catch (Exception ignore) {}
+            try {
+                Core.getVault().withdrawPlayer((OfflinePlayer) s, cost);
+            } catch (Exception ignore) {
+            }
         }
 
-        /** Accepts a disband request (type 2): disbands the clan. */
+        /**
+         * Accepts a disband request (type 2): disbands the clan.
+         */
         private void acceptDisband(CommandSender s, Request req, Clan clan, String user) {
             if (!registry.get("disband").validate(s, req.getArgs(), clan, user)) return;
             clan.broadcast(core.lang("clan.disband", clan.getName()));
             clan.disband();
         }
 
-        /** Accepts a leave request (type 3): removes the sender from the clan. */
+        /**
+         * Accepts a leave request (type 3): removes the sender from the clan.
+         */
         private void acceptLeave(CommandSender s, Request req, Clan clan, String user) {
             if (!registry.get("leave").validate(s, req.getArgs(), clan, user)) return;
             clan.broadcast(core.lang("clan.leave_2", s.getName()));
             clan.kick(s.getName());
         }
 
-        /** Accepts a leadership transfer request (type 4): transfers leadership to the target. */
+        /**
+         * Accepts a leadership transfer request (type 4): transfers leadership to the target.
+         */
         private void acceptLeaderTransfer(CommandSender s, Request req, Clan clan, String user) {
             String[] a = req.getArgs();
             if (!registry.get("leader").validate(s, a, clan, user)) return;
@@ -112,7 +145,9 @@ public final class RequestCommands {
             clan.broadcast(core.lang("clan.leader", s.getName(), a[1]));
         }
 
-        /** Accepts an upgrade request (type 5): applies level-up abilities and broadcasts. */
+        /**
+         * Accepts an upgrade request (type 5): applies level-up abilities and broadcasts.
+         */
         private void acceptUpgrade(CommandSender s, Clan clan) {
             clan.broadcast(core.lang("level.upgrade.reach_level", clan.getLevel()));
             core.getLevelModule().getAbilities().upgradeAbilities((Player) s, true);
@@ -127,8 +162,12 @@ public final class RequestCommands {
      */
     public static class Deny extends BaseClanCommand {
 
-        /** @param core the plugin core */
-        public Deny(Core core) { super(core); }
+        /**
+         * @param core the plugin core
+         */
+        public Deny(Core core) {
+            super(core);
+        }
 
         @Override
         public boolean validate(CommandSender s, String[] args, Clan clan, String user) {
@@ -138,7 +177,10 @@ public final class RequestCommands {
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             Request req = Request.get((Player) s);
-            if (req == null) { s.sendMessage(core.lang("errors._41")); return; }
+            if (req == null) {
+                s.sendMessage(core.lang("errors._41"));
+                return;
+            }
             req.remove();
             s.sendMessage(core.lang("command.deny"));
         }

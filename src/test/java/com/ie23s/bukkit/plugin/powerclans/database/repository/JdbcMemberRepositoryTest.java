@@ -15,8 +15,11 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
 
     private JdbcMemberRepository repo;
 
-    private static final MemberDto STEVE = new MemberDto("warriors", "steve", false);
-    private static final MemberDto ALEX  = new MemberDto("warriors", "alex", false);
+    private static final String WARRIORS_UUID = "550e8400-e29b-41d4-a716-446655440000";
+    private static final String RANGERS_UUID  = "550e8400-e29b-41d4-a716-446655440001";
+
+    private static final MemberDto STEVE = new MemberDto(WARRIORS_UUID, "steve", false);
+    private static final MemberDto ALEX  = new MemberDto(WARRIORS_UUID, "alex",  false);
 
     @BeforeEach
     void setUp() {
@@ -35,14 +38,14 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
 
         assertEquals(1, result.size());
         MemberDto found = result.getFirst();
-        assertEquals("warriors", found.clan());
+        assertEquals(WARRIORS_UUID, found.clanUuid());
         assertEquals("steve", found.name());
         assertFalse(found.isModer());
     }
 
     @Test
     void insert_defaultsIsModerToFalse() throws SQLException {
-        repo.insert(new MemberDto("warriors", "steve", true)); // isModer ignored by INSERT
+        repo.insert(new MemberDto(WARRIORS_UUID, "steve", true)); // isModer ignored by INSERT
         // isModer is hardcoded to 0 in INSERT — verify it
         assertFalse(repo.findAll().getFirst().isModer());
     }
@@ -50,7 +53,7 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
     @Test
     void updateModer_setsModerTrue() throws SQLException {
         repo.insert(STEVE);
-        repo.updateModer("warriors", "steve", true);
+        repo.updateModer(WARRIORS_UUID, "steve", true);
 
         assertTrue(repo.findAll().getFirst().isModer());
     }
@@ -58,8 +61,8 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
     @Test
     void updateModer_setsModerFalse() throws SQLException {
         repo.insert(STEVE);
-        repo.updateModer("warriors", "steve", true);
-        repo.updateModer("warriors", "steve", false);
+        repo.updateModer(WARRIORS_UUID, "steve", true);
+        repo.updateModer(WARRIORS_UUID, "steve", false);
 
         assertFalse(repo.findAll().getFirst().isModer());
     }
@@ -68,7 +71,7 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
     void updateModer_doesNotAffectOtherMembers() throws SQLException {
         repo.insert(STEVE);
         repo.insert(ALEX);
-        repo.updateModer("warriors", "steve", true);
+        repo.updateModer(WARRIORS_UUID, "steve", true);
 
         List<MemberDto> all = repo.findAll();
         MemberDto alex = all.stream().filter(m -> m.name().equals("alex")).findFirst().orElseThrow();
@@ -78,7 +81,7 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
     @Test
     void delete_removesMember() throws SQLException {
         repo.insert(STEVE);
-        repo.delete("warriors", "steve");
+        repo.delete(WARRIORS_UUID, "steve");
 
         assertTrue(repo.findAll().isEmpty());
     }
@@ -87,7 +90,7 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
     void delete_doesNotAffectOtherMembers() throws SQLException {
         repo.insert(STEVE);
         repo.insert(ALEX);
-        repo.delete("warriors", "steve");
+        repo.delete(WARRIORS_UUID, "steve");
 
         List<MemberDto> remaining = repo.findAll();
         assertEquals(1, remaining.size());
@@ -98,7 +101,7 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
     void deleteByClan_removesAllMembersOfClan() throws SQLException {
         repo.insert(STEVE);
         repo.insert(ALEX);
-        repo.deleteByClan("warriors");
+        repo.deleteByClan(WARRIORS_UUID);
 
         assertTrue(repo.findAll().isEmpty());
     }
@@ -106,11 +109,11 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
     @Test
     void deleteByClan_doesNotAffectOtherClans() throws SQLException {
         repo.insert(STEVE);
-        repo.insert(new MemberDto("rangers", "notch", false));
-        repo.deleteByClan("warriors");
+        repo.insert(new MemberDto(RANGERS_UUID, "notch", false));
+        repo.deleteByClan(WARRIORS_UUID);
 
         List<MemberDto> remaining = repo.findAll();
         assertEquals(1, remaining.size());
-        assertEquals("rangers", remaining.getFirst().clan());
+        assertEquals(RANGERS_UUID, remaining.getFirst().clanUuid());
     }
 }

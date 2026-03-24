@@ -34,7 +34,7 @@ public class ClanService {
      */
     public void loadAll() throws SQLException {
         for (ClanDto dto : repository.findAll()) {
-            Clan clan = new Clan(core, dto.uuid(), dto.name(), dto.leader(), dto.maxPlayers(), dto.level());
+            Clan clan = new Clan(core, dto.id(), dto.uuid(), dto.name(), dto.leader(), dto.maxPlayers(), dto.level());
             core.getClanList().getClans().put(dto.name().toLowerCase(), clan);
         }
     }

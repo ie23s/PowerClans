@@ -1,9 +1,10 @@
 -- SQLite does not support DROP/RENAME COLUMN without table recreation.
 -- Strategy: create new tables, migrate data via name-based JOIN, drop old table.
 
--- Step 1: New clan_list with uuid as PK
+-- Step 1: New clan_list with id as AI PK and uuid as UNIQUE
 CREATE TABLE clan_list_v2 (
-    uuid        TEXT    NOT NULL PRIMARY KEY,
+    id          INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    uuid        TEXT    NOT NULL UNIQUE,
     name        TEXT    NOT NULL UNIQUE,
     leader      TEXT    NOT NULL,
     max_players INTEGER NOT NULL,
@@ -21,7 +22,7 @@ SELECT lower(hex(randomblob(4))) || '-' ||
        name, leader, maxplayers, level
 FROM clan_list;
 
--- Step 3: Create clan_data (no FK — SQLite FK support is off by default anyway)
+-- Step 3: Create clan_data (FK enforcement requires PRAGMA foreign_keys=ON)
 CREATE TABLE clan_data (
     clan_uuid    TEXT    NOT NULL PRIMARY KEY,
     tag          TEXT    NOT NULL DEFAULT '',
@@ -30,7 +31,8 @@ CREATE TABLE clan_data (
     balance      REAL    NOT NULL DEFAULT 0,
     mob_kills    INTEGER NOT NULL DEFAULT 0,
     player_kills INTEGER NOT NULL DEFAULT 0,
-    online_time  INTEGER NOT NULL DEFAULT 0
+    online_time  INTEGER NOT NULL DEFAULT 0,
+    FOREIGN KEY (clan_uuid) REFERENCES clan_list(uuid) ON DELETE CASCADE
 );
 
 -- Step 4: Migrate secondary data, joining on name to get the newly generated uuid
