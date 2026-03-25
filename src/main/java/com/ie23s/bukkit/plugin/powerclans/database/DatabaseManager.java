@@ -50,8 +50,7 @@ public class DatabaseManager {
         try {
             new MigrationRunner(connectionProvider, dialect).migrate();
         } catch (SQLException e) {
-            core.getUtils().getLogger().error(core.lang("other.mysql_error2"));
-            core.getUtils().getLogger().error(e.getMessage());
+            core.getUtils().getLogger().error(core.lang("other.mysql_error2"), e);
         }
     }
 }
