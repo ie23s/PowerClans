@@ -17,9 +17,11 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
 
     private static final String WARRIORS_UUID = "550e8400-e29b-41d4-a716-446655440000";
     private static final String RANGERS_UUID  = "550e8400-e29b-41d4-a716-446655440001";
+    private static final String STEVE_UUID    = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    private static final String ALEX_UUID     = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
 
-    private static final MemberDto STEVE = new MemberDto(WARRIORS_UUID, "steve", false);
-    private static final MemberDto ALEX  = new MemberDto(WARRIORS_UUID, "alex",  false);
+    private static final MemberDto STEVE = new MemberDto(WARRIORS_UUID, "steve", STEVE_UUID, false);
+    private static final MemberDto ALEX  = new MemberDto(WARRIORS_UUID, "alex",  ALEX_UUID,  false);
 
     @BeforeEach
     void setUp() {
@@ -40,12 +42,13 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
         MemberDto found = result.getFirst();
         assertEquals(WARRIORS_UUID, found.clanUuid());
         assertEquals("steve", found.name());
+        assertEquals(STEVE_UUID, found.playerUuid());
         assertFalse(found.isModer());
     }
 
     @Test
     void insert_defaultsIsModerToFalse() throws SQLException {
-        repo.insert(new MemberDto(WARRIORS_UUID, "steve", true)); // isModer ignored by INSERT
+        repo.insert(new MemberDto(WARRIORS_UUID, "steve", STEVE_UUID, true)); // isModer ignored by INSERT
         // isModer is hardcoded to 0 in INSERT — verify it
         assertFalse(repo.findAll().getFirst().isModer());
     }
@@ -79,6 +82,15 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
     }
 
     @Test
+    void updatePlayerUuid_storesUuid() throws SQLException {
+        repo.insert(new MemberDto(WARRIORS_UUID, "steve", null, false));
+        repo.updatePlayerUuid(WARRIORS_UUID, "steve", STEVE_UUID);
+
+        MemberDto updated = repo.findAll().getFirst();
+        assertEquals(STEVE_UUID, updated.playerUuid());
+    }
+
+    @Test
     void delete_removesMember() throws SQLException {
         repo.insert(STEVE);
         repo.delete(WARRIORS_UUID, "steve");
@@ -109,7 +121,7 @@ class JdbcMemberRepositoryTest extends BaseDbTest {
     @Test
     void deleteByClan_doesNotAffectOtherClans() throws SQLException {
         repo.insert(STEVE);
-        repo.insert(new MemberDto(RANGERS_UUID, "notch", false));
+        repo.insert(new MemberDto(RANGERS_UUID, "notch", null, false));
         repo.deleteByClan(WARRIORS_UUID);
 
         List<MemberDto> remaining = repo.findAll();

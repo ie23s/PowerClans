@@ -24,7 +24,7 @@ import com.ie23s.bukkit.plugin.powerclans.utils.Utils;
 import com.sk89q.worldguard.bukkit.WorldGuardPlugin;
 import net.milkbowl.vault.economy.Economy;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.Plugin;
 import org.bukkit.plugin.RegisteredServiceProvider;
@@ -119,9 +119,9 @@ public class Core extends JavaPlugin {
                 r = var3.next();
                 if (r.getType() == RequestType.INVITE) {
                     r.getPlayer().sendMessage(lang("other.invite_canceled"));
-                    @SuppressWarnings("deprecation") OfflinePlayer pl = Bukkit.getOfflinePlayer(r.getSender());
-                    if (pl.getPlayer() != null && pl.isOnline()) {
-                        pl.getPlayer().sendMessage(lang("other.invite_canceled2", r.getPlayer().getName()));
+                    Player senderPlayer = Bukkit.getPlayerExact(r.getSender());
+                    if (senderPlayer != null) {
+                        senderPlayer.sendMessage(lang("other.invite_canceled2", r.getPlayer().getName()));
                     }
                 }
             }

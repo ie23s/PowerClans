@@ -2,6 +2,7 @@ package com.ie23s.bukkit.plugin.powerclans.command.clan;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
+import com.ie23s.bukkit.plugin.powerclans.clan.Member;
 import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.RequestType;
@@ -48,7 +49,7 @@ class MemberCommandsTest {
     void setUp() {
         Request.requests.clear();
         lenient().when(core.lang(anyString())).thenAnswer(inv -> inv.getArgument(0));
-        lenient().when(core.lang(anyString(), (Object[]) any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(core.lang(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
         lenient().when(sender.hasPermission(anyString())).thenReturn(true);
         lenient().when(sender.getName()).thenReturn("leader");
         lenient().when(clan.hasLeader("leader")).thenReturn(true);
@@ -92,8 +93,9 @@ class MemberCommandsTest {
             bukkit.when(() -> Bukkit.getPlayer("target")).thenReturn(targetPlayer);
             when(memberList.isMember("target")).thenReturn(false);
             when(clan.getMaxPlayers()).thenReturn(2);
-            List<String> fullList = new ArrayList<>(List.of("member1", "member2"));
-            when(memberList.getListOfMembers(clan.getName())).thenReturn(new ArrayList<>(fullList));
+            Member m1 = mock(Member.class);
+            Member m2 = mock(Member.class);
+            when(memberList.getListOfMembers(clan.getName())).thenReturn(new ArrayList<>(List.of(m1, m2)));
             MemberCommands.Invite cmd = new MemberCommands.Invite(core);
 
             boolean result = cmd.validate(sender, new String[]{"invite", "target"}, clan, "leader");

@@ -11,6 +11,8 @@ import org.bukkit.event.EventHandler;
 import org.bukkit.event.Listener;
 import org.bukkit.event.entity.EntityDamageByEntityEvent;
 
+import java.util.UUID;
+
 /**
  * Prevents friendly fire between clan members.
  *
@@ -73,13 +75,16 @@ public class CombatListener implements Listener {
         if (WorldGuardUtils.getFlag(victim.getLocation(), Flags.PVP)
                 && core.getConfig().getBoolean("settings.pvp")) return;
 
-        if (!core.getMemberList().isMember(damager.getName())) return;
-        if (!core.getMemberList().isMember(victim.getName()))  return;
+        UUID damagerUuid = damager.getUniqueId();
+        UUID victimUuid  = victim.getUniqueId();
 
-        Clan clan = core.getClanList().getClanByName(damager.getName());
+        if (!core.getMemberList().isMemberByUuid(damagerUuid)) return;
+        if (!core.getMemberList().isMemberByUuid(victimUuid))  return;
+
+        Clan clan = core.getClanList().getClanByPlayerUuid(damagerUuid);
         if (clan == null) return;
-        if (!clan.hasClanMember(victim.getName())) return;
-        if (victim.getName().equals(damager.getName())) return;
+        if (!clan.hasClanMember(victim)) return;
+        if (victimUuid.equals(damagerUuid)) return;
         if (!clan.isPvp()) return;
 
         damager.sendMessage(core.lang("other.damage_in_clan"));

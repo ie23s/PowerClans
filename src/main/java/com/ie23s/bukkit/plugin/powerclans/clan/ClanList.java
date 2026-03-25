@@ -3,10 +3,11 @@ package com.ie23s.bukkit.plugin.powerclans.clan;
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import org.bukkit.ChatColor;
+import org.bukkit.entity.Player;
 
 import java.util.HashMap;
 import java.util.Map;
-import java.util.Objects;
+import java.util.UUID;
 
 /**
  * In-memory registry of all active {@link Clan} objects, keyed by lower-case clan name.
@@ -46,31 +47,41 @@ public class ClanList {
     }
 
     /**
-     * Returns the clan that the given player belongs to, or {@code null} if the player is not a member.
+     * Returns the clan of the player identified by their UUID, or {@code null} if not a member.
+     * Prefer this overload in event handlers where a {@link org.bukkit.entity.Player} is available.
      *
-     * @param player player name
+     * @param playerUuid Mojang UUID of the player
      */
-    public Clan getClanByName(String player) {
-        if (core.getMemberList().isMember(player)) {
-            return getClan(Objects.requireNonNull(core.getMemberList().getMember(player)).getClan());
-        }
-        return null;
+    public Clan getClanByPlayerUuid(UUID playerUuid) {
+        Member member = core.getMemberList().getMemberByUuid(playerUuid);
+        return member != null ? getClan(member.getClan()) : null;
+    }
+
+    /**
+     * Returns the clan of the player identified by their name, or {@code null} if not a member.
+     * Use in command handlers where only a player name is available.
+     *
+     * @param playerName player name (any case)
+     */
+    public Clan getClanByName(String playerName) {
+        Member member = core.getMemberList().getMember(playerName);
+        return member != null ? getClan(member.getClan()) : null;
     }
 
     /**
      * Creates a new clan, registers it in memory, and asynchronously persists it
      * (clan row, clan_data row, and the leader's member row).
-     * The UUID is generated in Java via {@link java.util.UUID#randomUUID()}.
+     * The clan UUID is generated in Java via {@link java.util.UUID#randomUUID()}.
      *
      * @param clan   raw clan name, may contain colour codes (stripped before storage)
-     * @param leader player name of the founding leader (will be lower-cased)
+     * @param leader the online founding leader player (name and UUID are taken from this object)
      * @return the newly created {@link Clan}
      */
-    public Clan create(String clan, String leader) {
+    public Clan create(String clan, Player leader) {
         String strippedName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', clan));
-        Member member = new Member(leader.toLowerCase(), false, strippedName);
+        Member member = new Member(leader.getName(), leader.getUniqueId(), false, strippedName);
         Clan c = new Clan(core, 0, java.util.UUID.randomUUID().toString(), strippedName,
-                leader.toLowerCase(), core.getConfig().getInt("settings.default_max"), 1);
+                leader.getName(), core.getConfig().getInt("settings.default_max"), 1);
         c.set(ClanDataKey.TAG, clan);
         clans.put(clan.toLowerCase(), c);
         core.getMemberList().addMember(member);

@@ -42,7 +42,10 @@ class ClanServiceLoadTest {
     ClanDataService clanDataService;
     MemberService memberService;
 
-    private static final String UUID = "550e8400-e29b-41d4-a716-446655440000";
+    private static final String UUID       = "550e8400-e29b-41d4-a716-446655440000";
+    private static final String STEVE_UUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    private static final String ALEX_UUID  = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    private static final String NOTCH_UUID = "cccccccc-cccc-cccc-cccc-cccccccccccc";
 
     @BeforeEach
     void setUp() {
@@ -147,8 +150,8 @@ class ClanServiceLoadTest {
         clanList.getClans().put("warriors", clan);
 
         when(memberRepo.findAll()).thenReturn(List.of(
-                new MemberDto(UUID, "steve", false),
-                new MemberDto(UUID, "alex",  true)
+                new MemberDto(UUID, "steve", STEVE_UUID, false),
+                new MemberDto(UUID, "alex",  ALEX_UUID,  true)
         ));
 
         memberService.loadAll();
@@ -163,7 +166,7 @@ class ClanServiceLoadTest {
     void memberService_loadAll_orphanedMember_isNotAddedToList() throws SQLException {
         // clan uuid "unknown-uuid" doesn't exist in clanList
         when(memberRepo.findAll()).thenReturn(List.of(
-                new MemberDto("unknown-uuid", "notch", false)
+                new MemberDto("unknown-uuid", "notch", NOTCH_UUID, false)
         ));
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {

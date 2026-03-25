@@ -17,7 +17,6 @@ import com.ie23s.bukkit.plugin.powerclans.database.service.MemberService;
 import com.ie23s.bukkit.plugin.powerclans.database.BaseDbTest;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.entity.Player;
 import org.bukkit.plugin.Plugin;
@@ -33,6 +32,7 @@ import org.mockito.quality.Strictness;
 import java.sql.SQLException;
 import java.util.List;
 import java.util.Map;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.ArgumentMatchers.*;
@@ -46,7 +46,9 @@ import static org.mockito.Mockito.*;
 @org.mockito.junit.jupiter.MockitoSettings(strictness = Strictness.LENIENT)
 class ClanScenarioTest extends BaseDbTest {
 
-    private static final String CLAN_UUID = "550e8400-e29b-41d4-a716-446655440000";
+    private static final String CLAN_UUID  = "550e8400-e29b-41d4-a716-446655440000";
+    private static final String ALICE_UUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    private static final String BOB_UUID   = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
 
     @Mock Core core;
     @Mock FileConfiguration config;
@@ -99,8 +101,8 @@ class ClanScenarioTest extends BaseDbTest {
         for (ClanDataKey key : ClanDataKey.values()) clanData.put(key, key.defaultValue());
         clanData.put(ClanDataKey.TAG, "TC");
         clanDataRepo.insertAll(CLAN_UUID, clanData);
-        memberRepo.insert(new MemberDto(CLAN_UUID, "alice", false));
-        memberRepo.insert(new MemberDto(CLAN_UUID, "bob",   false));
+        memberRepo.insert(new MemberDto(CLAN_UUID, "alice", ALICE_UUID, false));
+        memberRepo.insert(new MemberDto(CLAN_UUID, "bob",   BOB_UUID,   false));
 
         // Load DB state into memory
         clanService.loadAll();
@@ -110,29 +112,27 @@ class ClanScenarioTest extends BaseDbTest {
         clan = clanList.getClan("TestClan");
     }
 
-    /** Creates a mock Player with the given name and all permissions granted. */
+    /** Creates a mock Player with the given name, a random UUID, and all permissions granted. */
     private Player player(String name) {
         Player p = mock(Player.class);
         when(p.getName()).thenReturn(name);
+        when(p.getUniqueId()).thenReturn(UUID.randomUUID());
         when(p.hasPermission(anyString())).thenReturn(true);
         return p;
     }
 
     /**
-     * Stubs the Bukkit scheduler to run async tasks synchronously and stubs
-     * Bukkit.getOfflinePlayer so broadcast() skips all online checks.
+     * Stubs the Bukkit scheduler to run async tasks synchronously.
+     * broadcast() uses getPlayerExact() which returns null by default → no messages sent in tests.
      */
-    @SuppressWarnings("deprecation")
     private void stubBukkit(MockedStatic<Bukkit> bukkit) {
         BukkitScheduler scheduler = mock(BukkitScheduler.class);
         bukkit.when(Bukkit::getScheduler).thenReturn(scheduler);
         doAnswer(inv -> { ((Runnable) inv.getArgument(1)).run(); return null; })
                 .when(scheduler).runTaskAsynchronously(any(Plugin.class), any(Runnable.class));
 
-        bukkit.when(() -> Bukkit.getOfflinePlayer(any(String.class))).thenAnswer(inv -> {
-            OfflinePlayer op = mock(OfflinePlayer.class);
-            when(op.getName()).thenReturn(inv.getArgument(0));
-            return op;
+        bukkit.when(() -> Bukkit.getPlayerExact(any(String.class))).thenAnswer(inv -> {
+            return null; // no online players in tests — broadcast sends to nobody
         });
     }
 
@@ -206,10 +206,6 @@ class ClanScenarioTest extends BaseDbTest {
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
             stubBukkit(bukkit);
-            OfflinePlayer offlineBob = mock(OfflinePlayer.class);
-            when(offlineBob.getName()).thenReturn("bob");
-            bukkit.when(() -> Bukkit.getOfflinePlayer("bob")).thenReturn(offlineBob);
-
             new ModeratorCommands.AddModer(core).execute(alice, new String[]{"addmoder", "bob"}, clan, "alice");
         }
 
@@ -228,9 +224,6 @@ class ClanScenarioTest extends BaseDbTest {
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
             stubBukkit(bukkit);
-            OfflinePlayer offlineBob = mock(OfflinePlayer.class);
-            when(offlineBob.hasPlayedBefore()).thenReturn(true);
-            bukkit.when(() -> Bukkit.getOfflinePlayer("bob")).thenReturn(offlineBob);
 
             new ModeratorCommands.Leader(core).execute(alice, new String[]{"leader", "bob"}, clan, "alice");
             new RequestCommands.Accept(core, registry).execute(alice, new String[]{"accept"}, clan, "alice");

@@ -8,6 +8,7 @@ import com.ie23s.bukkit.plugin.powerclans.database.repository.MemberRepository;
 import org.bukkit.Bukkit;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Handles persistence for the {@code clan_members} table.
@@ -39,7 +40,7 @@ public class MemberService {
                 String uuid = dto.clanUuid();
                 async(() -> repository.deleteByClan(uuid));
             } else {
-                core.getMemberList().addMember(new Member(dto.name(), dto.isModer(), clan.getName()));
+                core.getMemberList().addMember(new Member(dto.name(), UUID.fromString(dto.playerUuid()), dto.isModer(), clan.getName()));
             }
         }
     }
@@ -49,7 +50,7 @@ public class MemberService {
     /** Inserts a new member row asynchronously. */
     public void create(Member member) {
         String clanUuid = clanUuid(member.getClan());
-        async(() -> repository.insert(new MemberDto(clanUuid, member.getName(), member.isModer())));
+        async(() -> repository.insert(new MemberDto(clanUuid, member.getName(), member.getPlayerUuid().toString(), member.isModer())));
     }
 
     /** Updates the moderator status of the member asynchronously. */

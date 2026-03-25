@@ -4,14 +4,14 @@ import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
-import org.bukkit.OfflinePlayer;
+import org.bukkit.entity.Player;
 import org.bukkit.event.EventHandler;
 import org.bukkit.event.EventPriority;
 import org.bukkit.event.Listener;
 import org.bukkit.event.player.AsyncPlayerChatEvent;
 
 import java.util.Objects;
-
+import java.util.UUID;
 /**
  * Handles clan-related chat features.
  *
@@ -60,11 +60,11 @@ public class ChatListener implements Listener {
      */
     void substituteClanTag(AsyncPlayerChatEvent event) {
         if (!event.getFormat().contains(CLANTAG_PLACEHOLDER)) return;
-        String playerName = event.getPlayer().getName();
-        if (core.getMemberList().isMember(playerName)) {
-            String tag = Objects.requireNonNull(
-                    core.getClanList().getClanByName(playerName)).getTag();
-            event.setFormat(event.getFormat().replace(CLANTAG_PLACEHOLDER, tag));
+        UUID playerUuid = event.getPlayer().getUniqueId();
+        if (core.getMemberList().isMemberByUuid(playerUuid)) {
+            Clan clan = Objects.requireNonNull(
+                    core.getClanList().getClanByPlayerUuid(playerUuid));
+            event.setFormat(event.getFormat().replace(CLANTAG_PLACEHOLDER, clan.getTag()));
         } else {
             event.setFormat(event.getFormat().replace(CLANTAG_PLACEHOLDER, ""));
         }
@@ -87,7 +87,8 @@ public class ChatListener implements Listener {
         String message = event.getMessage();
         if (!message.startsWith("%") || message.length() <= 1) return;
 
-        Clan clan = core.getClanList().getClanByName(event.getPlayer().getName());
+        UUID playerUuid = event.getPlayer().getUniqueId();
+        Clan clan = core.getClanList().getClanByPlayerUuid(playerUuid);
         if (clan == null) {
             event.getPlayer().sendMessage(core.lang("error._9"));
             event.setCancelled(true);
@@ -95,10 +96,10 @@ public class ChatListener implements Listener {
         }
 
         event.getRecipients().clear();
-        for (String name : core.getMemberList().getListOfMembers(clan.getName())) {
-            @SuppressWarnings("deprecation") OfflinePlayer pl = Bukkit.getOfflinePlayer(name);
-            if (pl.isOnline()) {
-                event.getRecipients().add(pl.getPlayer());
+        for (com.ie23s.bukkit.plugin.powerclans.clan.Member m : core.getMemberList().getListOfMembers(clan.getName())) {
+            Player pl = Bukkit.getPlayer(m.getPlayerUuid());
+            if (pl != null) {
+                event.getRecipients().add(pl);
             }
         }
 

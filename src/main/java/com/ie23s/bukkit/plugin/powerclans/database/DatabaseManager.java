@@ -2,8 +2,17 @@ package com.ie23s.bukkit.plugin.powerclans.database;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.database.migration.MigrationRunner;
+import com.ie23s.bukkit.plugin.powerclans.database.repository.impl.JdbcMemberRepository;
+import org.bukkit.Bukkit;
+import org.bukkit.OfflinePlayer;
 
+import java.sql.Connection;
+import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Statement;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -48,9 +57,43 @@ public class DatabaseManager {
 
     private void runMigrations() {
         try {
-            new MigrationRunner(connectionProvider, dialect).migrate();
+            new MigrationRunner(connectionProvider, dialect)
+                    .migrate(Map.of(3, this::populateMemberUuids));
         } catch (SQLException e) {
             core.getUtils().getLogger().error(core.lang("other.mysql_error2"), e);
+        }
+    }
+
+    /**
+     * V3 Java migration step: back-fills the {@code player_uuid} column in {@code clan_members}
+     * for all existing rows using the Bukkit offline-player registry.
+     *
+     * <p>This is the only permitted use of {@link Bukkit#getOfflinePlayer(String)} in the codebase.
+     * After this step runs, all code paths use UUID-based or online-player lookups.
+     *
+     * @param provider connection provider to use for DB access
+     * @throws SQLException if any database operation fails
+     */
+    private void populateMemberUuids(ConnectionProvider provider) throws SQLException {
+        record MemberRow(String clanUuid, String name) {}
+        List<MemberRow> rows = new ArrayList<>();
+
+        try (Connection conn = provider.getConnection();
+             Statement stmt = conn.createStatement();
+             ResultSet rs = stmt.executeQuery(
+                     "SELECT clan_uuid, name FROM clan_members WHERE player_uuid IS NULL")) {
+            while (rs.next()) {
+                rows.add(new MemberRow(rs.getString("clan_uuid"), rs.getString("name")));
+            }
+        }
+
+        JdbcMemberRepository repo = new JdbcMemberRepository(provider);
+        for (MemberRow row : rows) {
+            @SuppressWarnings("deprecation")
+            OfflinePlayer op = Bukkit.getOfflinePlayer(row.name());
+            String uuid = op.getUniqueId().toString();
+            String canonicalName = op.getName() != null ? op.getName() : row.name();
+            repo.updatePlayerUuid(row.clanUuid(), canonicalName, uuid);
         }
     }
 }

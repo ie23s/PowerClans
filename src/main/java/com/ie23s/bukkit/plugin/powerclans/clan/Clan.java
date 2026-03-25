@@ -6,6 +6,7 @@ import com.ie23s.bukkit.plugin.powerclans.api.IClan;
 import com.ie23s.bukkit.plugin.powerclans.api.IClanData;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
+import org.bukkit.entity.Player;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -119,10 +120,10 @@ public class Clan implements IClan, IClanData {
     /**
      * Changes the clan leader and persists the change asynchronously.
      *
-     * @param leader new leader's player name (will be lower-cased)
+     * @param leader new leader's player name (original case)
      */
     public void setLeader(String leader) {
-        this.leader = leader.toLowerCase();
+        this.leader = leader;
         core.getClanService().updateLeader(this);
     }
 
@@ -187,12 +188,12 @@ public class Clan implements IClan, IClanData {
     // ── Member management ─────────────────────────────────────────────────────
 
     /**
-     * Adds the player to this clan in memory and persists the row asynchronously.
+     * Adds an online player to this clan in memory and persists the row asynchronously.
      *
-     * @param name player name to add
+     * @param player the online player joining this clan
      */
-    public void invite(String name) {
-        Member member = new Member(name, false, this.name);
+    public void invite(Player player) {
+        Member member = new Member(player.getName(), player.getUniqueId(), false, this.name);
         core.getMemberList().addMember(member);
         core.getMemberService().create(member);
     }
@@ -234,8 +235,8 @@ public class Clan implements IClan, IClanData {
      * and deletes the clan and all its members from the database asynchronously.
      */
     public void disband() {
-        for (String mem : core.getMemberList().getListOfMembers(this.name))
-            kick(mem);
+        for (Member mem : core.getMemberList().getListOfMembers(this.name))
+            kick(mem.getName());
         core.getClanList().getClans().remove(this.name.toLowerCase());
         core.getMemberService().deleteByClan(this.name);
         core.getClanService().delete(this);
@@ -254,12 +255,24 @@ public class Clan implements IClan, IClanData {
 
     /**
      * Returns {@code true} if {@code name} is a member of this clan.
+     * Use in command handlers where only a player name is available.
      *
      * @param name player name to check
      */
     public boolean hasClanMember(String name) {
         Member member = core.getMemberList().getMember(name);
-        return member.getClan().equals(this.name);
+        return member != null && member.getClan().equals(this.name);
+    }
+
+    /**
+     * Returns {@code true} if the given online player is a member of this clan.
+     * Prefer this overload in event handlers where a {@link Player} object is available.
+     *
+     * @param player the online player to check
+     */
+    public boolean hasClanMember(Player player) {
+        Member member = core.getMemberList().getMemberByUuid(player.getUniqueId());
+        return member != null && member.getClan().equals(this.name);
     }
 
     /**
@@ -268,10 +281,10 @@ public class Clan implements IClan, IClanData {
      * @param message message text to broadcast
      */
     public void broadcast(String message) {
-        for (String member : core.getMemberList().getListOfMembers(this.name)) {
-            if (Bukkit.getOfflinePlayer(member).isOnline()) {
-                Objects.requireNonNull(Bukkit.getPlayer(member))
-                       .sendMessage(core.lang("command.broadcast_format", core.lang("chat.clan"), message));
+        for (Member member : core.getMemberList().getListOfMembers(this.name)) {
+            Player pl = Bukkit.getPlayer(member.getPlayerUuid());
+            if (pl != null) {
+                pl.sendMessage(core.lang("command.broadcast_format", core.lang("chat.clan"), message));
             }
         }
     }

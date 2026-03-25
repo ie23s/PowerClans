@@ -4,11 +4,9 @@ import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.RequestType;
-import org.bukkit.Bukkit;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
-import java.util.Objects;
 
 /**
  * /clan commands that manage clan staff: promoting/demoting moderators
@@ -42,8 +40,7 @@ public final class ModeratorCommands {
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             clan.setModer(args[1], true);
-            @SuppressWarnings("deprecation")
-            String targetName = Bukkit.getOfflinePlayer(args[1]).getName();
+            String targetName = core.getMemberList().getMember(args[1]).getName();
             clan.broadcast(core.lang("clan.addmoder", targetName));
         }
     }
@@ -71,8 +68,7 @@ public final class ModeratorCommands {
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             clan.setModer(args[1], false);
-            @SuppressWarnings("deprecation")
-            String targetName = Bukkit.getOfflinePlayer(args[1]).getName();
+            String targetName = core.getMemberList().getMember(args[1]).getName();
             clan.broadcast(core.lang("clan.delmoder", targetName));
         }
     }
@@ -93,9 +89,9 @@ public final class ModeratorCommands {
             if (!perm(s, args) || !inClan(s, clan)
                     || !isLeader(s, clan, "errors._36")
                     || !hasTarget(s, args)) return false;
-            @SuppressWarnings("deprecation")
-            boolean hasPlayed = Bukkit.getOfflinePlayer(args[1]).hasPlayedBefore();
-            if (!hasPlayed) { s.sendMessage(core.lang("errors._33")); return false; }
+            if (!core.getMemberList().isMember(args[1])) {
+                s.sendMessage(core.lang("errors._33")); return false;
+            }
             if (!isSameClanMember(s, clan, args[1])) return false;
             if (args[1].equalsIgnoreCase(s.getName())) {
                 s.sendMessage(core.lang("errors._35")); return false;

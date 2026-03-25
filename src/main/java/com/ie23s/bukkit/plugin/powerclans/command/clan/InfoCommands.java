@@ -65,9 +65,9 @@ public final class InfoCommands {
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             s.sendMessage(core.lang("command.online_1"));
-            for (String member : core.getMemberList().getListOfMembers(clan.getName())) {
-                if (Bukkit.getPlayer(member) == null) continue;
-                s.sendMessage(formatMemberLine(s.getName(), member));
+            for (com.ie23s.bukkit.plugin.powerclans.clan.Member m : core.getMemberList().getListOfMembers(clan.getName())) {
+                if (Bukkit.getPlayer(m.getPlayerUuid()) == null) continue;
+                s.sendMessage(formatMemberLine(s.getName(), m.getName()));
             }
         }
 
@@ -103,7 +103,7 @@ public final class InfoCommands {
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             int offset = parsePageOffset(s, args);
             if (offset < 0) return;
-            int totalPages = (int) Math.ceil((double) core.getClanList().number() / 10.0D);
+            int totalPages = (int) Math.ceil(core.getClanList().number() / 10.0D);
             s.sendMessage(core.lang("clan.list", offset / 10 + 1, totalPages));
             int count = 0;
             for (int i = offset; i < core.getClanList().number() && count < 10; i++, count++) {
