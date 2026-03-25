@@ -41,7 +41,7 @@ public final class InfoCommands {
             s.sendMessage(core.lang("command.info_1", clan.getName(),
                     core.getMemberList().getListOfMembers(clan.getName()).size(),
                     clan.getMaxPlayers()));
-            s.sendMessage(core.lang("command.info_2", clan.getLeader()));
+            s.sendMessage(core.lang("command.info_2", clan.getLeaderName()));
             s.sendMessage(core.lang("command.info_3", clan.getLevel()));
             core.getLevelModule().getRequirements().upgradeRequirements((Player) s);
         }
@@ -138,7 +138,7 @@ public final class InfoCommands {
             return ChatColor.YELLOW + " - " + c.getName()
                     + ChatColor.YELLOW + " ["
                     + core.getMemberList().getListOfMembers(c.getName()).size()
-                    + "] (" + c.getLeader() + ")";
+                    + "] (" + c.getLeaderName() + ")";
         }
     }
 
@@ -165,7 +165,7 @@ public final class InfoCommands {
             int rank = 1;
             for (Map.Entry<Clan, Integer> entry : sorted) {
                 Clan c = entry.getKey();
-                s.sendMessage(core.lang("command.top_1", rank, c.getName(), c.getLeader(), entry.getValue()));
+                s.sendMessage(core.lang("command.top_1", rank, c.getName(), c.getLeaderName(), entry.getValue()));
                 if (rank++ == 10) break;
             }
         }

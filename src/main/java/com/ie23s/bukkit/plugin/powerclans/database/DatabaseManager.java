@@ -65,14 +65,11 @@ public class DatabaseManager {
     }
 
     /**
-     * V3 Java migration step: back-fills the {@code player_uuid} column in {@code clan_members}
+     * V3 Java migration step: back-fills {@code player_uuid} in {@code clan_members}
      * for all existing rows using the Bukkit offline-player registry.
      *
      * <p>This is the only permitted use of {@link Bukkit#getOfflinePlayer(String)} in the codebase.
-     * After this step runs, all code paths use UUID-based or online-player lookups.
-     *
-     * @param provider connection provider to use for DB access
-     * @throws SQLException if any database operation fails
+     * After this step runs, all code paths use UUID-based lookups.
      */
     private void populateMemberUuids(ConnectionProvider provider) throws SQLException {
         record MemberRow(String clanUuid, String name) {}

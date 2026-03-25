@@ -193,7 +193,7 @@ class MemberCommandsTest {
     void kick_validate_failsWhenTryingToKickLeader() {
         when(clan.hasModer("leader")).thenReturn(false);
         when(clan.hasClanMember("target")).thenReturn(true);
-        when(clan.getLeader()).thenReturn("target");
+        when(clan.getLeaderName()).thenReturn("target");
         MemberCommands.Kick cmd = new MemberCommands.Kick(core);
 
         boolean result = cmd.validate(sender, new String[]{"kick", "target"}, clan, "leader");
@@ -206,7 +206,7 @@ class MemberCommandsTest {
     void kick_validate_passesForValidKick() {
         when(clan.hasModer("leader")).thenReturn(false);
         when(clan.hasClanMember("member")).thenReturn(true);
-        when(clan.getLeader()).thenReturn("leader");
+        when(clan.getLeaderName()).thenReturn("leader");
         MemberCommands.Kick cmd = new MemberCommands.Kick(core);
 
         boolean result = cmd.validate(sender, new String[]{"kick", "member"}, clan, "leader");

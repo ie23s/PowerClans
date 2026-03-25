@@ -42,10 +42,11 @@ class ClanServiceLoadTest {
     ClanDataService clanDataService;
     MemberService memberService;
 
-    private static final String UUID       = "550e8400-e29b-41d4-a716-446655440000";
-    private static final String STEVE_UUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
-    private static final String ALEX_UUID  = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
-    private static final String NOTCH_UUID = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    private static final String UUID        = "550e8400-e29b-41d4-a716-446655440000";
+    private static final String STEVE_UUID  = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    private static final String ALEX_UUID   = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    private static final String NOTCH_UUID  = "cccccccc-cccc-cccc-cccc-cccccccccccc";
+    private static final String LEADER_UUID = "dddddddd-dddd-dddd-dddd-dddddddddddd";
 
     @BeforeEach
     void setUp() {
@@ -67,7 +68,7 @@ class ClanServiceLoadTest {
     @Test
     void clanService_loadAll_registersClanInList() throws SQLException {
         when(clanRepo.findAll()).thenReturn(List.of(
-                new ClanDto(1, UUID, "warriors", "steve", 10, 1)
+                new ClanDto(1, UUID, "warriors", LEADER_UUID, 10, 1)
         ));
 
         clanService.loadAll();
@@ -77,7 +78,7 @@ class ClanServiceLoadTest {
         assertEquals(1,          clan.getId());
         assertEquals(UUID,       clan.getUuid());
         assertEquals("warriors", clan.getName());
-        assertEquals("steve",    clan.getLeader());
+        assertEquals(java.util.UUID.fromString(LEADER_UUID), clan.getLeaderUuid());
         assertEquals(10,         clan.getMaxPlayers());
         assertEquals(1,          clan.getLevel());
     }
@@ -85,8 +86,8 @@ class ClanServiceLoadTest {
     @Test
     void clanService_loadAll_registersMultipleClans() throws SQLException {
         when(clanRepo.findAll()).thenReturn(List.of(
-                new ClanDto(1, UUID,     "warriors", "steve", 10, 1),
-                new ClanDto(2, "uuid-2", "rangers",  "alex",  5,  2)
+                new ClanDto(1, UUID,     "warriors", LEADER_UUID, 10, 1),
+                new ClanDto(2, "uuid-2", "rangers",  ALEX_UUID,   5,  2)
         ));
 
         clanService.loadAll();
@@ -109,7 +110,7 @@ class ClanServiceLoadTest {
 
     @Test
     void clanDataService_loadAll_fillsDataMap() throws SQLException {
-        Clan clan = new Clan(core, 1, UUID, "warriors", "steve", 10, 1);
+        Clan clan = new Clan(core, 1, UUID, "warriors", java.util.UUID.fromString(LEADER_UUID), 10, 1);
         clanList.getClans().put("warriors", clan);
 
         when(clanDataRepo.findAll()).thenReturn(List.of(
@@ -146,7 +147,7 @@ class ClanServiceLoadTest {
 
     @Test
     void memberService_loadAll_addsMembersToList() throws SQLException {
-        Clan clan = new Clan(core, 1, UUID, "warriors", "steve", 10, 1);
+        Clan clan = new Clan(core, 1, UUID, "warriors", java.util.UUID.fromString(LEADER_UUID), 10, 1);
         clanList.getClans().put("warriors", clan);
 
         when(memberRepo.findAll()).thenReturn(List.of(
@@ -181,7 +182,7 @@ class ClanServiceLoadTest {
 
     @Test
     void getClanByUuid_returnsCorrectClan() {
-        Clan clan = new Clan(core, 1, UUID, "warriors", "steve", 10, 1);
+        Clan clan = new Clan(core, 1, UUID, "warriors", java.util.UUID.fromString(LEADER_UUID), 10, 1);
         clanList.getClans().put("warriors", clan);
 
         assertSame(clan, clanList.getClanByUuid(UUID));

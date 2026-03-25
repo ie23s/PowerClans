@@ -81,7 +81,7 @@ public class ClanList {
         String strippedName = ChatColor.stripColor(ChatColor.translateAlternateColorCodes('&', clan));
         Member member = new Member(leader.getName(), leader.getUniqueId(), false, strippedName);
         Clan c = new Clan(core, 0, java.util.UUID.randomUUID().toString(), strippedName,
-                leader.getName(), core.getConfig().getInt("settings.default_max"), 1);
+                leader.getUniqueId(), core.getConfig().getInt("settings.default_max"), 1);
         c.set(ClanDataKey.TAG, clan);
         clans.put(clan.toLowerCase(), c);
         core.getMemberList().addMember(member);

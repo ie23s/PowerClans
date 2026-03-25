@@ -142,7 +142,7 @@ public final class RequestCommands {
             String[] a = req.getArgs();
             if (!registry.get("leader").validate(s, a, clan, user)) return;
             if (clan.hasModer(a[1])) clan.setModer(a[1], false);
-            clan.setLeader(a[1]);
+            clan.setLeader(core.getMemberList().getMember(a[1]).getPlayerUuid());
             clan.broadcast(core.lang("clan.leader", s.getName(), a[1]));
         }
 

@@ -7,6 +7,7 @@ import com.ie23s.bukkit.plugin.powerclans.database.repository.ClanRepository;
 import org.bukkit.Bukkit;
 
 import java.sql.SQLException;
+import java.util.UUID;
 
 /**
  * Handles persistence for the {@code clan_list} table.
@@ -34,7 +35,8 @@ public class ClanService {
      */
     public void loadAll() throws SQLException {
         for (ClanDto dto : repository.findAll()) {
-            Clan clan = new Clan(core, dto.id(), dto.uuid(), dto.name(), dto.leader(), dto.maxPlayers(), dto.level());
+            Clan clan = new Clan(core, dto.id(), dto.uuid(), dto.name(),
+                    UUID.fromString(dto.leaderUuid()), dto.maxPlayers(), dto.level());
             core.getClanList().getClans().put(dto.name().toLowerCase(), clan);
         }
     }
@@ -48,7 +50,7 @@ public class ClanService {
 
     /** Updates the leader of the clan asynchronously. */
     public void updateLeader(Clan clan) {
-        async(() -> repository.updateLeader(clan.getUuid(), clan.getLeader()));
+        async(() -> repository.updateLeader(clan.getUuid(), clan.getLeaderUuid().toString()));
     }
 
     /** Updates the max-players limit of the clan asynchronously. */

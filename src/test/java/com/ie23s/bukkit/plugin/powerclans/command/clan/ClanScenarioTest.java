@@ -46,9 +46,9 @@ import static org.mockito.Mockito.*;
 @org.mockito.junit.jupiter.MockitoSettings(strictness = Strictness.LENIENT)
 class ClanScenarioTest extends BaseDbTest {
 
-    private static final String CLAN_UUID  = "550e8400-e29b-41d4-a716-446655440000";
-    private static final String ALICE_UUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
-    private static final String BOB_UUID   = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
+    private static final String CLAN_UUID        = "550e8400-e29b-41d4-a716-446655440000";
+    private static final String ALICE_UUID       = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+    private static final String BOB_UUID         = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
 
     @Mock Core core;
     @Mock FileConfiguration config;
@@ -96,7 +96,7 @@ class ClanScenarioTest extends BaseDbTest {
         when(core.getMemberService()).thenReturn(memberService);
 
         // Seed DB: TestClan with alice (leader) and bob
-        clanRepo.insert(new ClanDto(0, CLAN_UUID, "TestClan", "alice", 10, 1));
+        clanRepo.insert(new ClanDto(0, CLAN_UUID, "TestClan", ALICE_UUID, 10, 1));
         Map<ClanDataKey, Object> clanData = new java.util.EnumMap<>(ClanDataKey.class);
         for (ClanDataKey key : ClanDataKey.values()) clanData.put(key, key.defaultValue());
         clanData.put(ClanDataKey.TAG, "TC");
@@ -229,10 +229,11 @@ class ClanScenarioTest extends BaseDbTest {
             new RequestCommands.Accept(core, registry).execute(alice, new String[]{"accept"}, clan, "alice");
         }
 
-        assertEquals("bob", clan.getLeader());
+        assertEquals("bob", clan.getLeaderName());
 
         List<ClanDto> clans = clanRepo.findAll();
-        assertTrue(clans.stream().anyMatch(c -> c.name().equals("TestClan") && c.leader().equals("bob")));
+        assertTrue(clans.stream().anyMatch(c -> c.name().equals("TestClan")
+                && c.leaderUuid().equals(clan.getLeaderUuid().toString())));
     }
 
     // ── create → accept ───────────────────────────────────────────────────────
@@ -251,13 +252,14 @@ class ClanScenarioTest extends BaseDbTest {
 
         Clan newClan = clanList.getClan("NewClan");
         assertNotNull(newClan);
-        assertEquals("charlie", newClan.getLeader());
+        assertEquals("charlie", newClan.getLeaderName());
         assertTrue(memberList.isMember("charlie"));
         assertEquals("NewClan", memberList.getMember("charlie").getClan());
 
         // Verify persisted to DB
         List<ClanDto> clansInDb = clanRepo.findAll();
-        assertTrue(clansInDb.stream().anyMatch(c -> c.name().equals("NewClan") && c.leader().equals("charlie")));
+        assertTrue(clansInDb.stream().anyMatch(c -> c.name().equals("NewClan")
+                && c.leaderUuid().equals(newClan.getLeaderUuid().toString())));
 
         String newUuid = newClan.getUuid();
         assertTrue(memberRepo.findAll().stream()

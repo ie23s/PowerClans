@@ -26,13 +26,13 @@ public class JdbcClanRepository implements ClanRepository {
         List<ClanDto> clans = new ArrayList<>();
         try (Connection conn = connectionProvider.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT id, uuid, name, leader, max_players, level FROM clan_list")) {
+             ResultSet rs = stmt.executeQuery("SELECT id, uuid, name, leader_uuid, max_players, level FROM clan_list")) {
             while (rs.next()) {
                 clans.add(new ClanDto(
                         rs.getInt("id"),
                         rs.getString("uuid"),
                         rs.getString("name"),
-                        rs.getString("leader"),
+                        rs.getString("leader_uuid"),
                         rs.getInt("max_players"),
                         rs.getInt("level")
                 ));
@@ -45,10 +45,10 @@ public class JdbcClanRepository implements ClanRepository {
     public void insert(ClanDto clan) throws SQLException {
         try (Connection conn = connectionProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "INSERT INTO clan_list (uuid, name, leader, max_players, level) VALUES (?, ?, ?, ?, ?)")) {
+                     "INSERT INTO clan_list (uuid, name, leader_uuid, max_players, level) VALUES (?, ?, ?, ?, ?)")) {
             ps.setString(1, clan.uuid());
             ps.setString(2, clan.name());
-            ps.setString(3, clan.leader());
+            ps.setString(3, clan.leaderUuid());
             ps.setInt(4, clan.maxPlayers());
             ps.setInt(5, clan.level());
             ps.executeUpdate();
@@ -56,11 +56,11 @@ public class JdbcClanRepository implements ClanRepository {
     }
 
     @Override
-    public void updateLeader(String clanUuid, String leaderName) throws SQLException {
+    public void updateLeader(String clanUuid, String leaderUuid) throws SQLException {
         try (Connection conn = connectionProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "UPDATE clan_list SET leader=? WHERE uuid=?")) {
-            ps.setString(1, leaderName);
+                     "UPDATE clan_list SET leader_uuid=? WHERE uuid=?")) {
+            ps.setString(1, leaderUuid);
             ps.setString(2, clanUuid);
             ps.executeUpdate();
         }

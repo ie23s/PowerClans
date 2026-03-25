@@ -31,7 +31,7 @@ class MigrationRunnerTest extends BaseDbTest {
     }
 
     @Test
-    void migrate_setsSchemaVersionTo3() throws SQLException {
+    void migrate_setsSchemaVersionTo3_afterAllMigrationsRun() throws SQLException {
         try (var ps = connection.prepareStatement("SELECT value FROM db_meta WHERE key='schema_version'");
              ResultSet rs = ps.executeQuery()) {
             assertTrue(rs.next());
@@ -48,6 +48,18 @@ class MigrationRunnerTest extends BaseDbTest {
                 if ("player_uuid".equals(rs.getString("name"))) { found = true; break; }
             }
             assertTrue(found, "player_uuid column should exist in clan_members");
+        }
+    }
+
+    @Test
+    void migrate_addsLeaderUuidColumnToClanList() throws SQLException {
+        try (var ps = connection.prepareStatement("PRAGMA table_info(clan_list)");
+             ResultSet rs = ps.executeQuery()) {
+            boolean found = false;
+            while (rs.next()) {
+                if ("leader_uuid".equals(rs.getString("name"))) { found = true; break; }
+            }
+            assertTrue(found, "leader_uuid column should exist in clan_list");
         }
     }
 

@@ -11,6 +11,7 @@ import org.bukkit.entity.Player;
 import java.util.EnumMap;
 import java.util.Map;
 import java.util.Objects;
+import java.util.UUID;
 
 /**
  * In-memory representation of a clan.
@@ -32,7 +33,7 @@ public class Clan implements IClan, IClanData {
     private final int id;
     private final String uuid;
     private final String name;
-    private String leader;
+    private UUID leaderUuid;
     private int maxPlayers;
     private int level;
 
@@ -47,16 +48,16 @@ public class Clan implements IClan, IClanData {
      * @param id         auto-increment database primary key ({@code 0} for clans not yet persisted)
      * @param uuid       stable UUID used as the FK in related tables
      * @param name       display name (case-preserved, unique)
-     * @param leader     player name of the current leader (lower-case)
+     * @param leaderUuid Mojang UUID of the current leader
      * @param maxPlayers maximum member capacity
      * @param level      clan level
      */
-    public Clan(Core core, int id, String uuid, String name, String leader, int maxPlayers, int level) {
+    public Clan(Core core, int id, String uuid, String name, UUID leaderUuid, int maxPlayers, int level) {
         this.core = core;
         this.id = id;
         this.uuid = uuid;
         this.name = name;
-        this.leader = leader;
+        this.leaderUuid = leaderUuid;
         this.maxPlayers = maxPlayers;
         this.level = level;
         for (ClanDataKey key : ClanDataKey.values()) {
@@ -69,9 +70,14 @@ public class Clan implements IClan, IClanData {
     @Override public int    getId()         { return id; }
     @Override public String getUuid()       { return uuid; }
     @Override public String getName()       { return name; }
-    @Override public String getLeader()     { return leader; }
+    @Override public UUID   getLeaderUuid() { return leaderUuid; }
     @Override public int    getMaxPlayers() { return maxPlayers; }
     @Override public int    getLevel()      { return level; }
+
+    /** Returns the current leader's player name, resolved from {@link MemberList}. */
+    public String getLeaderName() {
+        return core.getMemberList().getMemberByUuid(leaderUuid).getName();
+    }
 
     // ── IClanData ─────────────────────────────────────────────────────────────
 
@@ -120,10 +126,10 @@ public class Clan implements IClan, IClanData {
     /**
      * Changes the clan leader and persists the change asynchronously.
      *
-     * @param leader new leader's player name (original case)
+     * @param leaderUuid UUID of the new leader
      */
-    public void setLeader(String leader) {
-        this.leader = leader;
+    public void setLeader(UUID leaderUuid) {
+        this.leaderUuid = leaderUuid;
         core.getClanService().updateLeader(this);
     }
 
@@ -250,7 +256,11 @@ public class Clan implements IClan, IClanData {
      * @param player player name to check
      */
     public boolean hasLeader(String player) {
-        return this.leader.equalsIgnoreCase(player);
+        return getLeaderName().equalsIgnoreCase(player);
+    }
+
+    public boolean hasLeader(UUID uuid) {
+        return leaderUuid.equals(uuid);
     }
 
     /**
