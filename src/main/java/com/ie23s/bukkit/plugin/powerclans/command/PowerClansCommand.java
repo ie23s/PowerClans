@@ -36,7 +36,7 @@ public class PowerClansCommand implements CommandExecutor {
                 core.load();
             } catch (Exception e) {
                 sender.sendMessage(core.lang("error._45"));
-                core.getUtils().getLogger().error(e);
+                core.getUtils().getLogger().error(e.getMessage(), e);
                 return true;
             }
             sender.sendMessage(core.lang("command.reload"));
@@ -55,7 +55,8 @@ public class PowerClansCommand implements CommandExecutor {
         int page = 1;
         try {
             page = Integer.parseInt(args[0]);
-        } catch (Exception ignore) {
+        } catch (NumberFormatException ignored) {
+            // args[0] is a subcommand name, not a page number — default page 1 is used
         }
         sender.sendMessage(core.lang("reference._1"));
         for (int i = (page - 1) * 5; i < page * 5 && i < commands.size(); i++) {

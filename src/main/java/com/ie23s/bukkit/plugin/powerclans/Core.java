@@ -14,6 +14,8 @@ import com.ie23s.bukkit.plugin.powerclans.database.repository.impl.JdbcMemberRep
 import com.ie23s.bukkit.plugin.powerclans.database.service.ClanDataService;
 import com.ie23s.bukkit.plugin.powerclans.database.service.ClanService;
 import com.ie23s.bukkit.plugin.powerclans.database.service.MemberService;
+import com.ie23s.bukkit.plugin.powerclans.event.ChatListener;
+import com.ie23s.bukkit.plugin.powerclans.event.CombatListener;
 import com.ie23s.bukkit.plugin.powerclans.event.EventListener;
 import com.ie23s.bukkit.plugin.powerclans.modules.level.Level;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
@@ -80,8 +82,7 @@ public class Core extends JavaPlugin {
             memberService.loadAll();
             utils.getLogger().info(lang("clan.loaded"));
         } catch (SQLException e) {
-            utils.getLogger().error(lang("clan.load_error"));
-            utils.getLogger().error(e.getMessage());
+            utils.getLogger().error(lang("clan.load_error"), e);
         }
 
         levelModule = new Level(this);
@@ -127,6 +128,8 @@ public class Core extends JavaPlugin {
 
         }, 0L, 20L);
         Bukkit.getPluginManager().registerEvents(new EventListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new CombatListener(this), this);
+        Bukkit.getPluginManager().registerEvents(new ChatListener(this), this);
         utils.getLogger().info(lang("other.plugin_enabled", System.currentTimeMillis() - time));
     }
 
