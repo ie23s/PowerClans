@@ -3,14 +3,12 @@ package com.ie23s.bukkit.plugin.powerclans.command.clan;
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.clan.ClanList;
-import org.bukkit.Bukkit;
-import org.bukkit.OfflinePlayer;
+import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
 import org.bukkit.command.CommandSender;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
-import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 
 import org.mockito.quality.Strictness;
@@ -36,14 +34,18 @@ class ModeratorCommandsTest {
     @Mock
     ClanList clanList;
 
+    @Mock
+    MemberList memberList;
+
     @BeforeEach
     void setUp() {
         lenient().when(core.lang(anyString())).thenAnswer(inv -> inv.getArgument(0));
-        lenient().when(core.lang(anyString(), (Object[]) any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(core.lang(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
         lenient().when(sender.hasPermission(anyString())).thenReturn(true);
         lenient().when(sender.getName()).thenReturn("leader");
         lenient().when(clan.hasLeader("leader")).thenReturn(true);
         lenient().when(core.getClanList()).thenReturn(clanList);
+        lenient().when(core.getMemberList()).thenReturn(memberList);
     }
 
     // -------------------------------------------------------------------------
@@ -143,95 +145,75 @@ class ModeratorCommandsTest {
     // -------------------------------------------------------------------------
 
     @Test
-    void leader_validate_failsWhenTargetHasNeverPlayed() {
-        try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
-            OfflinePlayer offlinePlayer = mock(OfflinePlayer.class);
-            bukkit.when(() -> Bukkit.getOfflinePlayer("target")).thenReturn(offlinePlayer);
-            when(offlinePlayer.hasPlayedBefore()).thenReturn(false);
-            ModeratorCommands.Leader cmd = new ModeratorCommands.Leader(core);
+    void leader_validate_failsWhenTargetNotAMember() {
+        when(memberList.isMember("target")).thenReturn(false);
+        ModeratorCommands.Leader cmd = new ModeratorCommands.Leader(core);
 
-            boolean result = cmd.validate(sender, new String[]{"leader", "target"}, clan, "leader");
+        boolean result = cmd.validate(sender, new String[]{"leader", "target"}, clan, "leader");
 
-            assertFalse(result);
-            verify(sender).sendMessage("errors._33");
-        }
+        assertFalse(result);
+        verify(sender).sendMessage("errors._33");
     }
 
     @Test
     void leader_validate_failsWhenTransferToSelf() {
-        try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
-            OfflinePlayer offlinePlayer = mock(OfflinePlayer.class);
-            bukkit.when(() -> Bukkit.getOfflinePlayer("leader")).thenReturn(offlinePlayer);
-            when(offlinePlayer.hasPlayedBefore()).thenReturn(true);
+        when(memberList.isMember("leader")).thenReturn(true);
 
-            Clan targetClan = mock(Clan.class);
-            when(core.getClanList().getClanByName("leader")).thenReturn(targetClan);
-            when(targetClan.getName()).thenReturn("TestClan");
-            when(clan.getName()).thenReturn("TestClan");
+        Clan targetClan = mock(Clan.class);
+        when(core.getClanList().getClanByName("leader")).thenReturn(targetClan);
+        when(targetClan.getName()).thenReturn("TestClan");
+        when(clan.getName()).thenReturn("TestClan");
 
-            ModeratorCommands.Leader cmd = new ModeratorCommands.Leader(core);
+        ModeratorCommands.Leader cmd = new ModeratorCommands.Leader(core);
 
-            boolean result = cmd.validate(sender, new String[]{"leader", "leader"}, clan, "leader");
+        boolean result = cmd.validate(sender, new String[]{"leader", "leader"}, clan, "leader");
 
-            assertFalse(result);
-            verify(sender).sendMessage("errors._35");
-        }
+        assertFalse(result);
+        verify(sender).sendMessage("errors._35");
     }
 
     @Test
     void leader_validate_failsWhenTargetNotInSameClan() {
-        try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
-            OfflinePlayer offlinePlayer = mock(OfflinePlayer.class);
-            bukkit.when(() -> Bukkit.getOfflinePlayer("target")).thenReturn(offlinePlayer);
-            when(offlinePlayer.hasPlayedBefore()).thenReturn(true);
-            when(core.getClanList().getClanByName("target")).thenReturn(null);
-            ModeratorCommands.Leader cmd = new ModeratorCommands.Leader(core);
+        when(memberList.isMember("target")).thenReturn(true);
+        when(core.getClanList().getClanByName("target")).thenReturn(null);
+        ModeratorCommands.Leader cmd = new ModeratorCommands.Leader(core);
 
-            boolean result = cmd.validate(sender, new String[]{"leader", "target"}, clan, "leader");
+        boolean result = cmd.validate(sender, new String[]{"leader", "target"}, clan, "leader");
 
-            assertFalse(result);
-            verify(sender).sendMessage("errors._14");
-        }
+        assertFalse(result);
+        verify(sender).sendMessage("errors._14");
     }
 
     @Test
     void leader_validate_failsWhenTargetInDifferentClan() {
-        try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
-            OfflinePlayer offlinePlayer = mock(OfflinePlayer.class);
-            bukkit.when(() -> Bukkit.getOfflinePlayer("target")).thenReturn(offlinePlayer);
-            when(offlinePlayer.hasPlayedBefore()).thenReturn(true);
+        when(memberList.isMember("target")).thenReturn(true);
 
-            Clan targetClan = mock(Clan.class);
-            when(core.getClanList().getClanByName("target")).thenReturn(targetClan);
-            when(targetClan.getName()).thenReturn("OtherClan");
-            when(clan.getName()).thenReturn("TestClan");
+        Clan targetClan = mock(Clan.class);
+        when(core.getClanList().getClanByName("target")).thenReturn(targetClan);
+        when(targetClan.getName()).thenReturn("OtherClan");
+        when(clan.getName()).thenReturn("TestClan");
 
-            ModeratorCommands.Leader cmd = new ModeratorCommands.Leader(core);
+        ModeratorCommands.Leader cmd = new ModeratorCommands.Leader(core);
 
-            boolean result = cmd.validate(sender, new String[]{"leader", "target"}, clan, "leader");
+        boolean result = cmd.validate(sender, new String[]{"leader", "target"}, clan, "leader");
 
-            assertFalse(result);
-            verify(sender).sendMessage("errors._34");
-        }
+        assertFalse(result);
+        verify(sender).sendMessage("errors._34");
     }
 
     @Test
     void leader_validate_passesForValidTransfer() {
-        try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
-            OfflinePlayer offlinePlayer = mock(OfflinePlayer.class);
-            bukkit.when(() -> Bukkit.getOfflinePlayer("target")).thenReturn(offlinePlayer);
-            when(offlinePlayer.hasPlayedBefore()).thenReturn(true);
+        when(memberList.isMember("target")).thenReturn(true);
 
-            Clan targetClan = mock(Clan.class);
-            when(core.getClanList().getClanByName("target")).thenReturn(targetClan);
-            when(targetClan.getName()).thenReturn("TestClan");
-            when(clan.getName()).thenReturn("TestClan");
+        Clan targetClan = mock(Clan.class);
+        when(core.getClanList().getClanByName("target")).thenReturn(targetClan);
+        when(targetClan.getName()).thenReturn("TestClan");
+        when(clan.getName()).thenReturn("TestClan");
 
-            ModeratorCommands.Leader cmd = new ModeratorCommands.Leader(core);
+        ModeratorCommands.Leader cmd = new ModeratorCommands.Leader(core);
 
-            boolean result = cmd.validate(sender, new String[]{"leader", "target"}, clan, "leader");
+        boolean result = cmd.validate(sender, new String[]{"leader", "target"}, clan, "leader");
 
-            assertTrue(result);
-        }
+        assertTrue(result);
     }
 }

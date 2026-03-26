@@ -11,6 +11,7 @@ import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Statement;
+import java.util.Map;
 
 /**
  * Versioned schema migration runner.
@@ -20,8 +21,11 @@ import java.sql.Statement;
  * <p>Each migration version obtains a fresh connection from the pool so that
  * SQLite JDBC statement-handle state from previous DDL operations does not interfere.
  *
- * <p>To add a new migration: create {@code V{n}.sql} for each dialect and add
- * {@code if (version < n) applyVersion(n);} inside {@link #migrate()}.
+ * <p>To add a pure-SQL migration: create {@code V{n}.sql} for each dialect and add
+ * {@code if (version < n) applyVersion(n, javaSteps.get(n));} inside
+ * {@link #migrate(Map)}.
+ * To add a mixed SQL+Java migration: provide a {@link JavaMigrationStep} implementation
+ * in the map passed to {@link #migrate(Map)}.
  */
 public class MigrationRunner {
 
@@ -40,24 +44,45 @@ public class MigrationRunner {
         this.dialect = dialect;
     }
 
+    /**
+     * Runs all pending migrations without any Java steps.
+     * Equivalent to {@code migrate(Map.of())}.
+     */
     public void migrate() throws SQLException {
+        migrate(Map.of());
+    }
+
+    /**
+     * Runs all pending migrations, optionally executing a {@link JavaMigrationStep}
+     * after the SQL script for each version that has one.
+     *
+     * @param javaSteps map from version number to an optional post-SQL Java step
+     */
+    public void migrate(Map<Integer, JavaMigrationStep> javaSteps) throws SQLException {
         createMetaTable();
         int version = getVersion();
-        if (version < 1) applyVersion(1);
-        if (version < 2) applyVersion(2);
+        if (version < 1) applyVersion(1, javaSteps.get(1));
+        if (version < 2) applyVersion(2, javaSteps.get(2));
+        if (version < 3) applyVersion(3, javaSteps.get(3));
     }
 
     // ── Migration execution ───────────────────────────────────────────────────
 
     /**
-     * Applies one migration version using a fresh connection, then records the new version.
-     * A fresh connection prevents SQLite JDBC from carrying over stale statement handles
+     * Applies one migration version using a fresh connection, then runs an optional
+     * Java step, then records the new version.
+     *
+     * <p>A fresh connection prevents SQLite JDBC from carrying over stale statement handles
      * from previous DDL operations (e.g. DROP TABLE / RENAME TABLE).
+     *
+     * @param version   the version to apply
+     * @param javaStep  optional post-SQL Java step, or {@code null}
      */
-    private void applyVersion(int version) throws SQLException {
+    private void applyVersion(int version, JavaMigrationStep javaStep) throws SQLException {
         try (Connection conn = provider.getConnection()) {
             executeScript(conn, loadScript(version));
         }
+        if (javaStep != null) javaStep.run(provider);
         setVersion(version);
     }
 

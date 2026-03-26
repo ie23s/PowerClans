@@ -47,4 +47,14 @@ public interface MemberRepository {
      * @param clanUuid uuid of the disbanded clan
      */
     void deleteByClan(String clanUuid) throws SQLException;
+
+    /**
+     * Sets the {@code player_uuid} column for an existing member row.
+     * Used by the V3 migration Java step to back-fill UUIDs for existing members.
+     *
+     * @param clanUuid   clan uuid of the member row
+     * @param memberName player name identifying the row
+     * @param playerUuid Mojang UUID string to store
+     */
+    void updatePlayerUuid(String clanUuid, String memberName, String playerUuid) throws SQLException;
 }

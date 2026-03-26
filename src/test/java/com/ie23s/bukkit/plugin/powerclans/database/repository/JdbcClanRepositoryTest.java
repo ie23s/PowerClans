@@ -15,8 +15,10 @@ class JdbcClanRepositoryTest extends BaseDbTest {
 
     private JdbcClanRepository repo;
 
+    private static final String STEVE_UUID = "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa";
+
     private static final ClanDto CLAN = new ClanDto(
-            0, "550e8400-e29b-41d4-a716-446655440000", "warriors", "steve", 10, 1
+            0, "550e8400-e29b-41d4-a716-446655440000", "warriors", STEVE_UUID, 10, 1
     );
 
     @BeforeEach
@@ -39,17 +41,19 @@ class JdbcClanRepositoryTest extends BaseDbTest {
         assertTrue(found.id() > 0);
         assertEquals("550e8400-e29b-41d4-a716-446655440000", found.uuid());
         assertEquals("warriors", found.name());
-        assertEquals("steve", found.leader());
+        assertEquals(STEVE_UUID,  found.leaderUuid());
         assertEquals(10, found.maxPlayers());
         assertEquals(1, found.level());
     }
 
-    @Test
-    void updateLeader_changesLeader() throws SQLException {
-        repo.insert(CLAN);
-        repo.updateLeader(CLAN.uuid(), "alex");
+    private static final String ALEX_UUID = "bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb";
 
-        assertEquals("alex", repo.findAll().getFirst().leader());
+    @Test
+    void updateLeader_changesLeaderUuid() throws SQLException {
+        repo.insert(CLAN);
+        repo.updateLeader(CLAN.uuid(), ALEX_UUID);
+
+        assertEquals(ALEX_UUID, repo.findAll().getFirst().leaderUuid());
     }
 
     @Test
@@ -79,7 +83,7 @@ class JdbcClanRepositoryTest extends BaseDbTest {
     @Test
     void delete_doesNotAffectOtherClans() throws SQLException {
         repo.insert(CLAN);
-        repo.insert(new ClanDto(0, "550e8400-e29b-41d4-a716-446655440001", "rangers", "alex", 5, 1));
+        repo.insert(new ClanDto(0, "550e8400-e29b-41d4-a716-446655440001", "rangers", ALEX_UUID, 5, 1));
         repo.delete(CLAN.uuid());
 
         List<ClanDto> remaining = repo.findAll();

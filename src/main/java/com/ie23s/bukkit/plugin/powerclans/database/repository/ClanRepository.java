@@ -26,12 +26,12 @@ public interface ClanRepository {
     void insert(ClanDto clan) throws SQLException;
 
     /**
-     * Updates the leader of the given clan.
+     * Updates the leader UUID of the given clan.
      *
      * @param clanUuid   UUID of the clan
-     * @param leaderName new leader's player name
+     * @param leaderUuid new leader's Mojang UUID string
      */
-    void updateLeader(String clanUuid, String leaderName) throws SQLException;
+    void updateLeader(String clanUuid, String leaderUuid) throws SQLException;
 
     /**
      * Updates the maximum member count for the given clan.

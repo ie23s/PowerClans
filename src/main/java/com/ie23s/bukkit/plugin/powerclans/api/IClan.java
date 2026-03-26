@@ -1,5 +1,7 @@
 package com.ie23s.bukkit.plugin.powerclans.api;
 
+import java.util.UUID;
+
 /**
  * Core identity fields of a clan — corresponds to the {@code clan_list} table columns.
  */
@@ -13,8 +15,8 @@ public interface IClan {
     /** Display name of the clan (color codes stripped). */
     String getName();
 
-    /** Player name of the current leader. */
-    String getLeader();
+    /** Mojang UUID of the current leader. */
+    UUID getLeaderUuid();
 
     /** Maximum number of members allowed in the clan. */
     int getMaxPlayers();

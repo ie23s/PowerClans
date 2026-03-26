@@ -2,8 +2,10 @@ package com.ie23s.bukkit.plugin.powerclans.database;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.database.migration.MigrationRunner;
+import com.ie23s.bukkit.plugin.powerclans.database.migration.step.V3Migration;
 
 import java.sql.SQLException;
+import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -30,7 +32,7 @@ public class DatabaseManager {
     public static DatabaseManager create(Core core) {
         String dbType = Objects.requireNonNull(core.getConfig().getString("database")).toLowerCase();
         ConnectionProvider provider = switch (dbType) {
-            case "mysql" -> new MySQL(core);
+            case "mysql", "mariadb" -> new MySQL(core);
             default      -> new SQLite(core, "PowerClans");
         };
         return new DatabaseManager(core, provider, dbType);
@@ -48,7 +50,8 @@ public class DatabaseManager {
 
     private void runMigrations() {
         try {
-            new MigrationRunner(connectionProvider, dialect).migrate();
+            new MigrationRunner(connectionProvider, dialect)
+                    .migrate(Map.of(3, new V3Migration()));
         } catch (SQLException e) {
             core.getUtils().getLogger().error(core.lang("other.mysql_error2"), e);
         }

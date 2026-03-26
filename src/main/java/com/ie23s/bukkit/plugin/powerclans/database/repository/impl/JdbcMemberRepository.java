@@ -26,11 +26,13 @@ public class JdbcMemberRepository implements MemberRepository {
         List<MemberDto> members = new ArrayList<>();
         try (Connection conn = connectionProvider.getConnection();
              Statement stmt = conn.createStatement();
-             ResultSet rs = stmt.executeQuery("SELECT clan_uuid, name, isModer FROM clan_members")) {
+             ResultSet rs = stmt.executeQuery(
+                     "SELECT clan_uuid, name, player_uuid, isModer FROM clan_members")) {
             while (rs.next()) {
                 members.add(new MemberDto(
                         rs.getString("clan_uuid"),
                         rs.getString("name"),
+                        rs.getString("player_uuid"),
                         rs.getBoolean("isModer")
                 ));
             }
@@ -42,9 +44,10 @@ public class JdbcMemberRepository implements MemberRepository {
     public void insert(MemberDto member) throws SQLException {
         try (Connection conn = connectionProvider.getConnection();
              PreparedStatement ps = conn.prepareStatement(
-                     "INSERT INTO clan_members (clan_uuid, name, isModer) VALUES (?, ?, 0)")) {
+                     "INSERT INTO clan_members (clan_uuid, name, player_uuid, isModer) VALUES (?, ?, ?, 0)")) {
             ps.setString(1, member.clanUuid());
             ps.setString(2, member.name());
+            ps.setString(3, member.playerUuid());
             ps.executeUpdate();
         }
     }
@@ -55,6 +58,18 @@ public class JdbcMemberRepository implements MemberRepository {
              PreparedStatement ps = conn.prepareStatement(
                      "UPDATE clan_members SET isModer=? WHERE clan_uuid=? AND name=?")) {
             ps.setBoolean(1, isModer);
+            ps.setString(2, clanUuid);
+            ps.setString(3, memberName);
+            ps.executeUpdate();
+        }
+    }
+
+    @Override
+    public void updatePlayerUuid(String clanUuid, String memberName, String playerUuid) throws SQLException {
+        try (Connection conn = connectionProvider.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     "UPDATE clan_members SET player_uuid=? WHERE clan_uuid=? AND name=?")) {
+            ps.setString(1, playerUuid);
             ps.setString(2, clanUuid);
             ps.setString(3, memberName);
             ps.executeUpdate();

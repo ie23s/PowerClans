@@ -17,6 +17,7 @@ import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
 import java.util.HashSet;
+import java.util.UUID;
 
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
@@ -24,6 +25,8 @@ import static org.mockito.Mockito.*;
 @ExtendWith(MockitoExtension.class)
 @org.mockito.junit.jupiter.MockitoSettings(strictness = Strictness.LENIENT)
 class ChatListenerTest {
+
+    static final UUID ALICE_UUID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
 
     @Mock Core core;
     @Mock FileConfiguration config;
@@ -40,6 +43,7 @@ class ChatListenerTest {
         when(core.getClanList()).thenReturn(clanList);
         when(core.getMemberList()).thenReturn(memberList);
         when(player.getName()).thenReturn("alice");
+        when(player.getUniqueId()).thenReturn(ALICE_UUID);
         when(core.lang(anyString())).thenAnswer(inv -> inv.getArgument(0));
         when(core.lang(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
         listener = new ChatListener(core);
@@ -58,8 +62,8 @@ class ChatListenerTest {
 
     @Test
     void substituteClanTag_replacesClanTagPlaceholder_forMember() {
-        when(memberList.isMember("alice")).thenReturn(true);
-        when(clanList.getClanByName("alice")).thenReturn(clan);
+        when(memberList.isMemberByUuid(ALICE_UUID)).thenReturn(true);
+        when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(clan.getTag()).thenReturn("WAR");
 
         AsyncPlayerChatEvent event = chatEvent("<%player%> [!clantag!]", "hello");
@@ -70,7 +74,7 @@ class ChatListenerTest {
 
     @Test
     void substituteClanTag_removesPlaceholder_forNonMember() {
-        when(memberList.isMember("alice")).thenReturn(false);
+        when(memberList.isMemberByUuid(ALICE_UUID)).thenReturn(false);
 
         AsyncPlayerChatEvent event = chatEvent("<%player%> [!clantag!]", "hello");
         listener.substituteClanTag(event);
@@ -122,7 +126,7 @@ class ChatListenerTest {
     @Test
     void handleClanChat_cancelsEvent_whenPlayerNotInClan() {
         when(config.getBoolean("settings.clan_chat")).thenReturn(true);
-        when(clanList.getClanByName("alice")).thenReturn(null);
+        when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(null);
 
         AsyncPlayerChatEvent event = chatEvent("format", "%hello");
         listener.handleClanChat(event);
@@ -134,7 +138,7 @@ class ChatListenerTest {
     @Test
     void handleClanChat_stripsPercentPrefix_andSetsFormat() {
         when(config.getBoolean("settings.clan_chat")).thenReturn(true);
-        when(clanList.getClanByName("alice")).thenReturn(clan);
+        when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(memberList.getListOfMembers(any())).thenReturn(new ArrayList<>());
         when(clan.getName()).thenReturn("Warriors");
         when(clan.hasLeader("alice")).thenReturn(false);
@@ -150,17 +154,14 @@ class ChatListenerTest {
     @Test
     void handleClanChat_leaderGetsRedColor() {
         when(config.getBoolean("settings.clan_chat")).thenReturn(true);
-        when(clanList.getClanByName("alice")).thenReturn(clan);
+        when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(memberList.getListOfMembers(any())).thenReturn(new ArrayList<>());
         when(clan.getName()).thenReturn("Warriors");
         when(clan.hasLeader("alice")).thenReturn(true);
 
         AsyncPlayerChatEvent event = chatEvent("format", "%hi");
-
-        // Capture the format set
         listener.handleClanChat(event);
 
-        // Verify lang was called with the leader colour prefix
         verify(core).lang(anyString(), anyString(),
                 contains(ChatColor.DARK_RED.toString()), anyString());
     }
@@ -168,14 +169,13 @@ class ChatListenerTest {
     @Test
     void handleClanChat_moderatorGetsGreenColor() {
         when(config.getBoolean("settings.clan_chat")).thenReturn(true);
-        when(clanList.getClanByName("alice")).thenReturn(clan);
+        when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(memberList.getListOfMembers(any())).thenReturn(new ArrayList<>());
         when(clan.getName()).thenReturn("Warriors");
         when(clan.hasLeader("alice")).thenReturn(false);
         when(clan.hasModer("alice")).thenReturn(true);
 
         AsyncPlayerChatEvent event = chatEvent("format", "%hi");
-
         listener.handleClanChat(event);
 
         verify(core).lang(anyString(), anyString(),
@@ -185,14 +185,13 @@ class ChatListenerTest {
     @Test
     void handleClanChat_memberGetsYellowColor() {
         when(config.getBoolean("settings.clan_chat")).thenReturn(true);
-        when(clanList.getClanByName("alice")).thenReturn(clan);
+        when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(memberList.getListOfMembers(any())).thenReturn(new ArrayList<>());
         when(clan.getName()).thenReturn("Warriors");
         when(clan.hasLeader("alice")).thenReturn(false);
         when(clan.hasModer("alice")).thenReturn(false);
 
         AsyncPlayerChatEvent event = chatEvent("format", "%hi");
-
         listener.handleClanChat(event);
 
         verify(core).lang(anyString(), anyString(),
@@ -202,7 +201,7 @@ class ChatListenerTest {
     @Test
     void handleClanChat_stripsSectionSign_fromMessage() {
         when(config.getBoolean("settings.clan_chat")).thenReturn(true);
-        when(clanList.getClanByName("alice")).thenReturn(clan);
+        when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(memberList.getListOfMembers(any())).thenReturn(new ArrayList<>());
         when(clan.getName()).thenReturn("Warriors");
         when(clan.hasLeader("alice")).thenReturn(false);

@@ -19,12 +19,18 @@ import org.mockito.MockedStatic;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.quality.Strictness;
 
+import java.util.UUID;
+
 import static org.mockito.ArgumentMatchers.*;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @org.mockito.junit.jupiter.MockitoSettings(strictness = Strictness.LENIENT)
 class CombatListenerTest {
+
+    static final UUID DAMAGER_UUID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    static final UUID VICTIM_UUID  = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    static final UUID ALICE_UUID   = UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
     @Mock Core core;
     @Mock FileConfiguration config;
@@ -45,6 +51,8 @@ class CombatListenerTest {
         when(config.getBoolean("settings.pvp")).thenReturn(false);
         when(victim.getName()).thenReturn("victim");
         when(damager.getName()).thenReturn("damager");
+        when(victim.getUniqueId()).thenReturn(VICTIM_UUID);
+        when(damager.getUniqueId()).thenReturn(DAMAGER_UUID);
         when(victim.getLocation()).thenReturn(victimLocation);
         listener = new CombatListener(core);
     }
@@ -60,10 +68,10 @@ class CombatListenerTest {
 
     @Test
     void friendlyFire_isCancelled_whenSameClanAndPvpProtectionOn() {
-        when(memberList.isMember("damager")).thenReturn(true);
-        when(memberList.isMember("victim")).thenReturn(true);
-        when(clanList.getClanByName("damager")).thenReturn(clan);
-        when(clan.hasClanMember("victim")).thenReturn(true);
+        when(memberList.isMemberByUuid(DAMAGER_UUID)).thenReturn(true);
+        when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
+        when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
+        when(clan.hasClanMember(victim)).thenReturn(true);
         when(clan.isPvp()).thenReturn(true);
         when(core.lang(anyString())).thenReturn("");
 
@@ -81,7 +89,7 @@ class CombatListenerTest {
 
     @Test
     void friendlyFire_notCancelled_whenDamagerNotInClan() {
-        when(memberList.isMember("damager")).thenReturn(false);
+        when(memberList.isMemberByUuid(DAMAGER_UUID)).thenReturn(false);
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
 
@@ -95,8 +103,8 @@ class CombatListenerTest {
 
     @Test
     void friendlyFire_notCancelled_whenVictimNotInClan() {
-        when(memberList.isMember("damager")).thenReturn(true);
-        when(memberList.isMember("victim")).thenReturn(false);
+        when(memberList.isMemberByUuid(DAMAGER_UUID)).thenReturn(true);
+        when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(false);
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
 
@@ -110,10 +118,10 @@ class CombatListenerTest {
 
     @Test
     void friendlyFire_notCancelled_whenDifferentClans() {
-        when(memberList.isMember("damager")).thenReturn(true);
-        when(memberList.isMember("victim")).thenReturn(true);
-        when(clanList.getClanByName("damager")).thenReturn(clan);
-        when(clan.hasClanMember("victim")).thenReturn(false);
+        when(memberList.isMemberByUuid(DAMAGER_UUID)).thenReturn(true);
+        when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
+        when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
+        when(clan.hasClanMember(victim)).thenReturn(false);
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
 
@@ -127,10 +135,10 @@ class CombatListenerTest {
 
     @Test
     void friendlyFire_notCancelled_whenClanPvpProtectionOff() {
-        when(memberList.isMember("damager")).thenReturn(true);
-        when(memberList.isMember("victim")).thenReturn(true);
-        when(clanList.getClanByName("damager")).thenReturn(clan);
-        when(clan.hasClanMember("victim")).thenReturn(true);
+        when(memberList.isMemberByUuid(DAMAGER_UUID)).thenReturn(true);
+        when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
+        when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
+        when(clan.hasClanMember(victim)).thenReturn(true);
         when(clan.isPvp()).thenReturn(false);
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
@@ -158,11 +166,11 @@ class CombatListenerTest {
 
     @Test
     void friendlyFire_notCancelled_whenSelfDamage() {
-        when(victim.getName()).thenReturn("alice");
-        when(damager.getName()).thenReturn("alice");
-        when(memberList.isMember("alice")).thenReturn(true);
-        when(clanList.getClanByName("alice")).thenReturn(clan);
-        when(clan.hasClanMember("alice")).thenReturn(true);
+        when(victim.getUniqueId()).thenReturn(ALICE_UUID);
+        when(damager.getUniqueId()).thenReturn(ALICE_UUID);
+        when(memberList.isMemberByUuid(ALICE_UUID)).thenReturn(true);
+        when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
+        when(clan.hasClanMember(victim)).thenReturn(true);
         when(clan.isPvp()).thenReturn(true);
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
@@ -179,10 +187,10 @@ class CombatListenerTest {
 
     @Test
     void arrowDamage_resolvesToShooter() {
-        when(memberList.isMember("damager")).thenReturn(true);
-        when(memberList.isMember("victim")).thenReturn(true);
-        when(clanList.getClanByName("damager")).thenReturn(clan);
-        when(clan.hasClanMember("victim")).thenReturn(true);
+        when(memberList.isMemberByUuid(DAMAGER_UUID)).thenReturn(true);
+        when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
+        when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
+        when(clan.hasClanMember(victim)).thenReturn(true);
         when(clan.isPvp()).thenReturn(true);
         when(core.lang(anyString())).thenReturn("");
 

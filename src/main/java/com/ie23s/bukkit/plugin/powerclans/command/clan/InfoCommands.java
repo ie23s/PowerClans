@@ -41,7 +41,7 @@ public final class InfoCommands {
             s.sendMessage(core.lang("command.info_1", clan.getName(),
                     core.getMemberList().getListOfMembers(clan.getName()).size(),
                     clan.getMaxPlayers()));
-            s.sendMessage(core.lang("command.info_2", clan.getLeader()));
+            s.sendMessage(core.lang("command.info_2", clan.getLeaderName()));
             s.sendMessage(core.lang("command.info_3", clan.getLevel()));
             core.getLevelModule().getRequirements().upgradeRequirements((Player) s);
         }
@@ -65,9 +65,9 @@ public final class InfoCommands {
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             s.sendMessage(core.lang("command.online_1"));
-            for (String member : core.getMemberList().getListOfMembers(clan.getName())) {
-                if (Bukkit.getPlayer(member) == null) continue;
-                s.sendMessage(formatMemberLine(s.getName(), member));
+            for (com.ie23s.bukkit.plugin.powerclans.clan.Member m : core.getMemberList().getListOfMembers(clan.getName())) {
+                if (Bukkit.getPlayer(m.getPlayerUuid()) == null) continue;
+                s.sendMessage(formatMemberLine(s.getName(), m.getName()));
             }
         }
 
@@ -103,7 +103,7 @@ public final class InfoCommands {
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             int offset = parsePageOffset(s, args);
             if (offset < 0) return;
-            int totalPages = (int) Math.ceil((double) core.getClanList().number() / 10.0D);
+            int totalPages = (int) Math.ceil(core.getClanList().number() / 10.0D);
             s.sendMessage(core.lang("clan.list", offset / 10 + 1, totalPages));
             int count = 0;
             for (int i = offset; i < core.getClanList().number() && count < 10; i++, count++) {
@@ -138,7 +138,7 @@ public final class InfoCommands {
             return ChatColor.YELLOW + " - " + c.getName()
                     + ChatColor.YELLOW + " ["
                     + core.getMemberList().getListOfMembers(c.getName()).size()
-                    + "] (" + c.getLeader() + ")";
+                    + "] (" + c.getLeaderName() + ")";
         }
     }
 
@@ -165,7 +165,7 @@ public final class InfoCommands {
             int rank = 1;
             for (Map.Entry<Clan, Integer> entry : sorted) {
                 Clan c = entry.getKey();
-                s.sendMessage(core.lang("command.top_1", rank, c.getName(), c.getLeader(), entry.getValue()));
+                s.sendMessage(core.lang("command.top_1", rank, c.getName(), c.getLeaderName(), entry.getValue()));
                 if (rank++ == 10) break;
             }
         }

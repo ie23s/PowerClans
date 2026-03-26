@@ -83,7 +83,7 @@ public final class MemberCommands {
             if (!perm(s, args) || !hasTarget(s, args) || !inClan(s, clan)
                     || !isLeaderOrModer(s, clan, "errors._24")
                     || !isClanMember(s, clan, args[1])) return false;
-            if (args[1].equalsIgnoreCase(clan.getLeader())) {
+            if (args[1].equalsIgnoreCase(clan.getLeaderName())) {
                 s.sendMessage(core.lang("errors._25")); return false;
             }
             return true;

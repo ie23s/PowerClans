@@ -22,7 +22,8 @@ class ClanDataKeyTest {
 
     @BeforeEach
     void setUp() {
-        clan = new Clan(core, 1, "uuid-1", "warriors", "steve", 10, 1);
+        clan = new Clan(core, 1, "uuid-1", "warriors",
+                java.util.UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa"), 10, 1);
     }
 
     // ── Default values ────────────────────────────────────────────────────────

@@ -24,7 +24,8 @@ class JdbcClanDataRepositoryTest extends BaseDbTest {
 
     @BeforeEach
     void setUp() throws SQLException {
-        new JdbcClanRepository(provider).insert(new ClanDto(0, UUID, "warriors", "steve", 10, 1));
+        new JdbcClanRepository(provider).insert(new ClanDto(0, UUID, "warriors",
+                "aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa", 10, 1));
         repo = new JdbcClanDataRepository(provider);
     }
 

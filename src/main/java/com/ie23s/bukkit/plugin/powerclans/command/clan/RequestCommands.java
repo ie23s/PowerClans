@@ -87,7 +87,7 @@ public final class RequestCommands {
         private void acceptInvite(CommandSender s, Request req, String user) {
             req.remove();
             req.getClan().broadcast(core.lang("clan.join", user));
-            req.getClan().invite(user);
+            req.getClan().invite((Player) s);
             s.sendMessage(core.lang("clan.invitation_accept"));
         }
 
@@ -99,7 +99,7 @@ public final class RequestCommands {
             String[] a = req.getArgs();
             if (!registry.get("create").validate(s, a, clan, user)) return;
             chargeCreateCost(s);
-            Clan newClan = core.getClanList().create(a[1], s.getName());
+            Clan newClan = core.getClanList().create(a[1], (Player) s);
             newClan.broadcast(core.lang("clan.created",
                     Objects.requireNonNull(core.getClanList().getClanByName(s.getName())).getName()));
         }
@@ -113,6 +113,7 @@ public final class RequestCommands {
             try {
                 Core.getVault().withdrawPlayer((OfflinePlayer) s, cost);
             } catch (Exception ignore) {
+                //Ignore statement
             }
         }
 
@@ -141,7 +142,7 @@ public final class RequestCommands {
             String[] a = req.getArgs();
             if (!registry.get("leader").validate(s, a, clan, user)) return;
             if (clan.hasModer(a[1])) clan.setModer(a[1], false);
-            clan.setLeader(a[1]);
+            clan.setLeader(core.getMemberList().getMember(a[1]).getPlayerUuid());
             clan.broadcast(core.lang("clan.leader", s.getName(), a[1]));
         }
 
