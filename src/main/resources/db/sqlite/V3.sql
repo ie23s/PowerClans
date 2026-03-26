@@ -14,3 +14,4 @@ INSERT INTO clan_list_new (id, uuid, name, leader, max_players, level)
 SELECT id, uuid, name, leader, max_players, level FROM clan_list;
 DROP TABLE clan_list;
 ALTER TABLE clan_list_new RENAME TO clan_list;
+DELETE FROM clan_data WHERE ident='home' AND value='none'

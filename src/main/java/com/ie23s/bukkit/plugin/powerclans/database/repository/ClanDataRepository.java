@@ -39,4 +39,13 @@ public interface ClanDataRepository {
      * @param value    string-serialised new value
      */
     void upsert(String clanUuid, String ident, String value) throws SQLException;
+
+    /**
+     * Deletes the row for the given clan and key, if it exists.
+     * No-op if the row does not exist.
+     *
+     * @param clanUuid UUID of the clan
+     * @param ident    key identifier (see {@link ClanDataKey#ident()})
+     */
+    void delete(String clanUuid, String ident) throws SQLException;
 }

@@ -4,13 +4,13 @@ import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.api.IClan;
 import com.ie23s.bukkit.plugin.powerclans.api.IClanData;
+import com.ie23s.bukkit.plugin.powerclans.utils.LocationSerializer;
 import org.bukkit.Bukkit;
 import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.EnumMap;
 import java.util.Map;
-import java.util.Objects;
 import java.util.UUID;
 
 /**
@@ -105,20 +105,13 @@ public class Clan implements IClan, IClanData {
 
     public int getOnlineTime() { return getInt(ClanDataKey.ONLINE_TIME); }
 
-    public String getHomeString() { return getString(ClanDataKey.HOME); }
-
     public Location getHome() {
-        String loc = getString(ClanDataKey.HOME);
-        if ("none".equals(loc)) return null;
-        String[] p = loc.split(";");
-        return new Location(Bukkit.getWorld(p[0]),
-                Double.parseDouble(p[1]), Double.parseDouble(p[2]), Double.parseDouble(p[3]),
-                Float.parseFloat(p[4]), Float.parseFloat(p[5]));
+        return LocationSerializer.deserialize(getString(ClanDataKey.HOME));
     }
 
     @SuppressWarnings("BooleanMethodIsAlwaysInverted")
     public boolean hasHome() {
-        return !"none".equals(getString(ClanDataKey.HOME));
+        return getHome() != null;
     }
 
     // ── Mutators (update in-memory + persist) ─────────────────────────────────
@@ -139,16 +132,14 @@ public class Clan implements IClan, IClanData {
      * @param location Bukkit {@link Location} to store
      */
     public void setHome(Location location) {
-        String s = Objects.requireNonNull(location.getWorld()).getName()
-                + ";" + location.getX() + ";" + location.getY() + ";" + location.getZ()
-                + ";" + location.getYaw() + ";" + location.getPitch();
-        set(ClanDataKey.HOME, s);
+        set(ClanDataKey.HOME, LocationSerializer.serialize(location));
         core.getClanDataService().updateHome(this);
     }
 
-    /** Clears the clan home (sets to {@code "none"}) without persisting — call {@link #setHome} to persist. */
+    /** Removes the clan home in memory and deletes the row from the database asynchronously. */
     public void removeHome() {
-        set(ClanDataKey.HOME, "none");
+        set(ClanDataKey.HOME, null);
+        core.getClanDataService().deleteHome(this);
     }
 
     public void setBalance(double balance) {

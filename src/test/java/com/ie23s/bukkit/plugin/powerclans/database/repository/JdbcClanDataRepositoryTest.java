@@ -10,6 +10,7 @@ import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
 import java.sql.SQLException;
+import java.util.Arrays;
 import java.util.EnumMap;
 import java.util.List;
 import java.util.Map;
@@ -41,10 +42,12 @@ class JdbcClanDataRepositoryTest extends BaseDbTest {
     }
 
     @Test
-    void insertAll_insertsOneRowPerKey() throws SQLException {
+    void insertAll_skipsNullDefaultKeys() throws SQLException {
         repo.insertAll(UUID, defaultData());
 
-        assertEquals(ClanDataKey.values().length, repo.findAll().size());
+        long expected = Arrays.stream(ClanDataKey.values())
+                .filter(k -> k.defaultValue() != null).count();
+        assertEquals(expected, repo.findAll().size());
     }
 
     @Test
@@ -53,6 +56,7 @@ class JdbcClanDataRepositoryTest extends BaseDbTest {
 
         List<ClanDataDto> rows = repo.findAll();
         for (ClanDataKey key : ClanDataKey.values()) {
+            if (key.defaultValue() == null) continue;
             assertTrue(rows.stream().anyMatch(r -> r.ident().equals(key.ident())),
                     "Missing row for ident: " + key.ident());
         }
@@ -100,5 +104,19 @@ class JdbcClanDataRepositoryTest extends BaseDbTest {
                 .filter(r -> r.ident().equals(ClanDataKey.PVP.ident()))
                 .findFirst().orElseThrow();
         assertEquals("true", row.value());
+    }
+
+    @Test
+    void delete_removesRow() throws SQLException {
+        repo.upsert(UUID, ClanDataKey.HOME.ident(), "world;0;64;0;0;0");
+        repo.delete(UUID, ClanDataKey.HOME.ident());
+
+        assertTrue(repo.findAll().stream()
+                .noneMatch(r -> r.ident().equals(ClanDataKey.HOME.ident())));
+    }
+
+    @Test
+    void delete_isNoOpWhenRowAbsent() throws SQLException {
+        assertDoesNotThrow(() -> repo.delete(UUID, ClanDataKey.HOME.ident()));
     }
 }

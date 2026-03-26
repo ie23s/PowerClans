@@ -50,11 +50,23 @@ public class JdbcClanDataRepository implements ClanDataRepository {
                      "INSERT INTO clan_data (clan_uuid, ident, value) VALUES (?, ?, ?)")) {
             ps.setString(1, clanUuid);
             for (Map.Entry<ClanDataKey, Object> entry : data.entrySet()) {
+                if (entry.getValue() == null) continue;
                 ps.setString(2, entry.getKey().ident());
                 ps.setString(3, String.valueOf(entry.getValue()));
                 ps.addBatch();
             }
             ps.executeBatch();
+        }
+    }
+
+    @Override
+    public void delete(String clanUuid, String ident) throws SQLException {
+        try (Connection conn = connectionProvider.getConnection();
+             PreparedStatement ps = conn.prepareStatement(
+                     "DELETE FROM clan_data WHERE clan_uuid=? AND ident=?")) {
+            ps.setString(1, clanUuid);
+            ps.setString(2, ident);
+            ps.executeUpdate();
         }
     }
 

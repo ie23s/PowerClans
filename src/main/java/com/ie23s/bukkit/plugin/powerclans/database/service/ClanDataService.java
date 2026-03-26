@@ -79,6 +79,12 @@ public class ClanDataService {
         update(clan, ClanDataKey.HOME);
     }
 
+    /** Deletes the home row for the clan asynchronously. */
+    public void deleteHome(Clan clan) {
+        String clanUuid = clan.getUuid();
+        async(() -> repository.delete(clanUuid, ClanDataKey.HOME.ident()));
+    }
+
     /** Updates the mob-kill counter of the clan asynchronously. */
     public void updateMobKills(Clan clan) {
         update(clan, ClanDataKey.MOB_KILLS);

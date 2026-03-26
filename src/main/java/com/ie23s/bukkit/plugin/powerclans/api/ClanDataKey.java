@@ -16,7 +16,7 @@ package com.ie23s.bukkit.plugin.powerclans.api;
  */
 public enum ClanDataKey {
     TAG("tag",                ""),
-    HOME("home",              "none"),
+    HOME("home",              null),
     PVP("pvp",                true),
     BALANCE("balance",        0.0),
     MOB_KILLS("mob_kills",    0),

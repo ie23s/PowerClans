@@ -11,7 +11,7 @@ public interface IClanData {
      * Returns the raw stored value for the given key, or the key's default value if absent.
      *
      * @param key the data key to look up
-     * @return the stored object, never {@code null}
+     * @return the stored object, or {@code null} if the key's default is {@code null} and it has not been set
      */
     Object getRaw(ClanDataKey key);
 
