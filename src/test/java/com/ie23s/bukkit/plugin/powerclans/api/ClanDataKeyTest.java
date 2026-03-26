@@ -31,7 +31,7 @@ class ClanDataKeyTest {
     @Test
     void defaults_areInitialisedOnConstruction() {
         assertEquals("",     clan.getString(ClanDataKey.TAG));
-        assertEquals("none", clan.getString(ClanDataKey.HOME));
+        assertNull(           clan.getString(ClanDataKey.HOME));
         assertTrue(           clan.getBoolean(ClanDataKey.PVP));
         assertEquals(0.0,    clan.getDouble(ClanDataKey.BALANCE));
         assertEquals(0,      clan.getInt(ClanDataKey.MOB_KILLS));
