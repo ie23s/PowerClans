@@ -1,8 +1,10 @@
 package com.ie23s.bukkit.plugin.powerclans.command.clan;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
+import com.ie23s.bukkit.plugin.powerclans.utils.LocationSerializer;
 import com.ie23s.bukkit.plugin.powerclans.utils.WorldGuardUtils;
 import org.bukkit.Location;
 import org.bukkit.configuration.file.FileConfiguration;
@@ -37,7 +39,7 @@ class HomeCommandsTest {
     @BeforeEach
     void setUp() {
         lenient().when(core.lang(anyString())).thenAnswer(inv -> inv.getArgument(0));
-        lenient().when(core.lang(anyString(), (Object[]) any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(core.lang(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
         lenient().when(sender.hasPermission(anyString())).thenReturn(true);
         lenient().when(sender.getName()).thenReturn("leader");
         lenient().when(core.getMemberList()).thenReturn(memberList);
@@ -69,7 +71,7 @@ class HomeCommandsTest {
 
     @Test
     void home_validate_failsWhenNoHome() {
-        when(clan.hasHome()).thenReturn(false);
+        when(clan.getString(ClanDataKey.HOME)).thenReturn(null);
 
         boolean result = new HomeCommands.Home(core).validate(sender, new String[]{"home"}, clan, "leader");
 
@@ -79,11 +81,29 @@ class HomeCommandsTest {
 
     @Test
     void home_validate_passesWhenHomeExists() {
-        when(clan.hasHome()).thenReturn(true);
+        when(clan.getString(ClanDataKey.HOME)).thenReturn("world;0;64;0;0;0");
 
         boolean result = new HomeCommands.Home(core).validate(sender, new String[]{"home"}, clan, "leader");
 
         assertTrue(result);
+    }
+
+    // -------------------------------------------------------------------------
+    // Home.execute
+    // -------------------------------------------------------------------------
+
+    @Test
+    void home_execute_startsWarmup() {
+        com.ie23s.bukkit.plugin.powerclans.utils.Utils utils =
+                mock(com.ie23s.bukkit.plugin.powerclans.utils.Utils.class);
+        com.ie23s.bukkit.plugin.powerclans.utils.Warm warm =
+                mock(com.ie23s.bukkit.plugin.powerclans.utils.Warm.class);
+        when(core.getUtils()).thenReturn(utils);
+        when(utils.getWarm()).thenReturn(warm);
+
+        new HomeCommands.Home(core).execute(sender, new String[]{"home"}, clan, "leader");
+
+        verify(warm).addPlayer(sender, clan);
     }
 
     // -------------------------------------------------------------------------
@@ -173,11 +193,14 @@ class HomeCommandsTest {
 
     @Test
     void sethome_execute_setsHomeAndBroadcasts() {
+        org.bukkit.World world = mock(org.bukkit.World.class);
+        when(world.getName()).thenReturn("world");
+        when(location.getWorld()).thenReturn(world);
         when(sender.getLocation()).thenReturn(location);
 
         new HomeCommands.SetHome(core).execute(sender, new String[]{"sethome"}, clan, "leader");
 
-        verify(clan).setHome(location);
+        verify(clan).update(ClanDataKey.HOME, LocationSerializer.serialize(location));
         verify(clan).broadcast(anyString());
     }
 
@@ -217,7 +240,7 @@ class HomeCommandsTest {
     @Test
     void removehome_validate_failsWhenNoHome() {
         when(clan.hasLeader("leader")).thenReturn(true);
-        when(clan.hasHome()).thenReturn(false);
+        when(clan.getString(ClanDataKey.HOME)).thenReturn(null);
 
         boolean result = new HomeCommands.RemoveHome(core).validate(sender, new String[]{"removehome"}, clan, "leader");
 
@@ -228,7 +251,7 @@ class HomeCommandsTest {
     @Test
     void removehome_validate_passesWhenLeaderAndHomeExists() {
         when(clan.hasLeader("leader")).thenReturn(true);
-        when(clan.hasHome()).thenReturn(true);
+        when(clan.getString(ClanDataKey.HOME)).thenReturn("world;0;64;0;0;0");
 
         boolean result = new HomeCommands.RemoveHome(core).validate(sender, new String[]{"removehome"}, clan, "leader");
 
@@ -243,7 +266,7 @@ class HomeCommandsTest {
     void removehome_execute_removesHomeAndBroadcasts() {
         new HomeCommands.RemoveHome(core).execute(sender, new String[]{"removehome"}, clan, "leader");
 
-        verify(clan).removeHome();
+        verify(clan).delete(ClanDataKey.HOME);
         verify(clan).broadcast(anyString());
     }
 }

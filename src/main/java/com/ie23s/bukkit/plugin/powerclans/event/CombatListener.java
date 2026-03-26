@@ -1,6 +1,7 @@
 package com.ie23s.bukkit.plugin.powerclans.event;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.utils.WorldGuardUtils;
 import com.sk89q.worldguard.protection.flags.Flags;
@@ -17,7 +18,7 @@ import java.util.UUID;
  * Prevents friendly fire between clan members.
  *
  * <p>Damage between two players in the same clan is cancelled when the clan's
- * PvP protection flag ({@link Clan#isPvp()}) is {@code true}.
+ * PvP protection flag ({@link com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey#PVP}) is {@code true}.
  * The check is skipped entirely when WorldGuard allows PvP at the victim's location
  * and the global {@code settings.pvp} config flag is also set.
  *
@@ -85,7 +86,7 @@ public class CombatListener implements Listener {
         if (clan == null) return;
         if (!clan.hasClanMember(victim)) return;
         if (victimUuid.equals(damagerUuid)) return;
-        if (!clan.isPvp()) return;
+        if (!clan.getBoolean(ClanDataKey.PVP)) return;
 
         damager.sendMessage(core.lang("other.damage_in_clan"));
         event.setCancelled(true);

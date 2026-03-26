@@ -1,7 +1,9 @@
 package com.ie23s.bukkit.plugin.powerclans.command.clan;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
+import com.ie23s.bukkit.plugin.powerclans.utils.LocationSerializer;
 import com.ie23s.bukkit.plugin.powerclans.utils.WorldGuardUtils;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
@@ -26,7 +28,7 @@ public final class HomeCommands {
         @Override
         public boolean validate(CommandSender s, String[] args, Clan clan, String user) {
             if (!perm(s, args) || !inClan(s, clan)) return false;
-            if (!clan.hasHome()) { s.sendMessage(core.lang("errors._28")); return false; }
+            if (clan.getString(ClanDataKey.HOME) == null) { s.sendMessage(core.lang("errors._28")); return false; }
             return true;
         }
 
@@ -58,7 +60,7 @@ public final class HomeCommands {
 
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
-            clan.setHome(((Player) s).getLocation());
+            clan.update(ClanDataKey.HOME, LocationSerializer.serialize(((Player) s).getLocation()));
             clan.broadcast(core.lang("clan.sethome", s.getName()));
         }
 
@@ -89,13 +91,13 @@ public final class HomeCommands {
         @Override
         public boolean validate(CommandSender s, String[] args, Clan clan, String user) {
             if (!perm(s, args) || !inClan(s, clan) || !isLeader(s, clan, "errors._29")) return false;
-            if (!clan.hasHome()) { s.sendMessage(core.lang("errors._28")); return false; }
+            if (clan.getString(ClanDataKey.HOME) == null) { s.sendMessage(core.lang("errors._28")); return false; }
             return true;
         }
 
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
-            clan.removeHome();
+            clan.delete(ClanDataKey.HOME);
             clan.broadcast(core.lang("clan.removehome", s.getName()));
         }
     }

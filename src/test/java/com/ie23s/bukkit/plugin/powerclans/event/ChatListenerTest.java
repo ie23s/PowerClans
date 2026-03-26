@@ -1,6 +1,7 @@
 package com.ie23s.bukkit.plugin.powerclans.event;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.clan.ClanList;
 import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
@@ -64,7 +65,7 @@ class ChatListenerTest {
     void substituteClanTag_replacesClanTagPlaceholder_forMember() {
         when(memberList.isMemberByUuid(ALICE_UUID)).thenReturn(true);
         when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
-        when(clan.getTag()).thenReturn("WAR");
+        when(clan.getString(ClanDataKey.TAG)).thenReturn("WAR");
 
         AsyncPlayerChatEvent event = chatEvent("<%player%> [!clantag!]", "hello");
         listener.substituteClanTag(event);

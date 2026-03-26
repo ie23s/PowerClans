@@ -21,6 +21,10 @@ public class ClanDataService {
     private final Core core;
     private final ClanDataRepository repository;
 
+    /**
+     * @param core       the plugin core used for scheduling and error reporting
+     * @param repository the underlying data-access object for {@code clan_data}
+     */
     public ClanDataService(Core core, ClanDataRepository repository) {
         this.core       = core;
         this.repository = repository;
@@ -64,49 +68,30 @@ public class ClanDataService {
         async(() -> repository.insertAll(clanUuid, snapshot));
     }
 
-    /** Updates the balance of the clan asynchronously. */
-    public void updateBalance(Clan clan) {
-        update(clan, ClanDataKey.BALANCE);
-    }
-
-    /** Updates the PvP flag of the clan asynchronously. */
-    public void updatePvp(Clan clan) {
-        update(clan, ClanDataKey.PVP);
-    }
-
-    /** Updates the home location string of the clan asynchronously. */
-    public void updateHome(Clan clan) {
-        update(clan, ClanDataKey.HOME);
-    }
-
-    /** Deletes the home row for the clan asynchronously. */
-    public void deleteHome(Clan clan) {
-        String clanUuid = clan.getUuid();
-        async(() -> repository.delete(clanUuid, ClanDataKey.HOME.ident()));
-    }
-
-    /** Updates the mob-kill counter of the clan asynchronously. */
-    public void updateMobKills(Clan clan) {
-        update(clan, ClanDataKey.MOB_KILLS);
-    }
-
-    /** Updates the player-kill counter of the clan asynchronously. */
-    public void updatePlayerKills(Clan clan) {
-        update(clan, ClanDataKey.PLAYER_KILLS);
-    }
-
-    /** Updates the cumulative online-time counter of the clan asynchronously. */
-    public void updateOnlineTime(Clan clan) {
-        update(clan, ClanDataKey.ONLINE_TIME);
-    }
-
-    // ── Internal ──────────────────────────────────────────────────────────────
-
-    private void update(Clan clan, ClanDataKey key) {
+    /**
+     * Persists the current in-memory value of {@code key} for the given clan asynchronously.
+     *
+     * @param clan the clan whose data changed
+     * @param key  the key that was updated
+     */
+    public void update(Clan clan, ClanDataKey key) {
         String clanUuid = clan.getUuid();
         String value    = String.valueOf(clan.getRaw(key));
         async(() -> repository.upsert(clanUuid, key.ident(), value));
     }
+
+    /**
+     * Deletes the row for {@code key} from the given clan's data asynchronously.
+     *
+     * @param clan the clan whose data changed
+     * @param key  the key to delete
+     */
+    public void delete(Clan clan, ClanDataKey key) {
+        String clanUuid = clan.getUuid();
+        async(() -> repository.delete(clanUuid, key.ident()));
+    }
+
+    // ── Internal ──────────────────────────────────────────────────────────────
 
     @FunctionalInterface
     private interface SqlRunnable {

@@ -1,6 +1,7 @@
 package com.ie23s.bukkit.plugin.powerclans.command.clan;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import org.bukkit.OfflinePlayer;
 import org.bukkit.command.CommandSender;
@@ -30,7 +31,7 @@ public final class EconomyCommands {
 
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
-            s.sendMessage(core.lang("clan.balance", clan.getBalance()));
+            s.sendMessage(core.lang("clan.balance", clan.getDouble(ClanDataKey.BALANCE)));
         }
     }
 
@@ -65,6 +66,7 @@ public final class EconomyCommands {
          * Checks that the sender has at least {@code amount} in their personal balance.
          * Sends {@code clan.deposit_3} and returns {@code false} if not.
          */
+        @SuppressWarnings("java:S108")
         private boolean playerHasFunds(CommandSender s, int amount) {
             try {
                 if (!Core.getVault().has((OfflinePlayer) s, amount)) {
@@ -77,10 +79,11 @@ public final class EconomyCommands {
         /**
          * Withdraws {@code amount} from the sender and credits it to the clan treasury.
          */
+        @SuppressWarnings("java:S108")
         private void transferToTreasury(CommandSender s, Clan clan, int amount) {
             try {
                 Core.getVault().withdrawPlayer((OfflinePlayer) s, amount);
-                clan.setBalance(clan.getBalance() + amount);
+                clan.update(ClanDataKey.BALANCE, clan.getDouble(ClanDataKey.BALANCE) + amount);
             } catch (Exception ignore) {}
         }
     }
@@ -118,7 +121,7 @@ public final class EconomyCommands {
          * Sends {@code clan.take_3} and returns {@code false} if not.
          */
         private boolean treasuryHasFunds(CommandSender s, Clan clan, int amount) {
-            if (clan.getBalance() < amount) {
+            if (clan.getDouble(ClanDataKey.BALANCE) < amount) {
                 s.sendMessage(core.lang("clan.take_3")); return false;
             }
             return true;
@@ -127,9 +130,10 @@ public final class EconomyCommands {
         /**
          * Deposits {@code amount} into the sender's account and deducts it from the treasury.
          */
+        @SuppressWarnings("java:S108")
         private void withdrawFromTreasury(CommandSender s, Clan clan, int amount) {
             try { Core.getVault().depositPlayer((OfflinePlayer) s, amount); } catch (Exception ignore) {}
-            clan.setBalance(clan.getBalance() - amount);
+            clan.update(ClanDataKey.BALANCE, clan.getDouble(ClanDataKey.BALANCE) - amount);
         }
     }
 }

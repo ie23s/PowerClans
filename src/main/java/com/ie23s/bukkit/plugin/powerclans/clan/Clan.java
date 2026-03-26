@@ -4,9 +4,7 @@ import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.api.IClan;
 import com.ie23s.bukkit.plugin.powerclans.api.IClanData;
-import com.ie23s.bukkit.plugin.powerclans.utils.LocationSerializer;
 import org.bukkit.Bukkit;
-import org.bukkit.Location;
 import org.bukkit.entity.Player;
 
 import java.util.EnumMap;
@@ -21,7 +19,7 @@ import java.util.UUID;
  * construction; secondary data is stored in an {@link EnumMap} keyed by {@link ClanDataKey}
  * and updated via {@link #set(ClanDataKey, Object)}.
  *
- * <p>Mutator methods (e.g. {@link #setLeader}, {@link #setBalance}) update the in-memory
+ * <p>Mutator methods (e.g. {@link #setLeader}, {@link #setModer(String, boolean)}) update the in-memory
  * state immediately and dispatch a persistence call through the relevant service
  * asynchronously via the Bukkit scheduler.
  */
@@ -91,30 +89,28 @@ public class Clan implements IClan, IClanData {
         data.put(key, value);
     }
 
-    // ── Convenience getters ───────────────────────────────────────────────────
-
-    public String getTag() { return getString(ClanDataKey.TAG); }
-
-    public boolean isPvp() { return getBoolean(ClanDataKey.PVP); }
-
-    public double getBalance() { return getDouble(ClanDataKey.BALANCE); }
-
-    public int getMobKills() { return getInt(ClanDataKey.MOB_KILLS); }
-
-    public int getPlayerKills() { return getInt(ClanDataKey.PLAYER_KILLS); }
-
-    public int getOnlineTime() { return getInt(ClanDataKey.ONLINE_TIME); }
-
-    public Location getHome() {
-        return LocationSerializer.deserialize(getString(ClanDataKey.HOME));
-    }
-
-    @SuppressWarnings("BooleanMethodIsAlwaysInverted")
-    public boolean hasHome() {
-        return getHome() != null;
-    }
-
     // ── Mutators (update in-memory + persist) ─────────────────────────────────
+
+    /**
+     * Updates a clan data field in memory and persists it asynchronously.
+     *
+     * @param key   the field to update
+     * @param value the new value
+     */
+    public void update(ClanDataKey key, Object value) {
+        set(key, value);
+        core.getClanDataService().update(this, key);
+    }
+
+    /**
+     * Removes a clan data field from memory and deletes the row asynchronously.
+     *
+     * @param key the field to delete
+     */
+    public void delete(ClanDataKey key) {
+        set(key, null);
+        core.getClanDataService().delete(this, key);
+    }
 
     /**
      * Changes the clan leader and persists the change asynchronously.
@@ -127,47 +123,6 @@ public class Clan implements IClan, IClanData {
     }
 
     /**
-     * Serialises the location and persists it as the clan home asynchronously.
-     *
-     * @param location Bukkit {@link Location} to store
-     */
-    public void setHome(Location location) {
-        set(ClanDataKey.HOME, LocationSerializer.serialize(location));
-        core.getClanDataService().updateHome(this);
-    }
-
-    /** Removes the clan home in memory and deletes the row from the database asynchronously. */
-    public void removeHome() {
-        set(ClanDataKey.HOME, null);
-        core.getClanDataService().deleteHome(this);
-    }
-
-    public void setBalance(double balance) {
-        set(ClanDataKey.BALANCE, balance);
-        core.getClanDataService().updateBalance(this);
-    }
-
-    public void setPvp(boolean pvp) {
-        set(ClanDataKey.PVP, pvp);
-        core.getClanDataService().updatePvp(this);
-    }
-
-    public void addMobKill() {
-        set(ClanDataKey.MOB_KILLS, getMobKills() + 1);
-        core.getClanDataService().updateMobKills(this);
-    }
-
-    public void addPlayerKill() {
-        set(ClanDataKey.PLAYER_KILLS, getPlayerKills() + 1);
-        core.getClanDataService().updatePlayerKills(this);
-    }
-
-    public void addOnlineTime() {
-        set(ClanDataKey.ONLINE_TIME, getOnlineTime() + 1);
-        core.getClanDataService().updateOnlineTime(this);
-    }
-
-    /**
      * Increases {@code max_players} by {@code i} and persists asynchronously.
      *
      * @param i number of slots to add
@@ -177,6 +132,7 @@ public class Clan implements IClan, IClanData {
         core.getClanService().updateMaxPlayers(this);
     }
 
+    /** Increments the clan level by one and persists the change asynchronously. */
     public void addLevel() {
         ++this.level;
         core.getClanService().updateLevel(this);
@@ -250,6 +206,11 @@ public class Clan implements IClan, IClanData {
         return getLeaderName().equalsIgnoreCase(player);
     }
 
+    /**
+     * Returns {@code true} if the given UUID matches the current leader.
+     *
+     * @param uuid UUID to check
+     */
     public boolean hasLeader(UUID uuid) {
         return leaderUuid.equals(uuid);
     }

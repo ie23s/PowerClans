@@ -1,6 +1,7 @@
 package com.ie23s.bukkit.plugin.powerclans.event;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import org.bukkit.Bukkit;
 import org.bukkit.ChatColor;
@@ -64,7 +65,7 @@ public class ChatListener implements Listener {
         if (core.getMemberList().isMemberByUuid(playerUuid)) {
             Clan clan = Objects.requireNonNull(
                     core.getClanList().getClanByPlayerUuid(playerUuid));
-            event.setFormat(event.getFormat().replace(CLANTAG_PLACEHOLDER, clan.getTag()));
+            event.setFormat(event.getFormat().replace(CLANTAG_PLACEHOLDER, clan.getString(ClanDataKey.TAG)));
         } else {
             event.setFormat(event.getFormat().replace(CLANTAG_PLACEHOLDER, ""));
         }

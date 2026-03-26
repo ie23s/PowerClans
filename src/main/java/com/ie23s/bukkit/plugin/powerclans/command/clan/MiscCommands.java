@@ -1,6 +1,7 @@
 package com.ie23s.bukkit.plugin.powerclans.command.clan;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.RequestType;
@@ -32,8 +33,8 @@ public final class MiscCommands {
 
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
-            clan.setPvp(!clan.isPvp());
-            String key = clan.isPvp() ? "clan.pvp_1" : "clan.pvp_2";
+            clan.update(ClanDataKey.PVP, !clan.getBoolean(ClanDataKey.PVP));
+            String key = clan.getBoolean(ClanDataKey.PVP) ? "clan.pvp_1" : "clan.pvp_2";
             clan.broadcast(core.lang(key, s.getName()));
         }
     }

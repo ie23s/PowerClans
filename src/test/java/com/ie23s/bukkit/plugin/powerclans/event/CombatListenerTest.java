@@ -1,6 +1,7 @@
 package com.ie23s.bukkit.plugin.powerclans.event;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
+import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.clan.ClanList;
 import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
@@ -72,7 +73,7 @@ class CombatListenerTest {
         when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
         when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
         when(clan.hasClanMember(victim)).thenReturn(true);
-        when(clan.isPvp()).thenReturn(true);
+        when(clan.getBoolean(ClanDataKey.PVP)).thenReturn(true);
         when(core.lang(anyString())).thenReturn("");
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
@@ -139,7 +140,7 @@ class CombatListenerTest {
         when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
         when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
         when(clan.hasClanMember(victim)).thenReturn(true);
-        when(clan.isPvp()).thenReturn(false);
+        when(clan.getBoolean(ClanDataKey.PVP)).thenReturn(false);
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
 
@@ -171,7 +172,7 @@ class CombatListenerTest {
         when(memberList.isMemberByUuid(ALICE_UUID)).thenReturn(true);
         when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(clan.hasClanMember(victim)).thenReturn(true);
-        when(clan.isPvp()).thenReturn(true);
+        when(clan.getBoolean(ClanDataKey.PVP)).thenReturn(true);
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
 
@@ -191,7 +192,7 @@ class CombatListenerTest {
         when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
         when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
         when(clan.hasClanMember(victim)).thenReturn(true);
-        when(clan.isPvp()).thenReturn(true);
+        when(clan.getBoolean(ClanDataKey.PVP)).thenReturn(true);
         when(core.lang(anyString())).thenReturn("");
 
         Arrow arrow = mock(Arrow.class);
