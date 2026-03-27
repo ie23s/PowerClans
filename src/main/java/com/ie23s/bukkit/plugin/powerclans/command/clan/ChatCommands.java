@@ -4,6 +4,9 @@ import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import org.bukkit.ChatColor;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
+
+import java.util.UUID;
 
 /**
  * /clan commands related to in-clan chat communication.
@@ -36,9 +39,10 @@ public final class ChatCommands {
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             String text = buildMessageText(args);
             if (text.length() <= 3) { s.sendMessage(core.lang("errors._40")); return; }
-            clan.broadcast(core.lang("command.msg_format",
+            UUID senderUuid = ((Player) s).getUniqueId();
+            core.getClanList().broadcast(clan, core.lang("command.msg_format",
                     core.lang("command.msg_1"),
-                    rankColor(s.getName(), clan) + s.getName(),
+                    rankColor(senderUuid, clan) + s.getName(),
                     text));
         }
 
@@ -54,12 +58,14 @@ public final class ChatCommands {
         /**
          * Returns the chat colour appropriate for the sender's clan rank.
          *
+         * @param senderUuid UUID of the sender
+         * @param clan       the sender's clan
          * @return {@link ChatColor#GOLD} for leader, {@link ChatColor#GREEN} for moderator,
          *         {@link ChatColor#AQUA} otherwise
          */
-        private ChatColor rankColor(String senderName, Clan clan) {
-            if (clan.hasLeader(senderName)) return ChatColor.GOLD;
-            if (clan.hasModer(senderName))  return ChatColor.GREEN;
+        private ChatColor rankColor(UUID senderUuid, Clan clan) {
+            if (clan.hasLeader(senderUuid)) return ChatColor.GOLD;
+            if (clan.hasModer(senderUuid))  return ChatColor.GREEN;
             return ChatColor.AQUA;
         }
     }

@@ -2,11 +2,13 @@ package com.ie23s.bukkit.plugin.powerclans.command.clan;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
+import com.ie23s.bukkit.plugin.powerclans.clan.Member;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.RequestType;
 import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 
+import java.util.UUID;
 
 /**
  * /clan commands that manage clan staff: promoting/demoting moderators
@@ -24,7 +26,10 @@ public final class ModeratorCommands {
      */
     public static class AddModer extends BaseClanCommand {
 
-        /** @param core the plugin core */
+        /**
+         * Creates an AddModer command backed by the given plugin core.
+         * @param core the plugin core
+         */
         public AddModer(Core core) { super(core); }
 
         @Override
@@ -32,16 +37,17 @@ public final class ModeratorCommands {
             if (!perm(s, args) || !inClan(s, clan) || !hasTarget(s, args)
                     || !isLeader(s, clan, "errors._13")
                     || !isClanMember(s, clan, args[1])) return false;
-            if (clan.hasLeader(args[1])) { s.sendMessage(core.lang("errors._15")); return false; }
-            if (clan.hasModer(args[1]))  { s.sendMessage(core.lang("errors._16")); return false; }
+            UUID targetUuid = core.getMemberList().getMember(args[1]).getPlayerUuid();
+            if (clan.hasLeader(targetUuid)) { s.sendMessage(core.lang("errors._15")); return false; }
+            if (clan.hasModer(targetUuid))  { s.sendMessage(core.lang("errors._16")); return false; }
             return true;
         }
 
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
-            clan.setModer(args[1], true);
-            String targetName = core.getMemberList().getMember(args[1]).getName();
-            clan.broadcast(core.lang("clan.addmoder", targetName));
+            Member target = core.getMemberList().getMember(args[1]);
+            core.getClanList().setModer(clan, target.getPlayerUuid(), true);
+            core.getClanList().broadcast(clan, core.lang("clan.addmoder", target.getName()));
         }
     }
 
@@ -53,7 +59,10 @@ public final class ModeratorCommands {
      */
     public static class DelModer extends BaseClanCommand {
 
-        /** @param core the plugin core */
+        /**
+         * Creates a DelModer command backed by the given plugin core.
+         * @param core the plugin core
+         */
         public DelModer(Core core) { super(core); }
 
         @Override
@@ -61,27 +70,31 @@ public final class ModeratorCommands {
             if (!perm(s, args) || !inClan(s, clan) || !hasTarget(s, args)
                     || !isLeader(s, clan, "errors._17")
                     || !isClanMember(s, clan, args[1])) return false;
-            if (!clan.hasModer(args[1])) { s.sendMessage(core.lang("errors._18")); return false; }
+            UUID targetUuid = core.getMemberList().getMember(args[1]).getPlayerUuid();
+            if (!clan.hasModer(targetUuid)) { s.sendMessage(core.lang("errors._18")); return false; }
             return true;
         }
 
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
-            clan.setModer(args[1], false);
-            String targetName = core.getMemberList().getMember(args[1]).getName();
-            clan.broadcast(core.lang("clan.delmoder", targetName));
+            Member target = core.getMemberList().getMember(args[1]);
+            core.getClanList().setModer(clan, target.getPlayerUuid(), false);
+            core.getClanList().broadcast(clan, core.lang("clan.delmoder", target.getName()));
         }
     }
 
     // -------------------------------------------------------------------------
 
     /**
-     * /clan leader &lt;player&gt; — queues a {@link com.ie23s.bukkit.plugin.powerclans.utils.RequestType#LEADER_TRANSFER} confirmation request.
+     * /clan leader &lt;player&gt; — queues a {@link RequestType#LEADER_TRANSFER} confirmation request.
      * The target must be a member of the same clan and cannot be the current leader.
      */
     public static class Leader extends BaseClanCommand {
 
-        /** @param core the plugin core */
+        /**
+         * Creates a Leader command backed by the given plugin core.
+         * @param core the plugin core
+         */
         public Leader(Core core) { super(core); }
 
         @Override

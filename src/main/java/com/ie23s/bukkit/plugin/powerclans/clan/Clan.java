@@ -4,8 +4,6 @@ import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.api.IClan;
 import com.ie23s.bukkit.plugin.powerclans.api.IClanData;
-import org.bukkit.Bukkit;
-import org.bukkit.entity.Player;
 
 import java.util.EnumMap;
 import java.util.Map;
@@ -19,9 +17,12 @@ import java.util.UUID;
  * construction; secondary data is stored in an {@link EnumMap} keyed by {@link ClanDataKey}
  * and updated via {@link #set(ClanDataKey, Object)}.
  *
- * <p>Mutator methods (e.g. {@link #setLeader}, {@link #setModer(String, boolean)}) update the in-memory
- * state immediately and dispatch a persistence call through the relevant service
- * asynchronously via the Bukkit scheduler.
+ * <p>Mutators such as {@link #setLeader} update the in-memory state and dispatch persistence
+ * calls asynchronously via the Bukkit scheduler.
+ *
+ * <p><b>Member management is intentionally absent.</b> Operations that add, remove, or
+ * change the role of members are the responsibility of {@link ClanList}, which owns both
+ * the clan registry and the member lifecycle.
  */
 public class Clan implements IClan, IClanData {
 
@@ -74,6 +75,7 @@ public class Clan implements IClan, IClanData {
 
     /**
      * Returns the current leader's player name, resolved from {@link MemberList}.
+     *
      * @return the leader's player name
      */
     public String getLeaderName() {
@@ -92,7 +94,7 @@ public class Clan implements IClan, IClanData {
         data.put(key, value);
     }
 
-    // ── Mutators (update in-memory + persist) ─────────────────────────────────
+    // ── Own-data mutators (update in-memory + persist) ────────────────────────
 
     /**
      * Updates a clan data field in memory and persists it asynchronously.
@@ -141,121 +143,38 @@ public class Clan implements IClan, IClanData {
         core.getClanService().updateLevel(this);
     }
 
-    // ── Member management ─────────────────────────────────────────────────────
-
-    /**
-     * Adds an online player to this clan in memory and persists the row asynchronously.
-     *
-     * @param player the online player joining this clan
-     */
-    public void invite(Player player) {
-        Member member = new Member(player.getName(), player.getUniqueId(), false, this.name);
-        core.getMemberList().addMember(member);
-        core.getMemberService().create(member);
-    }
-
-    /**
-     * Removes the player from this clan in memory and deletes the row asynchronously.
-     *
-     * @param name player name to remove
-     */
-    public void kick(String name) {
-        core.getMemberService().delete(core.getMemberList().getMember(name));
-        core.getMemberList().removeMember(name);
-    }
-
-    /**
-     * Updates the moderator flag of a clan member in memory and persists asynchronously.
-     *
-     * @param name    player name of the member
-     * @param isModer {@code true} to promote, {@code false} to demote
-     */
-    public void setModer(String name, boolean isModer) {
-        Member member = core.getMemberList().getMember(name);
-        member.setModer(isModer);
-        core.getMemberService().updateModer(member);
-    }
-
-    /**
-     * Returns {@code true} if the given player is a moderator of this clan.
-     *
-     * @param name player name to check
-     * @return {@code true} if the player is a moderator of this clan
-     */
-    public boolean hasModer(String name) {
-        Member member = core.getMemberList().getMember(name);
-        return member.isModer() && member.getClan().equals(this.name);
-    }
-
-    /**
-     * Kicks all members, removes the clan from {@link com.ie23s.bukkit.plugin.powerclans.clan.ClanList},
-     * and deletes the clan and all its members from the database asynchronously.
-     */
-    public void disband() {
-        for (Member mem : core.getMemberList().getListOfMembers(this.name))
-            kick(mem.getName());
-        core.getClanList().getClans().remove(this.name.toLowerCase());
-        core.getMemberService().deleteByClan(this.name);
-        core.getClanService().delete(this);
-    }
-
     // ── Queries ───────────────────────────────────────────────────────────────
 
     /**
-     * Returns {@code true} if {@code player} is the leader of this clan (case-insensitive).
+     * Returns {@code true} if the given UUID belongs to the current clan leader.
      *
-     * @param player player name to check
-     * @return {@code true} if the player is the clan leader
+     * @param playerUuid UUID to check
+     * @return {@code true} if the UUID matches the leader
      */
-    public boolean hasLeader(String player) {
-        return getLeaderName().equalsIgnoreCase(player);
+    public boolean hasLeader(UUID playerUuid) {
+        return leaderUuid.equals(playerUuid);
     }
 
     /**
-     * Returns {@code true} if the given UUID matches the current leader.
+     * Returns {@code true} if the member identified by the given UUID is a moderator
+     * of this clan.
      *
-     * @param uuid UUID to check
-     * @return {@code true} if the UUID belongs to the clan leader
+     * @param playerUuid Mojang UUID of the player to check
+     * @return {@code true} if the player is a moderator of this clan
      */
-    public boolean hasLeader(UUID uuid) {
-        return leaderUuid.equals(uuid);
+    public boolean hasModer(UUID playerUuid) {
+        Member member = core.getMemberList().getMemberByUuid(playerUuid);
+        return member != null && member.isModer() && member.getClan().equals(this.name);
     }
 
     /**
-     * Returns {@code true} if {@code name} is a member of this clan.
-     * Use in command handlers where only a player name is available.
+     * Returns {@code true} if the member identified by the given UUID belongs to this clan.
      *
-     * @param name player name to check
+     * @param playerUuid Mojang UUID of the player to check
      * @return {@code true} if the player is a member of this clan
      */
-    public boolean hasClanMember(String name) {
-        Member member = core.getMemberList().getMember(name);
+    public boolean hasClanMember(UUID playerUuid) {
+        Member member = core.getMemberList().getMemberByUuid(playerUuid);
         return member != null && member.getClan().equals(this.name);
-    }
-
-    /**
-     * Returns {@code true} if the given online player is a member of this clan.
-     * Prefer this overload in event handlers where a {@link Player} object is available.
-     *
-     * @param player the online player to check
-     * @return {@code true} if the player is a member of this clan
-     */
-    public boolean hasClanMember(Player player) {
-        Member member = core.getMemberList().getMemberByUuid(player.getUniqueId());
-        return member != null && member.getClan().equals(this.name);
-    }
-
-    /**
-     * Sends a formatted message to all online clan members.
-     *
-     * @param message message text to broadcast
-     */
-    public void broadcast(String message) {
-        for (Member member : core.getMemberList().getListOfMembers(this.name)) {
-            Player pl = Bukkit.getPlayer(member.getPlayerUuid());
-            if (pl != null) {
-                pl.sendMessage(core.lang("command.broadcast_format", core.lang("chat.clan"), message));
-            }
-        }
     }
 }

@@ -72,7 +72,7 @@ class CombatListenerTest {
         when(memberList.isMemberByUuid(DAMAGER_UUID)).thenReturn(true);
         when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
         when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
-        when(clan.hasClanMember(victim)).thenReturn(true);
+        when(clan.hasClanMember(VICTIM_UUID)).thenReturn(true);
         when(clan.getBoolean(ClanDataKey.PVP)).thenReturn(true);
         when(core.lang(anyString())).thenReturn("");
 
@@ -122,7 +122,7 @@ class CombatListenerTest {
         when(memberList.isMemberByUuid(DAMAGER_UUID)).thenReturn(true);
         when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
         when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
-        when(clan.hasClanMember(victim)).thenReturn(false);
+        when(clan.hasClanMember(VICTIM_UUID)).thenReturn(false);
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
 
@@ -139,7 +139,7 @@ class CombatListenerTest {
         when(memberList.isMemberByUuid(DAMAGER_UUID)).thenReturn(true);
         when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
         when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
-        when(clan.hasClanMember(victim)).thenReturn(true);
+        when(clan.hasClanMember(VICTIM_UUID)).thenReturn(true);
         when(clan.getBoolean(ClanDataKey.PVP)).thenReturn(false);
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
@@ -171,7 +171,7 @@ class CombatListenerTest {
         when(damager.getUniqueId()).thenReturn(ALICE_UUID);
         when(memberList.isMemberByUuid(ALICE_UUID)).thenReturn(true);
         when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
-        when(clan.hasClanMember(victim)).thenReturn(true);
+        when(clan.hasClanMember(ALICE_UUID)).thenReturn(true);
         when(clan.getBoolean(ClanDataKey.PVP)).thenReturn(true);
 
         EntityDamageByEntityEvent event = damageEvent(victim, damager);
@@ -191,7 +191,7 @@ class CombatListenerTest {
         when(memberList.isMemberByUuid(DAMAGER_UUID)).thenReturn(true);
         when(memberList.isMemberByUuid(VICTIM_UUID)).thenReturn(true);
         when(clanList.getClanByPlayerUuid(DAMAGER_UUID)).thenReturn(clan);
-        when(clan.hasClanMember(victim)).thenReturn(true);
+        when(clan.hasClanMember(VICTIM_UUID)).thenReturn(true);
         when(clan.getBoolean(ClanDataKey.PVP)).thenReturn(true);
         when(core.lang(anyString())).thenReturn("");
 

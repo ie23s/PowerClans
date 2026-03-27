@@ -15,7 +15,11 @@ import java.util.List;
  */
 public class ReferenceCommand extends BaseClanCommand {
 
-    /** @param core the plugin core */
+    /**
+     * Creates a ReferenceCommand backed by the given plugin core.
+     *
+     * @param core the plugin core
+     */
     public ReferenceCommand(Core core) { super(core); }
 
     @Override
@@ -25,7 +29,7 @@ public class ReferenceCommand extends BaseClanCommand {
 
     @Override
     public void execute(CommandSender s, String[] args, Clan clan, String user) {
-        show(s, args, clan, user);
+        show(s, args, clan);
     }
 
     /**
@@ -34,10 +38,9 @@ public class ReferenceCommand extends BaseClanCommand {
      * @param s    the command sender
      * @param args full command arguments; {@code args[0]} is optionally the page number
      * @param clan the sender's current clan, or {@code null} if none
-     * @param user the sender's player name
      */
-    public void show(CommandSender s, String[] args, Clan clan, String user) {
-        List<String> cmds = buildCommandList(s, clan, user);
+    public void show(CommandSender s, String[] args, Clan clan) {
+        List<String> cmds = buildCommandList(s, clan);
         int page = parsePage(args);
         s.sendMessage(core.lang("reference._1"));
         for (int i = (page - 1) * 5; i < page * 5 && i < cmds.size(); i++) {
@@ -52,17 +55,18 @@ public class ReferenceCommand extends BaseClanCommand {
      * Builds the ordered list of command names the sender may see,
      * based on their permissions and clan role.
      */
-    private List<String> buildCommandList(CommandSender s, Clan clan, String user) {
+    private List<String> buildCommandList(CommandSender s, Clan clan) {
         List<String> cmds = new ArrayList<>();
         if (!(s instanceof Player)) return cmds;
         if (clan == null) {
             addIfPerm(s, cmds, "create");
         } else {
-            if (clan.hasLeader(user)) {
+            java.util.UUID uuid = ((Player) s).getUniqueId();
+            if (clan.hasLeader(uuid)) {
                 addIfPerm(s, cmds, "disband", "leader", "addmoder", "delmoder",
                         "take", "sethome", "removehome", "upgrade");
             }
-            if (clan.hasModer(user) || clan.hasLeader(user)) {
+            if (clan.hasModer(uuid) || clan.hasLeader(uuid)) {
                 addIfPerm(s, cmds, "msg", "invite", "kick", "pvp");
             }
             addIfPerm(s, cmds, "info", "online", "home", "balance", "deposit");

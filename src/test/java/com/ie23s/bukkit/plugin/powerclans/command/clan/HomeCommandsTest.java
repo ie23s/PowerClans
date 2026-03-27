@@ -3,6 +3,7 @@ package com.ie23s.bukkit.plugin.powerclans.command.clan;
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.api.ClanDataKey;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
+import com.ie23s.bukkit.plugin.powerclans.clan.ClanList;
 import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
 import com.ie23s.bukkit.plugin.powerclans.utils.LocationSerializer;
 import com.ie23s.bukkit.plugin.powerclans.utils.WorldGuardUtils;
@@ -18,20 +19,26 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import org.mockito.quality.Strictness;
 
 import java.util.List;
+import java.util.UUID;
 
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.*;
 
 @ExtendWith(MockitoExtension.class)
 @org.mockito.junit.jupiter.MockitoSettings(strictness = Strictness.LENIENT)
 class HomeCommandsTest {
 
+    static final UUID LEADER_UUID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    static final UUID MEMBER_UUID = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+
     @Mock Core core;
     @Mock Clan clan;
     @Mock Player sender;
+    @Mock ClanList clanList;
     @Mock MemberList memberList;
     @Mock FileConfiguration config;
     @Mock Location location;
@@ -42,7 +49,9 @@ class HomeCommandsTest {
         lenient().when(core.lang(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
         lenient().when(sender.hasPermission(anyString())).thenReturn(true);
         lenient().when(sender.getName()).thenReturn("leader");
+        lenient().when(sender.getUniqueId()).thenReturn(LEADER_UUID);
         lenient().when(core.getMemberList()).thenReturn(memberList);
+        lenient().when(core.getClanList()).thenReturn(clanList);
         lenient().when(core.getConfig()).thenReturn(config);
         lenient().when(clan.getName()).thenReturn("Warriors");
     }
@@ -130,8 +139,8 @@ class HomeCommandsTest {
 
     @Test
     void sethome_validate_failsWhenNotLeader() {
-        when(sender.getName()).thenReturn("member");
-        when(clan.hasLeader("member")).thenReturn(false);
+        when(sender.getUniqueId()).thenReturn(MEMBER_UUID);
+        when(clan.hasLeader(MEMBER_UUID)).thenReturn(false);
 
         boolean result = new HomeCommands.SetHome(core).validate(sender, new String[]{"sethome"}, clan, "member");
 
@@ -141,7 +150,7 @@ class HomeCommandsTest {
 
     @Test
     void sethome_validate_failsWhenWorldGuardDenies() {
-        when(clan.hasLeader("leader")).thenReturn(true);
+        when(clan.hasLeader(LEADER_UUID)).thenReturn(true);
         when(sender.getLocation()).thenReturn(location);
 
         try (MockedStatic<WorldGuardUtils> wg = mockStatic(WorldGuardUtils.class)) {
@@ -156,7 +165,7 @@ class HomeCommandsTest {
 
     @Test
     void sethome_validate_failsWhenNotEnoughMembers() {
-        when(clan.hasLeader("leader")).thenReturn(true);
+        when(clan.hasLeader(LEADER_UUID)).thenReturn(true);
         when(sender.getLocation()).thenReturn(location);
         when(config.getInt("settings.home_min")).thenReturn(5);
         when(memberList.getListOfMembers("Warriors")).thenReturn(List.of());
@@ -173,7 +182,7 @@ class HomeCommandsTest {
 
     @Test
     void sethome_validate_passesForLeaderWithEnoughMembers() {
-        when(clan.hasLeader("leader")).thenReturn(true);
+        when(clan.hasLeader(LEADER_UUID)).thenReturn(true);
         when(sender.getLocation()).thenReturn(location);
         when(config.getInt("settings.home_min")).thenReturn(1);
         when(memberList.getListOfMembers("Warriors")).thenReturn(List.of(mock(com.ie23s.bukkit.plugin.powerclans.clan.Member.class)));
@@ -201,7 +210,7 @@ class HomeCommandsTest {
         new HomeCommands.SetHome(core).execute(sender, new String[]{"sethome"}, clan, "leader");
 
         verify(clan).update(ClanDataKey.HOME, LocationSerializer.serialize(location));
-        verify(clan).broadcast(anyString());
+        verify(clanList).broadcast(eq(clan), anyString());
     }
 
     // -------------------------------------------------------------------------
@@ -228,8 +237,8 @@ class HomeCommandsTest {
 
     @Test
     void removehome_validate_failsWhenNotLeader() {
-        when(sender.getName()).thenReturn("member");
-        when(clan.hasLeader("member")).thenReturn(false);
+        when(sender.getUniqueId()).thenReturn(MEMBER_UUID);
+        when(clan.hasLeader(MEMBER_UUID)).thenReturn(false);
 
         boolean result = new HomeCommands.RemoveHome(core).validate(sender, new String[]{"removehome"}, clan, "member");
 
@@ -239,7 +248,7 @@ class HomeCommandsTest {
 
     @Test
     void removehome_validate_failsWhenNoHome() {
-        when(clan.hasLeader("leader")).thenReturn(true);
+        when(clan.hasLeader(LEADER_UUID)).thenReturn(true);
         when(clan.getString(ClanDataKey.HOME)).thenReturn(null);
 
         boolean result = new HomeCommands.RemoveHome(core).validate(sender, new String[]{"removehome"}, clan, "leader");
@@ -250,7 +259,7 @@ class HomeCommandsTest {
 
     @Test
     void removehome_validate_passesWhenLeaderAndHomeExists() {
-        when(clan.hasLeader("leader")).thenReturn(true);
+        when(clan.hasLeader(LEADER_UUID)).thenReturn(true);
         when(clan.getString(ClanDataKey.HOME)).thenReturn("world;0;64;0;0;0");
 
         boolean result = new HomeCommands.RemoveHome(core).validate(sender, new String[]{"removehome"}, clan, "leader");
@@ -267,6 +276,6 @@ class HomeCommandsTest {
         new HomeCommands.RemoveHome(core).execute(sender, new String[]{"removehome"}, clan, "leader");
 
         verify(clan).delete(ClanDataKey.HOME);
-        verify(clan).broadcast(anyString());
+        verify(clanList).broadcast(eq(clan), anyString());
     }
 }

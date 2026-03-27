@@ -30,6 +30,7 @@ public class MemberList {
      * Returns {@code true} if a member with the given UUID is registered.
      *
      * @param playerUuid Mojang UUID of the player
+     * @return {@code true} if the player is a registered member
      */
     public boolean isMemberByUuid(UUID playerUuid) {
         return byUuid.containsKey(playerUuid);
@@ -39,6 +40,7 @@ public class MemberList {
      * Returns the member with the given UUID, or {@code null} if not found.
      *
      * @param playerUuid Mojang UUID of the player
+     * @return the matching {@link Member}, or {@code null}
      */
     public Member getMemberByUuid(UUID playerUuid) {
         return byUuid.get(playerUuid);
@@ -50,6 +52,7 @@ public class MemberList {
      * Returns {@code true} if a member with the given name is registered (case-insensitive).
      *
      * @param name player name (any case)
+     * @return {@code true} if the player is a registered member
      */
     public boolean isMember(String name) {
         return byName.containsKey(name.toLowerCase());
@@ -59,6 +62,7 @@ public class MemberList {
      * Returns the member with the given name, or {@code null} if not found (case-insensitive).
      *
      * @param name player name (any case)
+     * @return the matching {@link Member}, or {@code null}
      */
     public Member getMember(String name) {
         return byName.get(name.toLowerCase());
@@ -79,15 +83,31 @@ public class MemberList {
     }
 
     /**
-     * Removes a member from both indexes, looked up by player name.
+     * Removes a member from both indexes, looked up by player UUID.
      *
-     * @param name player name (any case)
+     * @param playerUuid Mojang UUID of the player to remove
      */
-    void removeMember(String name) {
-        Member removed = byName.remove(name.toLowerCase());
+    void removeMember(UUID playerUuid) {
+        Member removed = byUuid.remove(playerUuid);
         if (removed != null) {
-            byUuid.remove(removed.getPlayerUuid());
+            byName.remove(removed.getName().toLowerCase());
         }
+    }
+
+    /**
+     * Removes all members of the given clan from both indexes in a single pass.
+     * Intended for clan disbanding, where every member row is deleted at once.
+     *
+     * @param clanName display name of the clan (case-insensitive)
+     */
+    void removeAllByClan(String clanName) {
+        byName.values().removeIf(m -> {
+            if (m.getClan().equalsIgnoreCase(clanName)) {
+                byUuid.remove(m.getPlayerUuid());
+                return true;
+            }
+            return false;
+        });
     }
 
     // ── Queries ───────────────────────────────────────────────────────────────

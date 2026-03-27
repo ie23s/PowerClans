@@ -85,7 +85,7 @@ public class CombatListener implements Listener {
 
         Clan clan = core.getClanList().getClanByPlayerUuid(damagerUuid);
         if (clan == null) return;
-        if (!clan.hasClanMember(victim)) return;
+        if (!clan.hasClanMember(victimUuid)) return;
         if (victimUuid.equals(damagerUuid)) return;
         if (!clan.getBoolean(ClanDataKey.PVP)) return;
 

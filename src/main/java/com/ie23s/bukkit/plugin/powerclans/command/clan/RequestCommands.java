@@ -3,6 +3,7 @@ package com.ie23s.bukkit.plugin.powerclans.command.clan;
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.api.IClanCommand;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
+import com.ie23s.bukkit.plugin.powerclans.clan.Member;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.RequestType;
 import org.bukkit.OfflinePlayer;
@@ -86,8 +87,8 @@ public final class RequestCommands {
          */
         private void acceptInvite(CommandSender s, Request req, String user) {
             req.remove();
-            req.getClan().broadcast(core.lang("clan.join", user));
-            req.getClan().invite((Player) s);
+            core.getClanList().broadcast(req.getClan(), core.lang("clan.join", user));
+            core.getClanList().addMember(req.getClan(), (Player) s);
             s.sendMessage(core.lang("clan.invitation_accept"));
         }
 
@@ -100,7 +101,7 @@ public final class RequestCommands {
             if (!registry.get("create").validate(s, a, clan, user)) return;
             chargeCreateCost(s);
             Clan newClan = core.getClanList().create(a[1], (Player) s);
-            newClan.broadcast(core.lang("clan.created",
+            core.getClanList().broadcast(newClan, core.lang("clan.created",
                     Objects.requireNonNull(core.getClanList().getClanByName(s.getName())).getName()));
         }
 
@@ -122,8 +123,8 @@ public final class RequestCommands {
          */
         private void acceptDisband(CommandSender s, Request req, Clan clan, String user) {
             if (!registry.get("disband").validate(s, req.getArgs(), clan, user)) return;
-            clan.broadcast(core.lang("clan.disband", clan.getName()));
-            clan.disband();
+            core.getClanList().broadcast(clan, core.lang("clan.disband", clan.getName()));
+            core.getClanList().disband(clan);
         }
 
         /**
@@ -131,8 +132,8 @@ public final class RequestCommands {
          */
         private void acceptLeave(CommandSender s, Request req, Clan clan, String user) {
             if (!registry.get("leave").validate(s, req.getArgs(), clan, user)) return;
-            clan.broadcast(core.lang("clan.leave_2", s.getName()));
-            clan.kick(s.getName());
+            core.getClanList().broadcast(clan, core.lang("clan.leave_2", s.getName()));
+            core.getClanList().removeMember(clan, ((Player) s).getUniqueId());
         }
 
         /**
@@ -141,16 +142,19 @@ public final class RequestCommands {
         private void acceptLeaderTransfer(CommandSender s, Request req, Clan clan, String user) {
             String[] a = req.getArgs();
             if (!registry.get("leader").validate(s, a, clan, user)) return;
-            if (clan.hasModer(a[1])) clan.setModer(a[1], false);
-            clan.setLeader(core.getMemberList().getMember(a[1]).getPlayerUuid());
-            clan.broadcast(core.lang("clan.leader", s.getName(), a[1]));
+            Member target = core.getMemberList().getMember(a[1]);
+            if (target == null) return;
+            if (clan.hasModer(target.getPlayerUuid()))
+                core.getClanList().setModer(clan, target.getPlayerUuid(), false);
+            clan.setLeader(target.getPlayerUuid());
+            core.getClanList().broadcast(clan, core.lang("clan.leader", s.getName(), a[1]));
         }
 
         /**
          * Accepts an upgrade request (type 5): applies level-up abilities and broadcasts.
          */
         private void acceptUpgrade(CommandSender s, Clan clan) {
-            clan.broadcast(core.lang("level.upgrade.reach_level", clan.getLevel()));
+            core.getClanList().broadcast(clan, core.lang("level.upgrade.reach_level", clan.getLevel()));
             core.getLevelModule().getAbilities().upgradeAbilities((Player) s, true);
             core.getLevelModule().getAbilities().makeUpgrade(clan);
         }

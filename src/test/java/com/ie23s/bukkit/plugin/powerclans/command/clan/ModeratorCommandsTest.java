@@ -3,13 +3,16 @@ package com.ie23s.bukkit.plugin.powerclans.command.clan;
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
 import com.ie23s.bukkit.plugin.powerclans.clan.ClanList;
+import com.ie23s.bukkit.plugin.powerclans.clan.Member;
 import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
-import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import org.mockito.quality.Strictness;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -22,20 +25,14 @@ import static org.mockito.Mockito.*;
 @org.mockito.junit.jupiter.MockitoSettings(strictness = Strictness.LENIENT)
 class ModeratorCommandsTest {
 
-    @Mock
-    Core core;
+    static final UUID LEADER_UUID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    static final UUID TARGET_UUID = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
-    @Mock
-    Clan clan;
-
-    @Mock
-    CommandSender sender;
-
-    @Mock
-    ClanList clanList;
-
-    @Mock
-    MemberList memberList;
+    @Mock Core core;
+    @Mock Clan clan;
+    @Mock Player sender;
+    @Mock ClanList clanList;
+    @Mock MemberList memberList;
 
     @BeforeEach
     void setUp() {
@@ -43,9 +40,16 @@ class ModeratorCommandsTest {
         lenient().when(core.lang(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
         lenient().when(sender.hasPermission(anyString())).thenReturn(true);
         lenient().when(sender.getName()).thenReturn("leader");
-        lenient().when(clan.hasLeader("leader")).thenReturn(true);
+        lenient().when(sender.getUniqueId()).thenReturn(LEADER_UUID);
+        lenient().when(clan.hasLeader(LEADER_UUID)).thenReturn(true);
         lenient().when(core.getClanList()).thenReturn(clanList);
         lenient().when(core.getMemberList()).thenReturn(memberList);
+    }
+
+    private Member mockMember(UUID uuid) {
+        Member m = mock(Member.class);
+        when(m.getPlayerUuid()).thenReturn(uuid);
+        return m;
     }
 
     // -------------------------------------------------------------------------
@@ -54,7 +58,9 @@ class ModeratorCommandsTest {
 
     @Test
     void addmoder_validate_failsWhenTargetNotInClan() {
-        when(clan.hasClanMember("outsider")).thenReturn(false);
+        Member outsider = mockMember(TARGET_UUID);
+        when(memberList.getMember("outsider")).thenReturn(outsider);
+        when(clan.hasClanMember(TARGET_UUID)).thenReturn(false);
         ModeratorCommands.AddModer cmd = new ModeratorCommands.AddModer(core);
 
         boolean result = cmd.validate(sender, new String[]{"addmoder", "outsider"}, clan, "leader");
@@ -65,8 +71,10 @@ class ModeratorCommandsTest {
 
     @Test
     void addmoder_validate_failsWhenTargetIsLeader() {
-        when(clan.hasClanMember("target")).thenReturn(true);
-        when(clan.hasLeader("target")).thenReturn(true);
+        Member target = mockMember(TARGET_UUID);
+        when(memberList.getMember("target")).thenReturn(target);
+        when(clan.hasClanMember(TARGET_UUID)).thenReturn(true);
+        when(clan.hasLeader(TARGET_UUID)).thenReturn(true);
         ModeratorCommands.AddModer cmd = new ModeratorCommands.AddModer(core);
 
         boolean result = cmd.validate(sender, new String[]{"addmoder", "target"}, clan, "leader");
@@ -77,9 +85,11 @@ class ModeratorCommandsTest {
 
     @Test
     void addmoder_validate_failsWhenTargetAlreadyModer() {
-        when(clan.hasClanMember("member")).thenReturn(true);
-        when(clan.hasLeader("member")).thenReturn(false);
-        when(clan.hasModer("member")).thenReturn(true);
+        Member member = mockMember(TARGET_UUID);
+        when(memberList.getMember("member")).thenReturn(member);
+        when(clan.hasClanMember(TARGET_UUID)).thenReturn(true);
+        when(clan.hasLeader(TARGET_UUID)).thenReturn(false);
+        when(clan.hasModer(TARGET_UUID)).thenReturn(true);
         ModeratorCommands.AddModer cmd = new ModeratorCommands.AddModer(core);
 
         boolean result = cmd.validate(sender, new String[]{"addmoder", "member"}, clan, "leader");
@@ -90,9 +100,11 @@ class ModeratorCommandsTest {
 
     @Test
     void addmoder_validate_passesForValidPromotion() {
-        when(clan.hasClanMember("member")).thenReturn(true);
-        when(clan.hasLeader("member")).thenReturn(false);
-        when(clan.hasModer("member")).thenReturn(false);
+        Member member = mockMember(TARGET_UUID);
+        when(memberList.getMember("member")).thenReturn(member);
+        when(clan.hasClanMember(TARGET_UUID)).thenReturn(true);
+        when(clan.hasLeader(TARGET_UUID)).thenReturn(false);
+        when(clan.hasModer(TARGET_UUID)).thenReturn(false);
         ModeratorCommands.AddModer cmd = new ModeratorCommands.AddModer(core);
 
         boolean result = cmd.validate(sender, new String[]{"addmoder", "member"}, clan, "leader");
@@ -106,7 +118,9 @@ class ModeratorCommandsTest {
 
     @Test
     void delmoder_validate_failsWhenTargetNotInClan() {
-        when(clan.hasClanMember("outsider")).thenReturn(false);
+        Member outsider = mockMember(TARGET_UUID);
+        when(memberList.getMember("outsider")).thenReturn(outsider);
+        when(clan.hasClanMember(TARGET_UUID)).thenReturn(false);
         ModeratorCommands.DelModer cmd = new ModeratorCommands.DelModer(core);
 
         boolean result = cmd.validate(sender, new String[]{"delmoder", "outsider"}, clan, "leader");
@@ -117,9 +131,11 @@ class ModeratorCommandsTest {
 
     @Test
     void delmoder_validate_failsWhenTargetIsNotModer() {
-        when(clan.hasClanMember("member")).thenReturn(true);
-        when(clan.hasLeader("member")).thenReturn(false);
-        when(clan.hasModer("member")).thenReturn(false);
+        Member member = mockMember(TARGET_UUID);
+        when(memberList.getMember("member")).thenReturn(member);
+        when(clan.hasClanMember(TARGET_UUID)).thenReturn(true);
+        when(clan.hasLeader(TARGET_UUID)).thenReturn(false);
+        when(clan.hasModer(TARGET_UUID)).thenReturn(false);
         ModeratorCommands.DelModer cmd = new ModeratorCommands.DelModer(core);
 
         boolean result = cmd.validate(sender, new String[]{"delmoder", "member"}, clan, "leader");
@@ -130,9 +146,11 @@ class ModeratorCommandsTest {
 
     @Test
     void delmoder_validate_passesForExistingModer() {
-        when(clan.hasClanMember("moder")).thenReturn(true);
-        when(clan.hasLeader("moder")).thenReturn(false);
-        when(clan.hasModer("moder")).thenReturn(true);
+        Member moder = mockMember(TARGET_UUID);
+        when(memberList.getMember("moder")).thenReturn(moder);
+        when(clan.hasClanMember(TARGET_UUID)).thenReturn(true);
+        when(clan.hasLeader(TARGET_UUID)).thenReturn(false);
+        when(clan.hasModer(TARGET_UUID)).thenReturn(true);
         ModeratorCommands.DelModer cmd = new ModeratorCommands.DelModer(core);
 
         boolean result = cmd.validate(sender, new String[]{"delmoder", "moder"}, clan, "leader");

@@ -112,13 +112,18 @@ class ClanScenarioTest extends BaseDbTest {
         clan = clanList.getClan("TestClan");
     }
 
-    /** Creates a mock Player with the given name, a random UUID, and all permissions granted. */
-    private Player player(String name) {
+    /** Creates a mock Player with the given name, a specific UUID, and all permissions granted. */
+    private Player player(String name, UUID uuid) {
         Player p = mock(Player.class);
         when(p.getName()).thenReturn(name);
-        when(p.getUniqueId()).thenReturn(UUID.randomUUID());
+        when(p.getUniqueId()).thenReturn(uuid);
         when(p.hasPermission(anyString())).thenReturn(true);
         return p;
+    }
+
+    /** Creates a mock Player with the given name, a random UUID, and all permissions granted. */
+    private Player player(String name) {
+        return player(name, UUID.randomUUID());
     }
 
     /**
@@ -140,7 +145,7 @@ class ClanScenarioTest extends BaseDbTest {
 
     @Test
     void inviteAccept_playerJoinsClan() throws SQLException {
-        Player alice  = player("alice");
+        Player alice  = player("alice", UUID.fromString(ALICE_UUID));
         Player newguy = player("newguy");
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
@@ -162,8 +167,8 @@ class ClanScenarioTest extends BaseDbTest {
 
     @Test
     void kick_removesPlayerFromClan() throws SQLException {
-        Player alice = player("alice");
-        Player bob   = player("bob");
+        Player alice = player("alice", UUID.fromString(ALICE_UUID));
+        Player bob   = player("bob",   UUID.fromString(BOB_UUID));
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
             stubBukkit(bukkit);
@@ -182,7 +187,7 @@ class ClanScenarioTest extends BaseDbTest {
 
     @Test
     void leaveAccept_playerLeavesClan() throws SQLException {
-        Player bob = player("bob");
+        Player bob = player("bob", UUID.fromString(BOB_UUID));
         Map<String, IClanCommand> registry = Map.of("leave", new LifecycleCommands.Leave(core));
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
@@ -202,14 +207,14 @@ class ClanScenarioTest extends BaseDbTest {
 
     @Test
     void addmoder_promotesPlayerToModerator() throws SQLException {
-        Player alice = player("alice");
+        Player alice = player("alice", UUID.fromString(ALICE_UUID));
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
             stubBukkit(bukkit);
             new ModeratorCommands.AddModer(core).execute(alice, new String[]{"addmoder", "bob"}, clan, "alice");
         }
 
-        assertTrue(clan.hasModer("bob"));
+        assertTrue(clan.hasModer(UUID.fromString(BOB_UUID)));
 
         List<MemberDto> members = memberRepo.findAll();
         assertTrue(members.stream().anyMatch(m -> m.name().equals("bob") && m.isModer()));
@@ -219,7 +224,7 @@ class ClanScenarioTest extends BaseDbTest {
 
     @Test
     void leaderTransferAccept_changesLeader() throws SQLException {
-        Player alice = player("alice");
+        Player alice = player("alice", UUID.fromString(ALICE_UUID));
         Map<String, IClanCommand> registry = Map.of("leader", new ModeratorCommands.Leader(core));
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {
@@ -270,7 +275,7 @@ class ClanScenarioTest extends BaseDbTest {
 
     @Test
     void disbandAccept_removesAllMembersAndClan() throws SQLException {
-        Player alice = player("alice");
+        Player alice = player("alice", UUID.fromString(ALICE_UUID));
         Map<String, IClanCommand> registry = Map.of("disband", new LifecycleCommands.Disband(core));
 
         try (MockedStatic<Bukkit> bukkit = mockStatic(Bukkit.class)) {

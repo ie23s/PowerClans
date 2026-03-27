@@ -3,7 +3,9 @@ package com.ie23s.bukkit.plugin.powerclans.command.clan;
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.api.IClanCommand;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
+import com.ie23s.bukkit.plugin.powerclans.clan.Member;
 import org.bukkit.command.CommandSender;
+import org.bukkit.entity.Player;
 
 /**
  * Abstract base for all /clan command handlers.
@@ -72,13 +74,13 @@ public abstract class BaseClanCommand implements IClanCommand {
      * Checks that the sender is the clan leader.
      * Sends the given error key on failure.
      *
-     * @param sender   the command sender
+     * @param sender   the command sender (must be a {@link Player})
      * @param clan     the sender's clan
      * @param errorKey the language key to send on failure
      * @return {@code true} if the sender is the clan leader
      */
     protected boolean isLeader(CommandSender sender, Clan clan, String errorKey) {
-        if (clan.hasLeader(sender.getName())) return true;
+        if (clan.hasLeader(((Player) sender).getUniqueId())) return true;
         sender.sendMessage(core.lang(errorKey));
         return false;
     }
@@ -87,28 +89,32 @@ public abstract class BaseClanCommand implements IClanCommand {
      * Checks that the sender is either the clan leader or a moderator.
      * Sends the given error key on failure.
      *
-     * @param sender   the command sender
+     * @param sender   the command sender (must be a {@link Player})
      * @param clan     the sender's clan
      * @param errorKey the language key to send on failure
      * @return {@code true} if the sender is the leader or a moderator
      */
     protected boolean isLeaderOrModer(CommandSender sender, Clan clan, String errorKey) {
-        if (clan.hasLeader(sender.getName()) || clan.hasModer(sender.getName())) return true;
+        java.util.UUID uuid = ((Player) sender).getUniqueId();
+        if (clan.hasLeader(uuid) || clan.hasModer(uuid)) return true;
         sender.sendMessage(core.lang(errorKey));
         return false;
     }
 
     /**
      * Checks that the target player is a member of the clan.
+     * Resolves the player name to a UUID via {@link com.ie23s.bukkit.plugin.powerclans.clan.MemberList}
+     * and then calls {@link Clan#hasClanMember(java.util.UUID)}.
      * Sends {@code errors._14} on failure.
      *
-     * @param sender the command sender
-     * @param clan   the sender's clan
-     * @param target player name to check membership for
-     * @return {@code true} if {@code target} is a member of {@code clan}
+     * @param sender     the command sender
+     * @param clan       the sender's clan
+     * @param targetName player name to check membership for
+     * @return {@code true} if {@code targetName} is a member of {@code clan}
      */
-    protected boolean isClanMember(CommandSender sender, Clan clan, String target) {
-        if (clan.hasClanMember(target)) return true;
+    protected boolean isClanMember(CommandSender sender, Clan clan, String targetName) {
+        Member target = core.getMemberList().getMember(targetName);
+        if (target != null && clan.hasClanMember(target.getPlayerUuid())) return true;
         sender.sendMessage(core.lang("errors._14"));
         return false;
     }

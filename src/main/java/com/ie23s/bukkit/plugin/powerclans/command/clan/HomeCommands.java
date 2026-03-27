@@ -61,7 +61,7 @@ public final class HomeCommands {
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             clan.update(ClanDataKey.HOME, LocationSerializer.serialize(((Player) s).getLocation()));
-            clan.broadcast(core.lang("clan.sethome", s.getName()));
+            core.getClanList().broadcast(clan, core.lang("clan.sethome", s.getName()));
         }
 
         /**
@@ -98,7 +98,7 @@ public final class HomeCommands {
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             clan.delete(ClanDataKey.HOME);
-            clan.broadcast(core.lang("clan.removehome", s.getName()));
+            core.getClanList().broadcast(clan, core.lang("clan.removehome", s.getName()));
         }
     }
 }

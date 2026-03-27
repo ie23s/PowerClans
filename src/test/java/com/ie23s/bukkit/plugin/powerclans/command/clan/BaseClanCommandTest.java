@@ -2,12 +2,15 @@ package com.ie23s.bukkit.plugin.powerclans.command.clan;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
-import org.bukkit.command.CommandSender;
+import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
+import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
+
+import java.util.UUID;
 
 import org.mockito.quality.Strictness;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -21,31 +24,29 @@ import static org.mockito.Mockito.*;
 @org.mockito.junit.jupiter.MockitoSettings(strictness = Strictness.LENIENT)
 class BaseClanCommandTest {
 
-    @Mock
-    Core core;
+    static final UUID LEADER_UUID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    static final UUID MODER_UUID  = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
+    static final UUID MEMBER_UUID = UUID.fromString("cccccccc-cccc-cccc-cccc-cccccccccccc");
 
-    @Mock
-    Clan clan;
-
-    @Mock
-    CommandSender sender;
+    @Mock Core core;
+    @Mock Clan clan;
+    @Mock Player sender;
+    @Mock MemberList memberList;
 
     BaseClanCommand command;
 
     @BeforeEach
     void setUp() {
         lenient().when(core.lang(anyString())).thenAnswer(inv -> inv.getArgument(0));
-        lenient().when(core.lang(anyString(), (Object[]) any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(core.lang(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(core.getMemberList()).thenReturn(memberList);
 
         command = new BaseClanCommand(core) {
             @Override
-            public boolean validate(CommandSender s, String[] args, Clan c, String user) {
-                return true;
-            }
+            public boolean validate(org.bukkit.command.CommandSender s, String[] args, Clan c, String user) { return true; }
 
             @Override
-            public void execute(CommandSender s, String[] args, Clan c, String user) {
-            }
+            public void execute(org.bukkit.command.CommandSender s, String[] args, Clan c, String user) { /* test stub — no behaviour needed */ }
         };
     }
 
@@ -77,8 +78,8 @@ class BaseClanCommandTest {
 
     @Test
     void isLeader_returnsFalseAndSendsMessageForNonLeader() {
-        when(sender.getName()).thenReturn("member");
-        when(clan.hasLeader("member")).thenReturn(false);
+        when(sender.getUniqueId()).thenReturn(MEMBER_UUID);
+        when(clan.hasLeader(MEMBER_UUID)).thenReturn(false);
 
         boolean result = command.isLeader(sender, clan, "errors._10");
 
@@ -88,8 +89,8 @@ class BaseClanCommandTest {
 
     @Test
     void isLeaderOrModer_returnsTrueForLeader() {
-        when(sender.getName()).thenReturn("leader");
-        when(clan.hasLeader("leader")).thenReturn(true);
+        when(sender.getUniqueId()).thenReturn(LEADER_UUID);
+        when(clan.hasLeader(LEADER_UUID)).thenReturn(true);
 
         boolean result = command.isLeaderOrModer(sender, clan, "errors._19");
 
@@ -99,9 +100,9 @@ class BaseClanCommandTest {
 
     @Test
     void isLeaderOrModer_returnsTrueForModer() {
-        when(sender.getName()).thenReturn("moder");
-        when(clan.hasLeader("moder")).thenReturn(false);
-        when(clan.hasModer("moder")).thenReturn(true);
+        when(sender.getUniqueId()).thenReturn(MODER_UUID);
+        when(clan.hasLeader(MODER_UUID)).thenReturn(false);
+        when(clan.hasModer(MODER_UUID)).thenReturn(true);
 
         boolean result = command.isLeaderOrModer(sender, clan, "errors._19");
 
@@ -111,9 +112,9 @@ class BaseClanCommandTest {
 
     @Test
     void isLeaderOrModer_returnsFalseForMember() {
-        when(sender.getName()).thenReturn("member");
-        when(clan.hasLeader("member")).thenReturn(false);
-        when(clan.hasModer("member")).thenReturn(false);
+        when(sender.getUniqueId()).thenReturn(MEMBER_UUID);
+        when(clan.hasLeader(MEMBER_UUID)).thenReturn(false);
+        when(clan.hasModer(MEMBER_UUID)).thenReturn(false);
 
         boolean result = command.isLeaderOrModer(sender, clan, "errors._19");
 
@@ -123,7 +124,7 @@ class BaseClanCommandTest {
 
     @Test
     void isClanMember_returnsFalseAndSendsMessageForNonMember() {
-        when(clan.hasClanMember("outsider")).thenReturn(false);
+        when(memberList.getMember("outsider")).thenReturn(null);
 
         boolean result = command.isClanMember(sender, clan, "outsider");
 

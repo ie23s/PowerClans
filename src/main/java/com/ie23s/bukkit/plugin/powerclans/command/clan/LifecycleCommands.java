@@ -41,10 +41,6 @@ public final class LifecycleCommands {
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             new Request((Player) s, user, RequestType.CREATE, args).send();
             s.sendMessage(core.lang("clan.create_request", args[1]));
-            if (!hasSufficientFunds(s)) {
-                s.sendMessage(core.lang("create_request_cost", args[1]));
-                return;
-            }
             s.sendMessage(core.lang("command.request"));
         }
 
@@ -56,7 +52,7 @@ public final class LifecycleCommands {
          * @return {@code true} if the name passes all checks
          */
         private boolean validateClanName(CommandSender s, String raw) {
-            String name = ChatColor.stripColor(raw.replaceAll("&", "§"));
+            String name = ChatColor.stripColor(raw.replace("&", "§"));
             if (core.getClanList().getClan(name) != null) {
                 s.sendMessage(core.lang("errors._4")); return false;
             }
@@ -86,7 +82,9 @@ public final class LifecycleCommands {
                 if (!Core.getVault().has((OfflinePlayer) s, cost)) {
                     s.sendMessage(core.lang("errors._8")); return false;
                 }
-            } catch (Exception ignored) {}
+            } catch (Exception ignored) {
+                return true;
+            }
             return true;
         }
     }
@@ -129,7 +127,7 @@ public final class LifecycleCommands {
         @Override
         public boolean validate(CommandSender s, String[] args, Clan clan, String user) {
             if (!perm(s, args) || !inClan(s, clan)) return false;
-            if (clan.hasLeader(s.getName())) { s.sendMessage(core.lang("errors._27")); return false; }
+            if (clan.hasLeader(((Player) s).getUniqueId())) { s.sendMessage(core.lang("errors._27")); return false; }
             return true;
         }
 

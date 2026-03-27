@@ -35,7 +35,7 @@ public final class MiscCommands {
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
             clan.update(ClanDataKey.PVP, !clan.getBoolean(ClanDataKey.PVP));
             String key = clan.getBoolean(ClanDataKey.PVP) ? "clan.pvp_1" : "clan.pvp_2";
-            clan.broadcast(core.lang(key, s.getName()));
+            core.getClanList().broadcast(clan, core.lang(key, s.getName()));
         }
     }
 

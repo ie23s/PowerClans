@@ -7,6 +7,7 @@ import com.ie23s.bukkit.plugin.powerclans.command.clan.*;
 import org.bukkit.command.Command;
 import org.bukkit.command.CommandExecutor;
 import org.bukkit.command.CommandSender;
+import org.jetbrains.annotations.NotNull;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -92,21 +93,19 @@ public class ClanCommand implements CommandExecutor {
      * @param command the command object
      * @param label   the alias used
      * @param args    command arguments; {@code args[0]} is the subcommand name
-     * @return {@code true} always
+     * @return {@code false} if no arguments were supplied (Bukkit then shows the usage line);
+     *         {@code true} in all other cases
      */
     @Override
-    public boolean onCommand(CommandSender sender, Command command, String label, String[] args) {
+    public boolean onCommand(@NotNull CommandSender sender, @NotNull Command command, @NotNull String label, @NotNull String[] args) {
+        if (args.length == 0) return false;
+
         String userName = sender.getName();
         Clan userClan = core.getClanList().getClanByName(userName);
 
-        if (args.length == 0) {
-            reference.show(sender, args, userClan, userName);
-            return true;
-        }
-
         IClanCommand cmd = commands.get(args[0].toLowerCase());
         if (cmd == null) {
-            reference.show(sender, args, userClan, userName);
+            reference.show(sender, args, userClan);
             return true;
         }
 

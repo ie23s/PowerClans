@@ -142,8 +142,8 @@ class ChatListenerTest {
         when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(memberList.getListOfMembers(any())).thenReturn(new ArrayList<>());
         when(clan.getName()).thenReturn("Warriors");
-        when(clan.hasLeader("alice")).thenReturn(false);
-        when(clan.hasModer("alice")).thenReturn(false);
+        when(clan.hasLeader(ALICE_UUID)).thenReturn(false);
+        when(clan.hasModer(ALICE_UUID)).thenReturn(false);
 
         AsyncPlayerChatEvent event = chatEvent("format", "%hello clan");
         listener.handleClanChat(event);
@@ -158,7 +158,7 @@ class ChatListenerTest {
         when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(memberList.getListOfMembers(any())).thenReturn(new ArrayList<>());
         when(clan.getName()).thenReturn("Warriors");
-        when(clan.hasLeader("alice")).thenReturn(true);
+        when(clan.hasLeader(ALICE_UUID)).thenReturn(true);
 
         AsyncPlayerChatEvent event = chatEvent("format", "%hi");
         listener.handleClanChat(event);
@@ -173,8 +173,8 @@ class ChatListenerTest {
         when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(memberList.getListOfMembers(any())).thenReturn(new ArrayList<>());
         when(clan.getName()).thenReturn("Warriors");
-        when(clan.hasLeader("alice")).thenReturn(false);
-        when(clan.hasModer("alice")).thenReturn(true);
+        when(clan.hasLeader(ALICE_UUID)).thenReturn(false);
+        when(clan.hasModer(ALICE_UUID)).thenReturn(true);
 
         AsyncPlayerChatEvent event = chatEvent("format", "%hi");
         listener.handleClanChat(event);
@@ -189,8 +189,8 @@ class ChatListenerTest {
         when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(memberList.getListOfMembers(any())).thenReturn(new ArrayList<>());
         when(clan.getName()).thenReturn("Warriors");
-        when(clan.hasLeader("alice")).thenReturn(false);
-        when(clan.hasModer("alice")).thenReturn(false);
+        when(clan.hasLeader(ALICE_UUID)).thenReturn(false);
+        when(clan.hasModer(ALICE_UUID)).thenReturn(false);
 
         AsyncPlayerChatEvent event = chatEvent("format", "%hi");
         listener.handleClanChat(event);
@@ -205,8 +205,8 @@ class ChatListenerTest {
         when(clanList.getClanByPlayerUuid(ALICE_UUID)).thenReturn(clan);
         when(memberList.getListOfMembers(any())).thenReturn(new ArrayList<>());
         when(clan.getName()).thenReturn("Warriors");
-        when(clan.hasLeader("alice")).thenReturn(false);
-        when(clan.hasModer("alice")).thenReturn(false);
+        when(clan.hasLeader(ALICE_UUID)).thenReturn(false);
+        when(clan.hasModer(ALICE_UUID)).thenReturn(false);
 
         AsyncPlayerChatEvent event = chatEvent("format", "%hello §cred");
         listener.handleClanChat(event);

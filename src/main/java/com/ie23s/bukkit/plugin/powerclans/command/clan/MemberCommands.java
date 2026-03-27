@@ -2,6 +2,7 @@ package com.ie23s.bukkit.plugin.powerclans.command.clan;
 
 import com.ie23s.bukkit.plugin.powerclans.Core;
 import com.ie23s.bukkit.plugin.powerclans.clan.Clan;
+import com.ie23s.bukkit.plugin.powerclans.clan.Member;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.RequestType;
 import org.bukkit.Bukkit;
@@ -20,12 +21,15 @@ public final class MemberCommands {
     // -------------------------------------------------------------------------
 
     /**
-     * /clan invite &lt;player&gt; — sends a {@link com.ie23s.bukkit.plugin.powerclans.utils.RequestType#INVITE} request to an online player.
+     * /clan invite &lt;player&gt; — sends a {@link RequestType#INVITE} request to an online player.
      * Requires leader or moderator rank.
      */
     public static class Invite extends BaseClanCommand {
 
-        /** @param core the plugin core */
+        /**
+         * Creates an Invite command backed by the given plugin core.
+         * @param core the plugin core
+         */
         public Invite(Core core) { super(core); }
 
         @Override
@@ -75,7 +79,10 @@ public final class MemberCommands {
      */
     public static class Kick extends BaseClanCommand {
 
-        /** @param core the plugin core */
+        /**
+         * Creates a Kick command backed by the given plugin core.
+         * @param core the plugin core
+         */
         public Kick(Core core) { super(core); }
 
         @Override
@@ -83,7 +90,8 @@ public final class MemberCommands {
             if (!perm(s, args) || !hasTarget(s, args) || !inClan(s, clan)
                     || !isLeaderOrModer(s, clan, "errors._24")
                     || !isClanMember(s, clan, args[1])) return false;
-            if (args[1].equalsIgnoreCase(clan.getLeaderName())) {
+            Member target = core.getMemberList().getMember(args[1]);
+            if (target != null && clan.hasLeader(target.getPlayerUuid())) {
                 s.sendMessage(core.lang("errors._25")); return false;
             }
             return true;
@@ -91,11 +99,12 @@ public final class MemberCommands {
 
         @Override
         public void execute(CommandSender s, String[] args, Clan clan, String user) {
-            Player target = Bukkit.getPlayer(args[1]);
-            clan.kick(args[1]);
+            Member target = core.getMemberList().getMember(args[1]);
             assert target != null;
-            clan.broadcast(core.lang("clan.kick_1", target.getName()));
-            target.sendMessage(core.lang("clan.kick_2"));
+            Player targetPlayer = Bukkit.getPlayer(target.getPlayerUuid());
+            core.getClanList().removeMember(clan, target.getPlayerUuid());
+            core.getClanList().broadcast(clan, core.lang("clan.kick_1", target.getName()));
+            if (targetPlayer != null) targetPlayer.sendMessage(core.lang("clan.kick_2"));
         }
     }
 }

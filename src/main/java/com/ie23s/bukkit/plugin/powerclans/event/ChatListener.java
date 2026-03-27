@@ -107,7 +107,7 @@ public class ChatListener implements Listener {
 
         event.setFormat(core.lang("chat.clanchat",
                 core.lang("chat.clan"),
-                rankColor(event.getPlayer().getName(), clan) + event.getPlayer().getName(),
+                rankColor(playerUuid, clan) + event.getPlayer().getName(),
                 "%2$s"));
         event.setMessage(message.substring(1).replace("§", "&"));
     }
@@ -115,14 +115,14 @@ public class ChatListener implements Listener {
     /**
      * Returns the rank-based {@link ChatColor} for the given player within the given clan.
      *
-     * @param playerName player whose rank to resolve
+     * @param playerUuid UUID of the player whose rank to resolve
      * @param clan       the clan context
      * @return {@link ChatColor#DARK_RED} for leader, {@link ChatColor#GREEN} for moderator,
      *         {@link ChatColor#YELLOW} for a regular member
      */
-    private ChatColor rankColor(String playerName, Clan clan) {
-        if (clan.hasLeader(playerName)) return ChatColor.DARK_RED;
-        if (clan.hasModer(playerName))  return ChatColor.GREEN;
+    private ChatColor rankColor(UUID playerUuid, Clan clan) {
+        if (clan.hasLeader(playerUuid)) return ChatColor.DARK_RED;
+        if (clan.hasModer(playerUuid))  return ChatColor.GREEN;
         return ChatColor.YELLOW;
     }
 }

@@ -7,7 +7,6 @@ import com.ie23s.bukkit.plugin.powerclans.clan.MemberList;
 import com.ie23s.bukkit.plugin.powerclans.utils.Request;
 import com.ie23s.bukkit.plugin.powerclans.utils.RequestType;
 import org.bukkit.Bukkit;
-import org.bukkit.command.CommandSender;
 import org.bukkit.entity.Player;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
@@ -18,6 +17,7 @@ import org.mockito.junit.jupiter.MockitoExtension;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.UUID;
 
 import org.mockito.quality.Strictness;
 import static org.junit.jupiter.api.Assertions.assertFalse;
@@ -30,20 +30,14 @@ import static org.mockito.Mockito.*;
 @org.mockito.junit.jupiter.MockitoSettings(strictness = Strictness.LENIENT)
 class MemberCommandsTest {
 
-    @Mock
-    Core core;
+    static final UUID LEADER_UUID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    static final UUID TARGET_UUID = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
-    @Mock
-    Clan clan;
-
-    @Mock
-    CommandSender sender;
-
-    @Mock
-    MemberList memberList;
-
-    @Mock
-    Player targetPlayer;
+    @Mock Core core;
+    @Mock Clan clan;
+    @Mock Player sender;
+    @Mock MemberList memberList;
+    @Mock Player targetPlayer;
 
     @BeforeEach
     void setUp() {
@@ -52,7 +46,8 @@ class MemberCommandsTest {
         lenient().when(core.lang(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
         lenient().when(sender.hasPermission(anyString())).thenReturn(true);
         lenient().when(sender.getName()).thenReturn("leader");
-        lenient().when(clan.hasLeader("leader")).thenReturn(true);
+        lenient().when(sender.getUniqueId()).thenReturn(LEADER_UUID);
+        lenient().when(clan.hasLeader(LEADER_UUID)).thenReturn(true);
         lenient().when(core.getMemberList()).thenReturn(memberList);
     }
 
@@ -146,8 +141,8 @@ class MemberCommandsTest {
 
     @Test
     void kick_validate_failsWhenSenderIsNeitherLeaderNorModer() {
-        when(clan.hasLeader("leader")).thenReturn(false);
-        when(clan.hasModer("leader")).thenReturn(false);
+        when(clan.hasLeader(LEADER_UUID)).thenReturn(false);
+        when(clan.hasModer(LEADER_UUID)).thenReturn(false);
         MemberCommands.Kick cmd = new MemberCommands.Kick(core);
 
         boolean result = cmd.validate(sender, new String[]{"kick", "target"}, clan, "leader");
@@ -179,8 +174,11 @@ class MemberCommandsTest {
 
     @Test
     void kick_validate_failsWhenTargetNotClanMember() {
-        when(clan.hasModer("leader")).thenReturn(false);
-        when(clan.hasClanMember("target")).thenReturn(false);
+        when(clan.hasModer(LEADER_UUID)).thenReturn(false);
+        Member targetMember = mock(Member.class);
+        when(targetMember.getPlayerUuid()).thenReturn(TARGET_UUID);
+        when(memberList.getMember("target")).thenReturn(targetMember);
+        when(clan.hasClanMember(TARGET_UUID)).thenReturn(false);
         MemberCommands.Kick cmd = new MemberCommands.Kick(core);
 
         boolean result = cmd.validate(sender, new String[]{"kick", "target"}, clan, "leader");
@@ -191,9 +189,12 @@ class MemberCommandsTest {
 
     @Test
     void kick_validate_failsWhenTryingToKickLeader() {
-        when(clan.hasModer("leader")).thenReturn(false);
-        when(clan.hasClanMember("target")).thenReturn(true);
-        when(clan.getLeaderName()).thenReturn("target");
+        when(clan.hasModer(LEADER_UUID)).thenReturn(false);
+        Member targetMember = mock(Member.class);
+        when(targetMember.getPlayerUuid()).thenReturn(TARGET_UUID);
+        when(memberList.getMember("target")).thenReturn(targetMember);
+        when(clan.hasClanMember(TARGET_UUID)).thenReturn(true);
+        when(clan.hasLeader(TARGET_UUID)).thenReturn(true);
         MemberCommands.Kick cmd = new MemberCommands.Kick(core);
 
         boolean result = cmd.validate(sender, new String[]{"kick", "target"}, clan, "leader");
@@ -204,9 +205,12 @@ class MemberCommandsTest {
 
     @Test
     void kick_validate_passesForValidKick() {
-        when(clan.hasModer("leader")).thenReturn(false);
-        when(clan.hasClanMember("member")).thenReturn(true);
-        when(clan.getLeaderName()).thenReturn("leader");
+        when(clan.hasModer(LEADER_UUID)).thenReturn(false);
+        Member targetMember = mock(Member.class);
+        when(targetMember.getPlayerUuid()).thenReturn(TARGET_UUID);
+        when(memberList.getMember("member")).thenReturn(targetMember);
+        when(clan.hasClanMember(TARGET_UUID)).thenReturn(true);
+        when(clan.hasLeader(TARGET_UUID)).thenReturn(false);
         MemberCommands.Kick cmd = new MemberCommands.Kick(core);
 
         boolean result = cmd.validate(sender, new String[]{"kick", "member"}, clan, "leader");

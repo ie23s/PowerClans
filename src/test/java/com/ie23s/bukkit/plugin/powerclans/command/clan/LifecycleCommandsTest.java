@@ -11,6 +11,8 @@ import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 
+import java.util.UUID;
+
 import org.mockito.quality.Strictness;
 import static org.junit.jupiter.api.Assertions.assertFalse;
 import static org.junit.jupiter.api.Assertions.assertTrue;
@@ -22,27 +24,22 @@ import static org.mockito.Mockito.*;
 @org.mockito.junit.jupiter.MockitoSettings(strictness = Strictness.LENIENT)
 class LifecycleCommandsTest {
 
-    @Mock
-    Core core;
+    static final UUID LEADER_UUID = UUID.fromString("aaaaaaaa-aaaa-aaaa-aaaa-aaaaaaaaaaaa");
+    static final UUID MEMBER_UUID = UUID.fromString("bbbbbbbb-bbbb-bbbb-bbbb-bbbbbbbbbbbb");
 
-    @Mock
-    Clan clan;
-
-    @Mock
-    Player sender;
-
-    @Mock
-    ClanList clanList;
-
-    @Mock
-    FileConfiguration config;
+    @Mock Core core;
+    @Mock Clan clan;
+    @Mock Player sender;
+    @Mock ClanList clanList;
+    @Mock FileConfiguration config;
 
     @BeforeEach
     void setUp() {
         lenient().when(core.lang(anyString())).thenAnswer(inv -> inv.getArgument(0));
-        lenient().when(core.lang(anyString(), (Object[]) any())).thenAnswer(inv -> inv.getArgument(0));
+        lenient().when(core.lang(anyString(), any())).thenAnswer(inv -> inv.getArgument(0));
         lenient().when(sender.hasPermission(anyString())).thenReturn(true);
         lenient().when(sender.getName()).thenReturn("leader");
+        lenient().when(sender.getUniqueId()).thenReturn(LEADER_UUID);
         lenient().when(core.getClanList()).thenReturn(clanList);
         lenient().when(core.getConfig()).thenReturn(config);
     }
@@ -162,8 +159,8 @@ class LifecycleCommandsTest {
 
     @Test
     void disband_validate_failsWhenNotLeader() {
-        when(sender.getName()).thenReturn("member");
-        when(clan.hasLeader("member")).thenReturn(false);
+        when(sender.getUniqueId()).thenReturn(MEMBER_UUID);
+        when(clan.hasLeader(MEMBER_UUID)).thenReturn(false);
         LifecycleCommands.Disband cmd = new LifecycleCommands.Disband(core);
 
         boolean result = cmd.validate(sender, new String[]{"disband"}, clan, "member");
@@ -174,8 +171,7 @@ class LifecycleCommandsTest {
 
     @Test
     void disband_validate_passesForLeader() {
-        when(sender.getName()).thenReturn("leader");
-        when(clan.hasLeader("leader")).thenReturn(true);
+        when(clan.hasLeader(LEADER_UUID)).thenReturn(true);
         LifecycleCommands.Disband cmd = new LifecycleCommands.Disband(core);
 
         boolean result = cmd.validate(sender, new String[]{"disband"}, clan, "leader");
@@ -199,8 +195,7 @@ class LifecycleCommandsTest {
 
     @Test
     void leave_validate_failsWhenSenderIsLeader() {
-        when(sender.getName()).thenReturn("leader");
-        when(clan.hasLeader("leader")).thenReturn(true);
+        when(clan.hasLeader(LEADER_UUID)).thenReturn(true);
         LifecycleCommands.Leave cmd = new LifecycleCommands.Leave(core);
 
         boolean result = cmd.validate(sender, new String[]{"leave"}, clan, "leader");
@@ -211,8 +206,8 @@ class LifecycleCommandsTest {
 
     @Test
     void leave_validate_passesForNonLeaderMember() {
-        when(sender.getName()).thenReturn("member");
-        when(clan.hasLeader("member")).thenReturn(false);
+        when(sender.getUniqueId()).thenReturn(MEMBER_UUID);
+        when(clan.hasLeader(MEMBER_UUID)).thenReturn(false);
         LifecycleCommands.Leave cmd = new LifecycleCommands.Leave(core);
 
         boolean result = cmd.validate(sender, new String[]{"leave"}, clan, "member");
