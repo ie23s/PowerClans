@@ -15,12 +15,19 @@ package com.ie23s.bukkit.plugin.powerclans.api;
  * {@link Integer} → {@link Integer#parseInt}, {@link String} → returned as-is.
  */
 public enum ClanDataKey {
+    /** Clan display tag shown in chat (colour-coded, e.g. {@code &cWAR}). */
     TAG("tag",                ""),
+    /** Serialised home location string, or {@code null} if not set. */
     HOME("home",              null),
+    /** Whether friendly-fire protection is enabled ({@code true} = protected). */
     PVP("pvp",                true),
+    /** Clan bank balance. */
     BALANCE("balance",        0.0),
+    /** Total mob kills accumulated by clan members. */
     MOB_KILLS("mob_kills",    0),
+    /** Total player kills accumulated by clan members. */
     PLAYER_KILLS("player_kills", 0),
+    /** Total online time in seconds accumulated by clan members. */
     ONLINE_TIME("online_time",   0);
 
     private final String ident;
@@ -33,6 +40,7 @@ public enum ClanDataKey {
 
     /**
      * The string identifier stored in the {@code ident} column of {@code clan_data}.
+     * @return the ident string
      */
     public String ident() {
         return ident;
@@ -40,6 +48,7 @@ public enum ClanDataKey {
 
     /**
      * The default Java value used when this key has not been persisted yet.
+     * @return the default value (may be {@code null} for {@link #HOME})
      */
     public Object defaultValue() {
         return defaultValue;

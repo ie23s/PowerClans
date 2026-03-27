@@ -15,6 +15,7 @@ public abstract class BaseClanCommand implements IClanCommand {
     protected final Core core;
 
     /**
+     * Creates a command handler backed by the given plugin core.
      * @param core the plugin core instance
      */
     protected BaseClanCommand(Core core) {
@@ -28,6 +29,10 @@ public abstract class BaseClanCommand implements IClanCommand {
     /**
      * Checks that the sender holds the {@code PowerClans.<subcommand>} permission.
      * Sends {@code errors._1} on failure.
+     *
+     * @param sender the command sender
+     * @param args   command arguments; {@code args[0]} is the sub-command name
+     * @return {@code true} if the sender has the required permission
      */
     protected boolean perm(CommandSender sender, String[] args) {
         if (sender.hasPermission("PowerClans." + args[0])) return true;
@@ -38,6 +43,10 @@ public abstract class BaseClanCommand implements IClanCommand {
     /**
      * Checks that the sender is currently a member of a clan.
      * Sends {@code errors._9} on failure.
+     *
+     * @param sender the command sender
+     * @param clan   the sender's current clan, or {@code null} if not in one
+     * @return {@code true} if {@code clan} is non-null
      */
     protected boolean inClan(CommandSender sender, Clan clan) {
         if (clan != null) return true;
@@ -48,6 +57,10 @@ public abstract class BaseClanCommand implements IClanCommand {
     /**
      * Checks that a target argument ({@code args[1]}) is present.
      * Sends {@code errors._12} on failure.
+     *
+     * @param sender the command sender
+     * @param args   command arguments
+     * @return {@code true} if {@code args} contains at least two elements
      */
     protected boolean hasTarget(CommandSender sender, String[] args) {
         if (args.length >= 2) return true;
@@ -59,7 +72,10 @@ public abstract class BaseClanCommand implements IClanCommand {
      * Checks that the sender is the clan leader.
      * Sends the given error key on failure.
      *
+     * @param sender   the command sender
+     * @param clan     the sender's clan
      * @param errorKey the language key to send on failure
+     * @return {@code true} if the sender is the clan leader
      */
     protected boolean isLeader(CommandSender sender, Clan clan, String errorKey) {
         if (clan.hasLeader(sender.getName())) return true;
@@ -71,7 +87,10 @@ public abstract class BaseClanCommand implements IClanCommand {
      * Checks that the sender is either the clan leader or a moderator.
      * Sends the given error key on failure.
      *
+     * @param sender   the command sender
+     * @param clan     the sender's clan
      * @param errorKey the language key to send on failure
+     * @return {@code true} if the sender is the leader or a moderator
      */
     protected boolean isLeaderOrModer(CommandSender sender, Clan clan, String errorKey) {
         if (clan.hasLeader(sender.getName()) || clan.hasModer(sender.getName())) return true;
@@ -82,6 +101,11 @@ public abstract class BaseClanCommand implements IClanCommand {
     /**
      * Checks that the target player is a member of the clan.
      * Sends {@code errors._14} on failure.
+     *
+     * @param sender the command sender
+     * @param clan   the sender's clan
+     * @param target player name to check membership for
+     * @return {@code true} if {@code target} is a member of {@code clan}
      */
     protected boolean isClanMember(CommandSender sender, Clan clan, String target) {
         if (clan.hasClanMember(target)) return true;
@@ -92,6 +116,9 @@ public abstract class BaseClanCommand implements IClanCommand {
     /**
      * Checks that Vault (economy) is available.
      * Sends {@code errors._44} on failure.
+     *
+     * @param sender the command sender
+     * @return {@code true} if a Vault economy provider is registered
      */
     protected boolean vaultOk(CommandSender sender) {
         try {
@@ -107,7 +134,10 @@ public abstract class BaseClanCommand implements IClanCommand {
      * Parses a non-negative integer from the given string.
      * Sends the given error key and returns {@code -1} on failure.
      *
+     * @param sender   the command sender
+     * @param raw      the string to parse
      * @param errorKey the language key to send on failure
+     * @return the parsed non-negative integer, or {@code -1} on failure
      */
     protected int parsePositiveInt(CommandSender sender, String raw, String errorKey) {
         try {

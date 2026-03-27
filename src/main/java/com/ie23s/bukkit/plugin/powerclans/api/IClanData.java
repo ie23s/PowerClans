@@ -26,6 +26,9 @@ public interface IClanData {
     /**
      * Returns the value for {@code key} as an {@code int}.
      * Falls back to the key's default if the stored value is not a {@link Number}.
+     *
+     * @param key the data key to look up
+     * @return the stored value as an int, or the key's default
      */
     default int getInt(ClanDataKey key) {
         Object val = getRaw(key);
@@ -35,6 +38,9 @@ public interface IClanData {
     /**
      * Returns the value for {@code key} as a {@link String}.
      * Falls back to the key's default if the stored value is not a {@code String}.
+     *
+     * @param key the data key to look up
+     * @return the stored value as a String, or the key's default
      */
     default String getString(ClanDataKey key) {
         Object val = getRaw(key);
@@ -44,6 +50,9 @@ public interface IClanData {
     /**
      * Returns the value for {@code key} as a {@code double}.
      * Falls back to the key's default if the stored value is not a {@link Number}.
+     *
+     * @param key the data key to look up
+     * @return the stored value as a double, or the key's default
      */
     default double getDouble(ClanDataKey key) {
         Object val = getRaw(key);
@@ -53,6 +62,9 @@ public interface IClanData {
     /**
      * Returns the value for {@code key} as a {@code boolean}.
      * Falls back to the key's default if the stored value is not a {@link Boolean}.
+     *
+     * @param key the data key to look up
+     * @return the stored value as a boolean, or the key's default
      */
     default boolean getBoolean(ClanDataKey key) {
         Object val = getRaw(key);

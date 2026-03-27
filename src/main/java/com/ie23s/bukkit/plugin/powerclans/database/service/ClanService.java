@@ -19,6 +19,12 @@ public class ClanService {
     private final Core core;
     private final ClanRepository repository;
 
+    /**
+     * Creates a ClanService backed by the given repository.
+     *
+     * @param core       the plugin core used for scheduling and error reporting
+     * @param repository the underlying data-access object for {@code clan_list}
+     */
     public ClanService(Core core, ClanRepository repository) {
         this.core = core;
         this.repository = repository;
@@ -43,27 +49,42 @@ public class ClanService {
 
     // ── Write (async) ─────────────────────────────────────────────────────────
 
-    /** Inserts a new clan row asynchronously. */
+    /**
+     * Inserts a new clan row asynchronously.
+     * @param clan the clan to persist
+     */
     public void create(Clan clan) {
         async(() -> repository.insert(ClanDto.from(clan)));
     }
 
-    /** Updates the leader of the clan asynchronously. */
+    /**
+     * Updates the leader of the clan asynchronously.
+     * @param clan the clan whose leader changed
+     */
     public void updateLeader(Clan clan) {
         async(() -> repository.updateLeader(clan.getUuid(), clan.getLeaderUuid().toString()));
     }
 
-    /** Updates the max-players limit of the clan asynchronously. */
+    /**
+     * Updates the max-players limit of the clan asynchronously.
+     * @param clan the clan whose max-players changed
+     */
     public void updateMaxPlayers(Clan clan) {
         async(() -> repository.updateMaxPlayers(clan.getUuid(), clan.getMaxPlayers()));
     }
 
-    /** Updates the level of the clan asynchronously. */
+    /**
+     * Updates the level of the clan asynchronously.
+     * @param clan the clan whose level changed
+     */
     public void updateLevel(Clan clan) {
         async(() -> repository.updateLevel(clan.getUuid(), clan.getLevel()));
     }
 
-    /** Deletes the clan row asynchronously. */
+    /**
+     * Deletes the clan row asynchronously.
+     * @param clan the clan to remove
+     */
     public void delete(Clan clan) {
         async(() -> repository.delete(clan.getUuid()));
     }

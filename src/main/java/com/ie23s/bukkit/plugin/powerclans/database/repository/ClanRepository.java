@@ -15,6 +15,7 @@ public interface ClanRepository {
      * Returns all clans stored in the database.
      *
      * @return list of clan DTOs; empty if none exist
+     * @throws SQLException if a database error occurs
      */
     List<ClanDto> findAll() throws SQLException;
 
@@ -22,6 +23,7 @@ public interface ClanRepository {
      * Inserts a new clan row.
      *
      * @param clan DTO with uuid, name, leader, maxPlayers, level
+     * @throws SQLException if a database error occurs
      */
     void insert(ClanDto clan) throws SQLException;
 
@@ -30,6 +32,7 @@ public interface ClanRepository {
      *
      * @param clanUuid   UUID of the clan
      * @param leaderUuid new leader's Mojang UUID string
+     * @throws SQLException if a database error occurs
      */
     void updateLeader(String clanUuid, String leaderUuid) throws SQLException;
 
@@ -38,6 +41,7 @@ public interface ClanRepository {
      *
      * @param clanUuid   UUID of the clan
      * @param maxPlayers new maximum
+     * @throws SQLException if a database error occurs
      */
     void updateMaxPlayers(String clanUuid, int maxPlayers) throws SQLException;
 
@@ -46,6 +50,7 @@ public interface ClanRepository {
      *
      * @param clanUuid UUID of the clan
      * @param level    new level
+     * @throws SQLException if a database error occurs
      */
     void updateLevel(String clanUuid, int level) throws SQLException;
 
@@ -54,6 +59,7 @@ public interface ClanRepository {
      * {@link MemberRepository#deleteByClan(String)} separately.
      *
      * @param clanUuid UUID of the clan to delete
+     * @throws SQLException if a database error occurs
      */
     void delete(String clanUuid) throws SQLException;
 }

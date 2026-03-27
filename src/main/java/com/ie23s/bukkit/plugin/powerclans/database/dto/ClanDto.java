@@ -20,6 +20,11 @@ public record ClanDto(
         int maxPlayers,
         int level
 ) {
+    /**
+     * Creates a DTO from an {@link IClan} instance.
+     * @param clan the clan to convert
+     * @return a DTO mirroring the clan's identity fields
+     */
     public static ClanDto from(IClan clan) {
         return new ClanDto(clan.getId(), clan.getUuid(), clan.getName(),
                 clan.getLeaderUuid().toString(), clan.getMaxPlayers(), clan.getLevel());

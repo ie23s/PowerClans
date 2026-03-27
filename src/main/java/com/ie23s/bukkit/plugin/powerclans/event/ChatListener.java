@@ -36,6 +36,7 @@ public class ChatListener implements Listener {
     private final Core core;
 
     /**
+     * Creates a ChatListener backed by the given plugin core.
      * @param core plugin core instance
      */
     public ChatListener(Core core) {

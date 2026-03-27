@@ -22,6 +22,7 @@ public class ClanDataService {
     private final ClanDataRepository repository;
 
     /**
+     * Creates a ClanDataService backed by the given repository.
      * @param core       the plugin core used for scheduling and error reporting
      * @param repository the underlying data-access object for {@code clan_data}
      */
@@ -58,6 +59,8 @@ public class ClanDataService {
     /**
      * Inserts one {@code clan_data} row per {@link ClanDataKey} for the given clan asynchronously.
      * Intended for newly created clans.
+     *
+     * @param clan the newly created clan
      */
     public void create(Clan clan) {
         String clanUuid = clan.getUuid();

@@ -19,6 +19,7 @@ public interface ClanDataRepository {
      * Returns all rows from {@code clan_data} across all clans.
      *
      * @return list of EAV DTOs; empty if none exist
+     * @throws SQLException if a database error occurs
      */
     List<ClanDataDto> findAll() throws SQLException;
 
@@ -28,6 +29,7 @@ public interface ClanDataRepository {
      *
      * @param clanUuid UUID of the clan
      * @param data     map of keys to their current in-memory values
+     * @throws SQLException if a database error occurs
      */
     void insertAll(String clanUuid, Map<ClanDataKey, Object> data) throws SQLException;
 
@@ -37,6 +39,7 @@ public interface ClanDataRepository {
      * @param clanUuid UUID of the clan
      * @param ident    key identifier (see {@link ClanDataKey#ident()})
      * @param value    string-serialised new value
+     * @throws SQLException if a database error occurs
      */
     void upsert(String clanUuid, String ident, String value) throws SQLException;
 
@@ -46,6 +49,7 @@ public interface ClanDataRepository {
      *
      * @param clanUuid UUID of the clan
      * @param ident    key identifier (see {@link ClanDataKey#ident()})
+     * @throws SQLException if a database error occurs
      */
     void delete(String clanUuid, String ident) throws SQLException;
 }

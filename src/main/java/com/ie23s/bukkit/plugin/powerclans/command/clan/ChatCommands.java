@@ -21,7 +21,10 @@ public final class ChatCommands {
      */
     public static class Msg extends BaseClanCommand {
 
-        /** @param core the plugin core */
+        /**
+         * Creates a Msg command backed by the given plugin core.
+         * @param core the plugin core
+         */
         public Msg(Core core) { super(core); }
 
         @Override

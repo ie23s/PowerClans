@@ -13,7 +13,10 @@ import java.util.ArrayList;
 public class Abilities {
     private final Level level;
 
-    /** @param level the level module this helper belongs to */
+    /**
+     * Creates an Abilities helper for the given level module.
+     * @param level the level module this helper belongs to
+     */
     public Abilities(Level level) {
         this.level = level;
     }

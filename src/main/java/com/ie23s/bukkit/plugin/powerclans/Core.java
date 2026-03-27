@@ -37,7 +37,14 @@ import java.util.Iterator;
 import java.util.Objects;
 
 
+/**
+ * Plugin entry point. Wires together all services, registries, and listeners on enable.
+ */
 public class Core extends JavaPlugin {
+
+    /** No-arg constructor required by Bukkit's plugin loader. */
+    public Core() {}
+
     private FileConfiguration config;
     private Language lang;
     private DatabaseManager dbManager;
@@ -139,6 +146,7 @@ public class Core extends JavaPlugin {
         return config;
     }
 
+    /** @return the language/messages helper */
     public Language getLang() {
         return lang;
     }
@@ -151,30 +159,37 @@ public class Core extends JavaPlugin {
         return lang.getMessage(key, args);
     }
 
+    /** @return the clan persistence service */
     public ClanService getClanService() {
         return clanService;
     }
 
+    /** @return the clan-data (EAV) persistence service */
     public ClanDataService getClanDataService() {
         return clanDataService;
     }
 
+    /** @return the member persistence service */
     public MemberService getMemberService() {
         return memberService;
     }
 
+    /** @return the in-memory clan registry */
     public ClanList getClanList() {
         return clanList;
     }
 
+    /** @return the utility helper */
     public Utils getUtils() {
         return utils;
     }
 
+    /** @return the in-memory member registry */
     public MemberList getMemberList() {
         return this.memberList;
     }
 
+    /** @return the level module */
     public Level getLevelModule() {
         return levelModule;
     }

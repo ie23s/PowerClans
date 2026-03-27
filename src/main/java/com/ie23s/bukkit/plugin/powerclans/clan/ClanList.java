@@ -21,6 +21,10 @@ public class ClanList {
     private final HashMap<String, Clan> clans = new HashMap<>();
     private final Core core;
 
+    /**
+     * Creates an empty ClanList backed by the given plugin core.
+     * @param core plugin core used to reach other registries
+     */
     public ClanList(Core core) {
         this.core = core;
     }
@@ -29,6 +33,7 @@ public class ClanList {
      * Returns the clan with the given name, or {@code null} if not found (case-insensitive).
      *
      * @param clan clan display name
+     * @return the matching {@link Clan}, or {@code null}
      */
     public Clan getClan(String clan) {
         return clans.get(clan.toLowerCase());
@@ -38,6 +43,7 @@ public class ClanList {
      * Returns the clan with the given UUID, or {@code null} if not found.
      *
      * @param uuid clan UUID
+     * @return the matching {@link Clan}, or {@code null}
      */
     public Clan getClanByUuid(String uuid) {
         for (Clan clan : clans.values()) {
@@ -51,6 +57,7 @@ public class ClanList {
      * Prefer this overload in event handlers where a {@link org.bukkit.entity.Player} is available.
      *
      * @param playerUuid Mojang UUID of the player
+     * @return the player's clan, or {@code null}
      */
     public Clan getClanByPlayerUuid(UUID playerUuid) {
         Member member = core.getMemberList().getMemberByUuid(playerUuid);
@@ -62,6 +69,7 @@ public class ClanList {
      * Use in command handlers where only a player name is available.
      *
      * @param playerName player name (any case)
+     * @return the player's clan, or {@code null}
      */
     public Clan getClanByName(String playerName) {
         Member member = core.getMemberList().getMember(playerName);
@@ -91,7 +99,10 @@ public class ClanList {
         return c;
     }
 
-    /** Returns the total number of registered clans. */
+    /**
+     * Returns the total number of registered clans.
+     * @return the clan count
+     */
     public int number() {
         return clans.size();
     }
@@ -99,6 +110,7 @@ public class ClanList {
     /**
      * Returns the raw clan map (lower-case name → {@link Clan}).
      * Intended for bulk operations such as loading from DB or iteration.
+     * @return the mutable clan map
      */
     public Map<String, Clan> getClans() {
         return clans;

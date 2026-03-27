@@ -30,6 +30,7 @@ public class CombatListener implements Listener {
     private final Core core;
 
     /**
+     * Creates a CombatListener backed by the given plugin core.
      * @param core plugin core instance
      */
     public CombatListener(Core core) {

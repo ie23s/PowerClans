@@ -72,7 +72,10 @@ public class Clan implements IClan, IClanData {
     @Override public int    getMaxPlayers() { return maxPlayers; }
     @Override public int    getLevel()      { return level; }
 
-    /** Returns the current leader's player name, resolved from {@link MemberList}. */
+    /**
+     * Returns the current leader's player name, resolved from {@link MemberList}.
+     * @return the leader's player name
+     */
     public String getLeaderName() {
         return core.getMemberList().getMemberByUuid(leaderUuid).getName();
     }
@@ -177,6 +180,7 @@ public class Clan implements IClan, IClanData {
      * Returns {@code true} if the given player is a moderator of this clan.
      *
      * @param name player name to check
+     * @return {@code true} if the player is a moderator of this clan
      */
     public boolean hasModer(String name) {
         Member member = core.getMemberList().getMember(name);
@@ -201,6 +205,7 @@ public class Clan implements IClan, IClanData {
      * Returns {@code true} if {@code player} is the leader of this clan (case-insensitive).
      *
      * @param player player name to check
+     * @return {@code true} if the player is the clan leader
      */
     public boolean hasLeader(String player) {
         return getLeaderName().equalsIgnoreCase(player);
@@ -210,6 +215,7 @@ public class Clan implements IClan, IClanData {
      * Returns {@code true} if the given UUID matches the current leader.
      *
      * @param uuid UUID to check
+     * @return {@code true} if the UUID belongs to the clan leader
      */
     public boolean hasLeader(UUID uuid) {
         return leaderUuid.equals(uuid);
@@ -220,6 +226,7 @@ public class Clan implements IClan, IClanData {
      * Use in command handlers where only a player name is available.
      *
      * @param name player name to check
+     * @return {@code true} if the player is a member of this clan
      */
     public boolean hasClanMember(String name) {
         Member member = core.getMemberList().getMember(name);
@@ -231,6 +238,7 @@ public class Clan implements IClan, IClanData {
      * Prefer this overload in event handlers where a {@link Player} object is available.
      *
      * @param player the online player to check
+     * @return {@code true} if the player is a member of this clan
      */
     public boolean hasClanMember(Player player) {
         Member member = core.getMemberList().getMemberByUuid(player.getUniqueId());
